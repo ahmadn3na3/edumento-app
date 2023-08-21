@@ -1,0 +1,182 @@
+[
+  {
+    "name": "Science",
+    "nameAr": "علوم",
+    "image": "/img/default/image/Science.png",
+    "thumbnail": "/img/default/thumbnail/Science_thum.png"
+  },
+  {
+    "name": "Mathematics",
+    "nameAr": "رياضيات",
+    "image": "/img/default/image/Math.png",
+    "thumbnail": "/img/default/thumbnail/Math_thum.png"
+  },
+  {
+    "name": "Languages",
+    "nameAr": "لغات",
+    "image": "/img/default/image/language.png",
+    "thumbnail": "/img/default/thumbnail/language_thum.png"
+  },
+  {
+    "name": "Religious Studies",
+    "nameAr": "دراسات دينية",
+    "image": "/img/default/image/Relgion.png",
+    "thumbnail": "/img/default/thumbnail/Relgion_thum.png"
+  },
+  {
+    "name": "Humanities",
+    "nameAr": "إنسانيات",
+    "image": "/img/default/image/Science.png",
+    "thumbnail": "/img/default/thumbnail/Science_thum.png"
+  },
+  {
+    "name": "Calculus",
+    "nameAr": "تفاضل",
+    "image": "/img/default/image/Maths.png",
+    "thumbnail": "/img/default/thumbnail/Maths_thum.png"
+  },
+  {
+    "name": "Probabilities",
+    "nameAr": "الإحتمالات",
+    "image": "/img/default/image/General.png",
+    "thumbnail": "/img/default/thumbnail/General_thum.png"
+  },
+  {
+    "name": "Physics",
+    "nameAr": "الفيزياء",
+    "image": "/img/default/image/Physics.png",
+    "thumbnail": "/img/default/thumbnail/Physics_thum.png"
+  },
+  {
+    "name": "Biology",
+    "nameAr": "الأحياء",
+    "image": "/img/default/image/Biology.png",
+    "thumbnail": "/img/default/thumbnail/Biology_thum.png"
+  },
+  {
+    "name": "Astronomy",
+    "nameAr": "علم الفلك",
+    "image": "/img/default/image/astronomy.png",
+    "thumbnail": "/img/default/thumbnail/astronomy_thum.png"
+  },
+  {
+    "name": "Chemistry",
+    "nameAr": "الكيمياء",
+    "image": "/img/default/image/Chemistry.png",
+    "thumbnail": "/img/default/thumbnail/Chemistry_thum.png"
+  },
+  {
+    "name": "Geology",
+    "nameAr": "جيولوجيا",
+    "image": "/img/default/image/General.png",
+    "thumbnail": "/img/default/thumbnail/General_thum.png"
+  },
+  {
+    "name": "Computer Science",
+    "nameAr": "علوم الكومبيوتر",
+    "image": "/img/default/image/Computer_Science.png",
+    "thumbnail": "/img/default/thumbnail/Computer_Science_thum.png"
+  },
+  {
+    "name": "Anthropology",
+    "nameAr": "علوم الإنسان",
+    "image": "/img/default/image/Anthropology.png",
+    "thumbnail": "/img/default/thumbnail/Anthropology_thum.png"
+  },
+  {
+    "name": "Sociology",
+    "nameAr": "علم الاجتماع",
+    "image": "/img/default/image/General.png",
+    "thumbnail": "/img/default/thumbnail/General_thum.png"
+  },
+  {
+    "name": "Social Studies",
+    "nameAr": "دراسات اجتماعية",
+    "image": "/img/default/image/Social_Studies.png",
+    "thumbnail": "/img/default/thumbnail/Social_Studies_thum.png"
+  },
+  {
+    "name": "Algebra",
+    "nameAr": "الجبر",
+    "image": "/img/default/image/Math.png",
+    "thumbnail": "/img/default/thumbnail/Math_thum.png"
+  },
+  {
+    "name": "Geometry",
+    "nameAr": "الهندسة",
+    "image": "/img/default/image/Geometry.png",
+    "thumbnail": "/img/default/thumbnail/Geometry_thum.png"
+  },
+  {
+    "name": "Music",
+    "nameAr": "موسيقى",
+    "image": "/img/default/image/Music.png",
+    "thumbnail": "/img/default/thumbnail/Music_thum.png"
+  },
+  {
+    "name": "Art",
+    "nameAr": "فن",
+    "image": "/img/default/image/Art.png",
+    "thumbnail": "/img/default/thumbnail/Art_thum.png"
+  },
+  {
+    "name": "Architecture",
+    "nameAr": "هندسة معمارية",
+    "image": "/img/default/image/General.png",
+    "thumbnail": "/img/default/thumbnail/General_thum.png"
+  },
+  {
+    "name": "Engineering",
+    "nameAr": "هندسة",
+    "image": "/img/default/image/Mechanical_Engineering.png",
+    "thumbnail": "/img/default/thumbnail/Mechanical_Engineering_thum.png"
+  },
+  {
+    "name": "Psychology",
+    "nameAr": "علم النفس",
+    "image": "/img/default/image/Psychology.png",
+    "thumbnail": "/img/default/thumbnail/Psychology_thum.png"
+  },
+  {
+    "name": "Arabic Languages",
+    "nameAr": "لغة عربية",
+    "image": "/img/default/image/language.png",
+    "thumbnail": "/img/default/thumbnail/language_thum.png"
+  },
+  {
+    "name": "English Language",
+    "nameAr": "لغة انجليزية",
+    "image": "/img/default/image/language.png",
+    "thumbnail": "/img/default/thumbnail/language_thum.png"
+  },
+  {
+    "name": "English Language",
+    "nameAr": "لغة انجليزية",
+    "image": "/img/default/image/language.png",
+    "thumbnail": "/img/default/thumbnail/language_thum.png"
+  },
+  {
+    "name": "History",
+    "nameAr": "تاريخ",
+    "image": "/img/default/image/History.png",
+    "thumbnail": "/img/default/thumbnail/History_thum.png"
+  },
+  {
+    "name": "Geography",
+    "nameAr": "جغرافيا",
+    "image": "/img/default/image/Geography.png",
+    "thumbnail": "/img/default/thumbnail/Geography_thum.png"
+  },
+  {
+    "name": "Philosophy",
+    "nameAr": "الفلسفة",
+    "image": "/img/default/image/General.png",
+    "thumbnail": "/img/default/thumbnail/General_thum.png"
+  },
+  {
+    "name": "General",
+    "nameAr": "عام",
+    "image": "/img/default/image/General.png",
+    "thumbnail": "/img/default/thumbnail/General_thum.png"
+  }
+]

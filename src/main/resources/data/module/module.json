@@ -1,0 +1,869 @@
+[
+  {
+    "name": "Space",
+    "description": "space module ",
+    "key": "mint.space",
+    "permissions": [
+      {
+        "name": "SPACE_READ",
+        "keyCode": "mint.space",
+        "code": 1,
+        "type": "USER"
+      },
+      {
+        "name": "SPACE_CREATE",
+        "keyCode": "mint.space",
+        "code": 2,
+        "type": "USER"
+      },
+      {
+        "name": "SPACE_UPDATE",
+        "keyCode": "mint.space",
+        "code": 4,
+        "type": "USER"
+      },
+      {
+        "name": "SPACE_DELETE",
+        "keyCode": "mint.space",
+        "code": 8,
+        "type": "USER"
+      },
+      {
+        "name": "CONTENT_READ",
+        "keyCode": "mint.space.content",
+        "code": 1,
+        "type": "USER"
+      },
+      {
+        "name": "CONTENT_CREATE",
+        "keyCode": "mint.space.content",
+        "code": 2,
+        "type": "USER"
+      },
+      {
+        "name": "CONTENT_UPDATE",
+        "keyCode": "mint.space.content",
+        "code": 4,
+        "type": "USER"
+      },
+      {
+        "name": "CONTENT_DELETE",
+        "keyCode": "mint.space.content",
+        "code": 8,
+        "type": "USER"
+      },
+      {
+        "name": "COMMUNITY_READ",
+        "keyCode": "mint.space.community",
+        "code": 1,
+        "type": "USER"
+      },
+      {
+        "name": "COMMUNITY_UPDATE",
+        "keyCode": "mint.space.community",
+        "code": 4,
+        "type": "USER"
+      },
+      {
+        "name": "SPACE_JOINREQUEST_READ",
+        "keyCode": "mint.space.community.joinrequest",
+        "code": 1,
+        "type": "USER"
+      },
+      {
+        "name": "SPACE_JOINREQUEST_CREATE",
+        "keyCode": "mint.space.community.joinrequest",
+        "code": 2,
+        "type": "USER"
+      },
+      {
+        "name": "SPACE_JOINREQUEST_UPDATE",
+        "keyCode": "mint.space.community.joinrequest",
+        "code": 4,
+        "type": "USER"
+      },
+      {
+        "name": "SPACE_JOINREQUEST_DELETE",
+        "keyCode": "mint.space.community.joinrequest",
+        "code": 8,
+        "type": "USER"
+      },
+      {
+        "name": "ANNOTATION_READ",
+        "keyCode": "mint.space.content.annotation",
+        "code": 1,
+        "type": "USER"
+      },
+      {
+        "name": "ANNOTATION_CREATE",
+        "keyCode": "mint.space.content.annotation",
+        "code": 2,
+        "type": "USER"
+      },
+      {
+        "name": "ANNOTATION_UPDATE",
+        "keyCode": "mint.space.content.annotation",
+        "code": 4,
+        "type": "USER"
+      },
+      {
+        "name": "ANNOTATION_DELETE",
+        "keyCode": "mint.space.content.annotation",
+        "code": 8,
+        "type": "USER"
+      },
+      {
+        "name": "ANNOTATION_COMMENT_READ",
+        "keyCode": "mint.space.content.annotation.comment",
+        "code": 1,
+        "type": "USER"
+      },
+      {
+        "name": "ANNOTATION_COMMENT_CREATE",
+        "keyCode": "mint.space.content.annotation.comment",
+        "code": 2,
+        "type": "USER"
+      },
+      {
+        "name": "ANNOTATION_COMMENT_UPDATE",
+        "keyCode": "mint.space.content.annotation.comment",
+        "code": 4,
+        "type": "USER"
+      },
+      {
+        "name": "ANNOTATION_COMMENT_DELETE",
+        "keyCode": "mint.space.content.annotation.comment",
+        "code": 8,
+        "type": "USER"
+      }
+    ]
+  },
+  {
+    "name": "control panel",
+    "description": "Control Panel",
+    "key": "mint.cp",
+    "permissions": [
+      {
+        "name": "USER_READ",
+        "keyCode": "mint.cp.user",
+        "code": 1,
+        "type": "ADMIN"
+      },
+      {
+        "name": "USER_CREATE",
+        "keyCode": "mint.cp.user",
+        "code": 2,
+        "type": "ADMIN"
+      },
+      {
+        "name": "USER_UPDATE",
+        "keyCode": "mint.cp.user",
+        "code": 4,
+        "type": "ADMIN"
+      },
+      {
+        "name": "USER_DELETE",
+        "keyCode": "mint.cp.user",
+        "code": 8,
+        "type": "ADMIN"
+      },
+      {
+        "name": "SYSTEMADMIN_READ",
+        "keyCode": "mint.cp.user.systemadmin",
+        "code": 1,
+        "type": "SUPER_ADMIN"
+      },
+      {
+        "name": "SYSTEMADMIN_CREATE",
+        "keyCode": "mint.cp.user.systemadmin",
+        "code": 2,
+        "type": "SUPER_ADMIN"
+      },
+      {
+        "name": "SYSTEMADMIN_UPDATE",
+        "keyCode": "mint.cp.user.systemadmin",
+        "code": 4,
+        "type": "SUPER_ADMIN"
+      },
+      {
+        "name": "SYSTEMADMIN_DELETE",
+        "keyCode": "mint.cp.user.systemadmin",
+        "code": 8,
+        "type": "SUPER_ADMIN"
+      },
+      {
+        "name": "FOUNDATIONADMIN_READ",
+        "keyCode": "mint.cp.user.foundationadmin",
+        "code": 1,
+        "type": "SYSTEM_ADMIN"
+      },
+      {
+        "name": "FOUNDATIONADMIN_CREATE",
+        "keyCode": "mint.cp.user.foundationadmin",
+        "code": 2,
+        "type": "SYSTEM_ADMIN"
+      },
+      {
+        "name": "FOUNDATIONADMIN_UPDATE",
+        "keyCode": "mint.cp.user.foundationadmin",
+        "code": 4,
+        "type": "SYSTEM_ADMIN"
+      },
+      {
+        "name": "FOUNDATIONADMIN_DELETE",
+        "keyCode": "mint.cp.user.foundationadmin",
+        "code": 8,
+        "type": "SYSTEM_ADMIN"
+      },
+      {
+        "name": "ORGADMIN_READ",
+        "keyCode": "mint.cp.user.orgadmin",
+        "code": 1,
+        "type": "FOUNDATION_ADMIN"
+      },
+      {
+        "name": "ORGADMIN_CREATE",
+        "keyCode": "mint.cp.user.orgadmin",
+        "code": 2,
+        "type": "FOUNDATION_ADMIN"
+      },
+      {
+        "name": "ORGADMIN_UPDATE",
+        "keyCode": "mint.cp.user.orgadmin",
+        "code": 4,
+        "type": "FOUNDATION_ADMIN"
+      },
+      {
+        "name": "ORGADMIN_DELETE",
+        "keyCode": "mint.cp.user.orgadmin",
+        "code": 8,
+        "type": "FOUNDATION_ADMIN"
+      },
+      {
+        "name": "FOUNDATION_READ",
+        "keyCode": "mint.cp.foundation",
+        "code": 1,
+        "type": "FOUNDATION_ADMIN"
+      },
+      {
+        "name": "FOUNDATION_CREATE",
+        "keyCode": "mint.cp.foundation",
+        "code": 2,
+        "type": "SYSTEM_ADMIN"
+      },
+      {
+        "name": "FOUNDATION_UPDATE",
+        "keyCode": "mint.cp.foundation",
+        "code": 4,
+        "type": "SYSTEM_ADMIN"
+      },
+      {
+        "name": "FOUNDATION_DELETE",
+        "keyCode": "mint.cp.foundation",
+        "code": 8,
+        "type": "SYSTEM_ADMIN"
+      },
+      {
+        "name": "ORGANIZATION_READ",
+        "keyCode": "mint.cp.organization",
+        "code": 1,
+        "type": "ADMIN"
+      },
+      {
+        "name": "ORGANIZATION_CREATE",
+        "keyCode": "mint.cp.organization",
+        "code": 2,
+        "type": "FOUNDATION_ADMIN"
+      },
+      {
+        "name": "ORGANIZATION_UPDATE",
+        "keyCode": "mint.cp.organization",
+        "code": 4,
+        "type": "FOUNDATION_ADMIN"
+      },
+      {
+        "name": "ORGANIZATION_DELETE",
+        "keyCode": "mint.cp.organization",
+        "code": 8,
+        "type": "FOUNDATION_ADMIN"
+      },
+      {
+        "name": "GROUP_READ",
+        "keyCode": "mint.cp.group",
+        "code": 1,
+        "type": "ADMIN"
+      },
+      {
+        "name": "GROUP_CREATE",
+        "keyCode": "mint.cp.group",
+        "code": 2,
+        "type": "ADMIN"
+      },
+      {
+        "name": "GROUP_UPDATE",
+        "keyCode": "mint.cp.group",
+        "code": 4,
+        "type": "ADMIN"
+      },
+      {
+        "name": "GROUP_DELETE",
+        "keyCode": "mint.cp.group",
+        "code": 8,
+        "type": "ADMIN"
+      },
+      {
+        "name": "GROUP_ASSIGN_READ",
+        "keyCode": "mint.cp.group.assign",
+        "code": 1,
+        "type": "ADMIN"
+      },
+      {
+        "name": "GROUP_ASSIGN_CREATE",
+        "keyCode": "mint.cp.group.assign",
+        "code": 2,
+        "type": "ADMIN"
+      },
+      {
+        "name": "GROUP_ASSIGN_DELETE",
+        "keyCode": "mint.cp.group.assign",
+        "code": 8,
+        "type": "ADMIN"
+      },
+      {
+        "name": "ROLE_READ",
+        "keyCode": "mint.cp.role",
+        "code": 1,
+        "type": "ADMIN"
+      },
+      {
+        "name": "ROLE_CREATE",
+        "keyCode": "mint.cp.role",
+        "code": 2,
+        "type": "ADMIN"
+      },
+      {
+        "name": "ROLE_UPDATE",
+        "keyCode": "mint.cp.role",
+        "code": 4,
+        "type": "ADMIN"
+      },
+      {
+        "name": "ROLE_DELETE",
+        "keyCode": "mint.cp.role",
+        "code": 8,
+        "type": "ADMIN"
+      },
+      {
+        "name": "ROLE_ASSIGN_READ",
+        "keyCode": "mint.cp.role.assign",
+        "code": 1,
+        "type": "ADMIN"
+      },
+      {
+        "name": "ROLE_ASSIGN_CREATE",
+        "keyCode": "mint.cp.role.assign",
+        "code": 2,
+        "type": "ADMIN"
+      },
+      {
+        "name": "ROLE_ASSIGN_DELETE",
+        "keyCode": "mint.cp.role.assign",
+        "code": 8,
+        "type": "ADMIN"
+      },
+      {
+        "name": "CATEGORY_CREATE",
+        "keyCode": "mint.cp.category",
+        "code": 2,
+        "type": "ADMIN"
+      },
+      {
+        "name": "CATEGORY_UPDATE",
+        "keyCode": "mint.cp.category",
+        "code": 4,
+        "type": "ADMIN"
+      },
+      {
+        "name": "CATEGORY_DELETE",
+        "keyCode": "mint.cp.category",
+        "code": 8,
+        "type": "ADMIN"
+      }
+    ]
+  },
+  {
+    "name": "assessments",
+    "description": "assessments module ",
+    "key": "mint.space.assessment",
+    "permissions": [
+      {
+        "name": "ASSESSMENT_READ",
+        "keyCode": "mint.space.assessment",
+        "code": 1,
+        "type": "USER"
+      },
+      {
+        "name": "ASSESSMENT_CREATE",
+        "keyCode": "mint.space.assessment",
+        "code": 2,
+        "type": "USER"
+      },
+      {
+        "name": "ASSESSMENT_UPDATE",
+        "keyCode": "mint.space.assessment",
+        "code": 4,
+        "type": "USER"
+      },
+      {
+        "name": "ASSESSMENT_DELETE",
+        "keyCode": "mint.space.assessment",
+        "code": 8,
+        "type": "USER"
+      },
+      {
+        "name": "ASSESSMENT_SOLVE_READ",
+        "keyCode": "mint.space.assessment.solve",
+        "code": 1,
+        "type": "USER"
+      },
+      {
+        "name": "ASSESSMENT_SOLVE_CREATE",
+        "keyCode": "mint.space.assessment.solve",
+        "code": 2,
+        "type": "USER"
+      },
+      {
+        "name": "ASSESSMENT_SOLVE_UPDATE",
+        "keyCode": "mint.space.assessment.solve",
+        "code": 4,
+        "type": "USER"
+      },
+      {
+        "name": "ASSESSMENT_SOLVE_DELETE",
+        "keyCode": "mint.space.assessment.solve",
+        "code": 8,
+        "type": "USER"
+      },
+      {
+        "name": "ASSESSMENT_REPORT_READ",
+        "keyCode": "mint.space.assessment.report",
+        "code": 1,
+        "type": "USER"
+      },
+      {
+        "name": "ASSESSMENT_REPORT_CREATE",
+        "keyCode": "mint.space.assessment.report",
+        "code": 2,
+        "type": "USER"
+      },
+      {
+        "name": "ASSESSMENT_REPORT_UPDATE",
+        "keyCode": "mint.space.assessment.report",
+        "code": 4,
+        "type": "USER"
+      },
+      {
+        "name": "ASSESSMENT_REPORT_DELETE",
+        "keyCode": "mint.space.assessment.report",
+        "code": 8,
+        "type": "USER"
+      },{
+        "name": "CHALLENGE_READ",
+        "keyCode": "mint.space.assessment.challenge",
+        "code": 1,
+        "type": "USER"
+      },
+      {
+        "name": "CHALLENGE_CREATE",
+        "keyCode": "mint.space.assessment.challenge",
+        "code": 2,
+        "type": "USER"
+      },
+      {
+        "name": "CHALLENGE_UPDATE",
+        "keyCode": "mint.space.assessment.challenge",
+        "code": 4,
+        "type": "USER"
+      },
+      {
+        "name": "CHALLENGE_DELETE",
+        "keyCode": "mint.space.assessment.challenge",
+        "code": 8,
+        "type": "USER"
+      },{
+        "name": "CHALLENGE_SOLVE_READ",
+        "keyCode": "mint.space.assessment.challenge.solve",
+        "code": 1,
+        "type": "USER"
+      },
+      {
+        "name": "CHALLENGE_SOLVE_CREATE",
+        "keyCode": "mint.space.assessment.challenge.solve",
+        "code": 2,
+        "type": "USER"
+      },
+      {
+        "name": "CHALLENGE_SOLVE_UPDATE",
+        "keyCode": "mint.space.assessment.challenge.solve",
+        "code": 4,
+        "type": "USER"
+      },
+      {
+        "name": "CHALLENGE_SOLVE_DELETE",
+        "keyCode": "mint.space.assessment.challenge.solve",
+        "code": 8,
+        "type": "USER"
+      }
+    ]
+  },
+  {
+    "name": "discussions",
+    "description": "discussions module ",
+    "key": "mint.space.discussion",
+    "permissions": [
+      {
+        "name": "DISCUSSION_READ",
+        "keyCode": "mint.space.discussion",
+        "code": 1,
+        "type": "USER"
+      },
+      {
+        "name": "DISCUSSION_CREATE",
+        "keyCode": "mint.space.discussion",
+        "code": 2,
+        "type": "USER"
+      },
+      {
+        "name": "DISCUSSION_UPDATE",
+        "keyCode": "mint.space.discussion",
+        "code": 4,
+        "type": "USER"
+      },
+      {
+        "name": "DISCUSSION_DELETE",
+        "keyCode": "mint.space.discussion",
+        "code": 8,
+        "type": "USER"
+      },
+      {
+        "name": "DISCUSSION_COMMENT_READ",
+        "keyCode": "mint.space.discussion.reply",
+        "code": 1,
+        "type": "USER"
+      },
+      {
+        "name": "DISCUSSION_COMMENT_CREATE",
+        "keyCode": "mint.space.discussion.reply",
+        "code": 2,
+        "type": "USER"
+      },
+      {
+        "name": "DISCUSSION_COMMENT_UPDATE",
+        "keyCode": "mint.space.discussion.reply",
+        "code": 4,
+        "type": "USER"
+      },
+      {
+        "name": "DISCUSSION_COMMENT_DELETE",
+        "keyCode": "mint.space.discussion.reply",
+        "code": 8,
+        "type": "USER"
+      }
+    ]
+  },{
+    "name": "inquiries",
+    "description": "inquiries module ",
+    "key": "mint.space.inquiry",
+    "permissions": [
+      {
+        "name": "INQUIRY_READ",
+        "keyCode": "mint.space.inquiry",
+        "code": 1,
+        "type": "USER"
+      },
+      {
+        "name": "INQUIRY_CREATE",
+        "keyCode": "mint.space.inquiry",
+        "code": 2,
+        "type": "USER"
+      },
+      {
+        "name": "INQUIRY_UPDATE",
+        "keyCode": "mint.space.inquiry",
+        "code": 4,
+        "type": "USER"
+      },
+      {
+        "name": "INQUIRY_DELETE",
+        "keyCode": "mint.space.inquiry",
+        "code": 8,
+        "type": "USER"
+      },
+      {
+        "name": "INQUIRY_COMMENT_READ",
+        "keyCode": "mint.space.inquiry.reply",
+        "code": 1,
+        "type": "USER"
+      },
+      {
+        "name": "INQUIRY_COMMENT_CREATE",
+        "keyCode": "mint.space.inquiry.reply",
+        "code": 2,
+        "type": "USER"
+      },
+      {
+        "name": "INQUIRY_COMMENT_UPDATE",
+        "keyCode": "mint.space.inquiry.reply",
+        "code": 4,
+        "type": "USER"
+      },
+      {
+        "name": "INQUIRY_COMMENT_DELETE",
+        "keyCode": "mint.space.inquiry.reply",
+        "code": 8,
+        "type": "USER"
+      }
+    ]
+  },
+  {
+    "name": "timelock",
+    "description": "time lock module ",
+    "key": "mint.timelock",
+    "permissions": [
+      {
+        "name": "TIMELOCK_READ",
+        "keyCode": "mint.timelock",
+        "code": 1,
+        "type": "ADMIN"
+      },
+      {
+        "name": "TIMELOCK_CREATE",
+        "keyCode": "mint.timelock",
+        "code": 2,
+        "type": "ADMIN"
+      },
+      {
+        "name": "TIMELOCK_UPDATE",
+        "keyCode": "mint.timelock",
+        "code": 4,
+        "type": "ADMIN"
+      },
+      {
+        "name": "TIMELOCK_DELETE",
+        "keyCode": "mint.timelock",
+        "code": 8,
+        "type": "ADMIN"
+      },
+      {
+        "name": "TIMELOCK_EXCEPTION_READ",
+        "keyCode": "mint.timelock.exception",
+        "code": 1,
+        "type": "ADMIN"
+      },
+      {
+        "name": "TIMELOCK_EXCEPTION_CREATE",
+        "keyCode": "mint.timelock.exception",
+        "code": 2,
+        "type": "ADMIN"
+      },
+      {
+        "name": "TIMELOCK_EXCEPTION_UPDATE",
+        "keyCode": "mint.timelock.exception",
+        "code": 4,
+        "type": "ADMIN"
+      },
+      {
+        "name": "TIMELOCk_EXCEPTION_DELETE",
+        "keyCode": "mint.timelock.exception",
+        "code": 8,
+        "type": "ADMIN"
+      }
+    ]
+  },
+  {
+    "name": "Question Bank",
+    "description": "Question Bank module ",
+    "key": "mint.question",
+    "permissions": [
+      {
+        "name": "QUESTION_READ",
+        "keyCode": "mint.question",
+        "code": 1,
+        "type": "USER"
+      },
+      {
+        "name": "QUESTION_CREATE",
+        "keyCode": "mint.question",
+        "code": 2,
+        "type": "USER"
+      },
+      {
+        "name": "QUESTION_UPDATE",
+        "keyCode": "mint.question",
+        "code": 4,
+        "type": "USER"
+      },
+      {
+        "name": "QUESTION_DELETE",
+        "keyCode": "mint.question",
+        "code": 8,
+        "type": "USER"
+      },
+      {
+        "name": "QUESTION_REVIEW_READ",
+        "keyCode": "mint.question.review",
+        "code": 1,
+        "type": "USER"
+      },
+      {
+        "name": "QUESTION_REVIEW_UPDATE",
+        "keyCode": "mint.question.review",
+        "code": 4,
+        "type": "USER"
+      },
+      {
+        "name": "QUESTION_REVIEW_DELETE",
+        "keyCode": "mint.question.review",
+        "code": 8,
+        "type": "USER"
+      }
+    ]
+  },
+  {
+    "name": "Library ",
+    "description": "library module ",
+    "key": "mint.lib",
+    "permissions": [
+      {
+        "name": "LIBRARY_CONTENT_READ",
+        "keyCode": "mint.lib.content",
+        "code": 1,
+        "type": "USER"
+      },
+      {
+        "name": "LIBRARY_CONTENT_CREATE",
+        "keyCode": "mint.lib.content",
+        "code": 2,
+        "type": "USER"
+      },
+      {
+        "name": "LIBRARY_CONTENT_UPDATE",
+        "keyCode": "mint.lib.content",
+        "code": 4,
+        "type": "USER"
+      },
+      {
+        "name": "LIBRARY_CONTENT_DELETE",
+        "keyCode": "mint.lib.content",
+        "code": 8,
+        "type": "USER"
+      },
+      {
+        "name": "LIBRARY_CONTENT_SHARE_READ",
+        "keyCode": "mint.lib.content.share",
+        "code": 1,
+        "type": "USER"
+      },
+      {
+        "name": "LIBRARY_CONTENT_SHARE_CREATE",
+        "keyCode": "mint.lib.content.share",
+        "code": 2,
+        "type": "USER"
+      },
+      {
+        "name": "LIBRARY_CONTENT_SHARE_DELETE",
+        "keyCode": "mint.lib.content.share",
+        "code": 8,
+        "type": "USER"
+      }
+    ]
+  },
+  {
+    "name": "Category ",
+    "description": "Category module ",
+    "key": "mint.category",
+    "permissions": [
+      {
+        "name": "CATEGORY_READ",
+        "keyCode": "mint.category",
+        "code": 1,
+        "type": "USER"
+      }
+    ]
+  },
+  {
+    "name": "Package",
+    "description": "package module ",
+    "key": "mint.package",
+    "permissions": [
+      {
+        "name": "PACKAGE_READ",
+        "keyCode": "mint.package",
+        "code": 1,
+        "type": "SYSTEM_ADMIN"
+      },
+      {
+        "name": "PACKAGE_CREATE",
+        "keyCode": "mint.package",
+        "code": 2,
+        "type": "SYSTEM_ADMIN"
+      },
+      {
+        "name": "PACKAGE_UPDATE",
+        "keyCode": "mint.package",
+        "code": 4,
+        "type": "SYSTEM_ADMIN"
+      },
+      {
+        "name": "PACKAGE_DELETE",
+        "keyCode": "mint.package",
+        "code": 8,
+        "type": "SYSTEM_ADMIN"
+      },
+      {
+        "name": "PACKAGE_ASSIGN_CREATE",
+        "keyCode": "mint.package.assign",
+        "code": 2,
+        "type": "SYSTEM_ADMIN"
+      },
+      {
+        "name": "PACKAGE_UN_ASSIGN_DELETE",
+        "keyCode": "mint.package.assign",
+        "code": 8,
+        "type": "SYSTEM_ADMIN"
+      }
+    ]
+  },
+  {
+    "name": "Chat ",
+    "description": "Chat module ",
+    "key": "mint.chat",
+    "permissions": [
+      {
+        "name": "CHAT_VIEW",
+        "keyCode": "mint.chat",
+        "code": 1,
+        "type": "USER"
+      }
+    ]
+  },
+  {
+    "name": "Announcement",
+    "description": "Announcement module ",
+    "key": "mint.announcement",
+    "permissions": [
+      {
+        "name": "ANNOUNCEMENT_VIEW",
+        "keyCode": "mint.announcement",
+        "code": 1,
+        "type": "ADMIN"
+      },
+      {
+        "name": "ANNOUNCEMENT_CREATE",
+        "keyCode": "mint.announcement",
+        "code": 2,
+        "type": "ADMIN"
+      }
+    ]
+  }
+]
