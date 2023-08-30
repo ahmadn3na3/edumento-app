@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.edumento.content.domain.Content;
 import com.edumento.content.domain.ContentUser;
+import com.edumento.content.mapper.ContentMapper;
 import com.edumento.content.models.ContentCreateModel;
 import com.edumento.content.models.ContentModel;
 import com.edumento.content.models.ContentUpdateModel;
@@ -78,13 +79,12 @@ public class ContentService {
 	private final SpaceService spaceService;
 	private final JoinedRepository joinedRepository;
 	private final MongoTemplate mongoTemplate;
-	private final AnnotationService annotationService;
+//	private final AnnotationService annotationService;
 
 	@Autowired
 	public ContentService(ContentRepository contentRepository, UserRepository userRepository,
 			SpaceRepository spaceRepository, ContentUserRepository contentUserRepository,
-			JoinedRepository joinedRepository, MongoTemplate mongoTemplate, AnnotationService annotationService,
-			SpaceService service) {
+			JoinedRepository joinedRepository, MongoTemplate mongoTemplate, SpaceService service) {
 		super();
 		this.contentRepository = contentRepository;
 		this.userRepository = userRepository;
@@ -92,7 +92,6 @@ public class ContentService {
 		this.contentUserRepository = contentUserRepository;
 		this.joinedRepository = joinedRepository;
 		this.mongoTemplate = mongoTemplate;
-		this.annotationService = annotationService;
 		this.spaceService = service;
 	}
 
@@ -294,7 +293,7 @@ public class ContentService {
 					if (content.getSpace().getCategory().getFoundation() != null
 							&& user.getType() == UserType.FOUNDATION_ADMIN
 							&& user.getFoundation().equals(content.getSpace().getCategory().getFoundation())) {
-						annotationService.deletebyContentId(id);
+//						annotationService.deletebyContentId(id);
 						contentRepository.delete(content);
 						spaceService.updateSpaceModificationDate(content.getSpace());
 						return ResponseModel.done(null, new ContentInfoMessage(content.getId(), content.getName(),
@@ -306,7 +305,7 @@ public class ContentService {
 							.map(joined -> {
 								if (content.getOwner().equals(joined.getUser())
 										|| joined.getSpaceRole().equals(SpaceRole.OWNER)) {
-									annotationService.deletebyContentId(id);
+//									annotationService.deletebyContentId(id);
 									contentRepository.delete(content);
 									spaceService.updateSpaceModificationDate(content.getSpace());
 									return ResponseModel.done(null, new ContentInfoMessage(content.getId(),
@@ -330,8 +329,7 @@ public class ContentService {
 
 	private ContentModel getContentModel(Content content) {
 		log.debug("get content model from content domain");
-		ContentModel contentModel = new ContentModel();
-		mapper.map(content, contentModel);
+		ContentModel contentModel = ContentMapper.INSTANCE.mapContentToContentModel(content);
 		contentModel.getTags()
 				.addAll(Arrays.asList(content.getTags() == null ? new String[] { "" } : content.getTags().split(",")));
 
@@ -517,38 +515,22 @@ public class ContentService {
 	@Transactional(readOnly = true)
 	public Content getContentInformation(Long id) {
 		Objects.requireNonNull(id);
-		return userRepository
-				.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
-				.map(
-						user -> {
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(user -> {
 
-							return contentRepository.findById(id)
-									.map(
-											content -> {
-												if (user.getType() != UserType.USER) {
-													Long orgId = content.getSpace().getCategory()
-															.getOrganization() == null
-																	? null
-																	: content.getSpace().getCategory().getOrganization()
-																			.getId();
-													Long foundId = content.getSpace().getCategory()
-															.getFoundation() == null
-																	? null
-																	: content.getSpace().getCategory().getFoundation()
-																			.getId();
-													PermissionCheck.checkUserForFoundationAndOrgOperation(
-															user, orgId, foundId);
-													return content;
-												}
-												return joinedRepository
-														.findOneBySpaceIdAndUserIdAndDeletedFalse(
-																content.getSpace().getId(), user.getId())
-														.map(joined -> content)
-														.orElseThrow(NotPermittedException::new);
-											})
-									.orElseThrow(NotFoundException::new);
-						})
-				.orElseThrow(NotPermittedException::new);
+			return contentRepository.findById(id).map(content -> {
+				if (user.getType() != UserType.USER) {
+					Long orgId = content.getSpace().getCategory().getOrganization() == null ? null
+							: content.getSpace().getCategory().getOrganization().getId();
+					Long foundId = content.getSpace().getCategory().getFoundation() == null ? null
+							: content.getSpace().getCategory().getFoundation().getId();
+					PermissionCheck.checkUserForFoundationAndOrgOperation(user, orgId, foundId);
+					return content;
+				}
+				return joinedRepository
+						.findOneBySpaceIdAndUserIdAndDeletedFalse(content.getSpace().getId(), user.getId())
+						.map(joined -> content).orElseThrow(NotPermittedException::new);
+			}).orElseThrow(NotFoundException::new);
+		}).orElseThrow(NotPermittedException::new);
 	}
 
 	@Transactional
@@ -558,44 +540,35 @@ public class ContentService {
 
 	@Transactional(readOnly = true)
 	public List<Content> getContentListByType(ContentType contentType) {
-		return contentRepository.findByTypeAndDeletedFalseAndStatusIn(
-				contentType, ContentStatus.READY, ContentStatus.UPLOADED);
+		return contentRepository.findByTypeAndDeletedFalseAndStatusIn(contentType, ContentStatus.READY,
+				ContentStatus.UPLOADED);
 	}
 
 	@Transactional
-	public void updateContentStatus(
-			Long id,
-			ContentStatus status,
-			String key,
-			String keyId,
-			String ext,
-			ContentType type,
-			String originalPath) {
+	public void updateContentStatus(Long id, ContentStatus status, String key, String keyId, String ext,
+			ContentType type, String originalPath) {
 		Objects.requireNonNull(id);
 		Objects.requireNonNull(status);
 
-		contentRepository
-				.findOneByIdAndDeletedFalse(id)
-				.ifPresent(
-						content -> {
-							content.setStatus(status);
-							if (key != null && keyId != null) {
-								content.setKey(key);
-								content.setKeyId(keyId);
-							}
-							if (ext != null && !content.getExt().equalsIgnoreCase(ext)) {
-								content.setExt(ext);
-							}
-							if (type != null && content.getType() != type) {
-								content.setType(type);
-							}
+		contentRepository.findOneByIdAndDeletedFalse(id).ifPresent(content -> {
+			content.setStatus(status);
+			if (key != null && keyId != null) {
+				content.setKey(key);
+				content.setKeyId(keyId);
+			}
+			if (ext != null && !content.getExt().equalsIgnoreCase(ext)) {
+				content.setExt(ext);
+			}
+			if (type != null && content.getType() != type) {
+				content.setType(type);
+			}
 
-							if (originalPath != null) {
-								content.setOriginalPath(originalPath);
-							}
+			if (originalPath != null) {
+				content.setOriginalPath(originalPath);
+			}
 
-							contentRepository.save(content);
-						});
+			contentRepository.save(content);
+		});
 	}
 
 	@Transactional
