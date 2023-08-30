@@ -1,4 +1,4 @@
-package com.edumento.category.resources;
+package com.edumento.category.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
