@@ -7,12 +7,15 @@ import java.util.List;
 import java.util.Set;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+
+import com.edumento.assessment.domain.Assessment;
 import com.edumento.b2b.domain.Foundation;
 import com.edumento.b2b.domain.Groups;
 import com.edumento.b2b.domain.Organization;
 import com.edumento.b2b.domain.Role;
 import com.edumento.b2b.domain.TimeLock;
 import com.edumento.b2c.domain.CloudPackage;
+import com.edumento.content.domain.Content;
 import com.edumento.core.domain.AbstractEntity;
 import com.edumento.space.domain.Space;
 import com.edumento.user.constant.UserType;

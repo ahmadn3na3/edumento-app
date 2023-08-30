@@ -28,6 +28,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.edumento.assessment.model.leaderboard.LeaderboardModel;
+import com.edumento.assessment.model.leaderboard.UserSpaceRankingModel;
 import com.edumento.b2b.domain.Foundation;
 import com.edumento.b2b.domain.Organization;
 import com.edumento.b2b.domain.Role;
@@ -640,86 +642,86 @@ public class AccountService {
 		return ResponseModel.done();
 	}
 
-//	/** created by A.Alsayed 16-01-2019 */
-//	/** this method is used for returning sum of user space score and user level */
-//	@Transactional
-//	public ResponseModel getUserLevelAndPoints() {
-//		// 1. get current logged-in user:
-//		// ==============================
-//		CurrentUserDetail userDetail = SecurityUtils.getCurrentUser();
-//		if (userDetail != null) {
-//			// 2. from joined table, get sum of space total grades for logged-in user:
-//			Float userScorePoints = userRepository.getUserTotalScore(userDetail.getId());
-//
-//			userScorePoints = userScorePoints != null ? userScorePoints : 0.0f;
-//
-//			// 3. calculate user level:
-//			int userlevel = (int) (userScorePoints.floatValue() / 100);
-//			userScorePoints = userScorePoints % 100;
-//
-//			return ResponseModel.done(new LeaderboardModel(userDetail.getUsername(), userlevel, userScorePoints));
-//		} else
-//			throw new NotPermittedException();
-//	}
-//
-//	/** created by A.Alsayed 21-01-2019 */
-//	/** this method is used for User's global ranking */
-//	@Transactional
-//	public ResponseModel getUserGlobalRanking() {
-//		// 1. get current logged-in user:
-//		// ==============================
-//		CurrentUserDetail userDetail = SecurityUtils.getCurrentUser();
-//		if (userDetail != null) {
-//			// 2. from joined table, get global ranking for logged-in user:
-//			return ResponseModel.done(userRepository.getUserGlobalRanking(userDetail.getId()));
-//		} else
-//			throw new NotPermittedException();
-//	}
-//
-//	/** created by A.Alsayed 21-01-2019 */
-//	/** this method is used for returning User's rank for each space */
-//	@Transactional
-//	public ResponseModel getUserSpaceRanking() {
-//		// 1. get current logged-in user:
-//		// ==============================
-//		CurrentUserDetail userDetail = SecurityUtils.getCurrentUser();
-//		if (userDetail != null) {
-//			// 2.get all user spaces:
-//			Set<Joined> joineds = joinedRepository.findByUserIdAndDeletedFalse(userDetail.getId())
-//					.collect(Collectors.toSet());
-//			List<UserSpaceRankingModel> userSpaceRanking = new ArrayList<UserSpaceRankingModel>();
-//			if (joineds != null && !joineds.isEmpty()) {
-//				// 3. for each space, get user rank in this space:
-//				joineds.forEach(joindObj -> {
-//					Integer rank = joinedRepository.getUserSpaceRank(joindObj.getSpace().getId(), userDetail.getId());
-//					Integer countAllUsersInSpace = joinedRepository
-//							.countBySpaceIdAndDeletedFalse(joindObj.getSpace().getId());
-//					userSpaceRanking.add(
-//							new UserSpaceRankingModel(joindObj.getSpace().getName(), joindObj.getSpace().getThumbnail(),
-//									rank != null ? rank : 0, countAllUsersInSpace != null ? countAllUsersInSpace : 0));
-//				});
-//			}
-//			return ResponseModel.done(userSpaceRanking);
-//		} else
-//			throw new NotPermittedException();
-//	}
-//
-//	/** Created by A.Alsayed on 14/03/2019. */
-//	/** this method is used for Getting Top Users Ranking */
-//	@Transactional
-//	public ResponseModel getTopUsersRanking() {
-//		// 1. get current logged-in user:
-//		// ==============================
-//		CurrentUserDetail userDetail = SecurityUtils.getCurrentUser();
-//		if (userDetail != null) {
-//			// 2. from joined table, get global ranking for logged-in user:
-//			return ResponseModel.done(userRepository.getTopUsersRanking());
-//		} else
-//			throw new NotPermittedException();
-//	}
-//
-//	public ResponseModel encodePasseword(String password) {
-//		return ResponseModel.done((Object) passwordEncoder.encode(password));
-//	}
+	/** created by A.Alsayed 16-01-2019 */
+	/** this method is used for returning sum of user space score and user level */
+	@Transactional
+	public ResponseModel getUserLevelAndPoints() {
+		// 1. get current logged-in user:
+		// ==============================
+		CurrentUserDetail userDetail = SecurityUtils.getCurrentUser();
+		if (userDetail != null) {
+			// 2. from joined table, get sum of space total grades for logged-in user:
+			Float userScorePoints = userRepository.getUserTotalScore(userDetail.getId());
+
+			userScorePoints = userScorePoints != null ? userScorePoints : 0.0f;
+
+			// 3. calculate user level:
+			int userlevel = (int) (userScorePoints.floatValue() / 100);
+			userScorePoints = userScorePoints % 100;
+
+			return ResponseModel.done(new LeaderboardModel(userDetail.getUsername(), userlevel, userScorePoints));
+		} else
+			throw new NotPermittedException();
+	}
+
+	/** created by A.Alsayed 21-01-2019 */
+	/** this method is used for User's global ranking */
+	@Transactional
+	public ResponseModel getUserGlobalRanking() {
+		// 1. get current logged-in user:
+		// ==============================
+		CurrentUserDetail userDetail = SecurityUtils.getCurrentUser();
+		if (userDetail != null) {
+			// 2. from joined table, get global ranking for logged-in user:
+			return ResponseModel.done(userRepository.getUserGlobalRanking(userDetail.getId()));
+		} else
+			throw new NotPermittedException();
+	}
+
+	/** created by A.Alsayed 21-01-2019 */
+	/** this method is used for returning User's rank for each space */
+	@Transactional
+	public ResponseModel getUserSpaceRanking() {
+		// 1. get current logged-in user:
+		// ==============================
+		CurrentUserDetail userDetail = SecurityUtils.getCurrentUser();
+		if (userDetail != null) {
+			// 2.get all user spaces:
+			Set<Joined> joineds = joinedRepository.findByUserIdAndDeletedFalse(userDetail.getId())
+					.collect(Collectors.toSet());
+			List<UserSpaceRankingModel> userSpaceRanking = new ArrayList<UserSpaceRankingModel>();
+			if (joineds != null && !joineds.isEmpty()) {
+				// 3. for each space, get user rank in this space:
+				joineds.forEach(joindObj -> {
+					Integer rank = joinedRepository.getUserSpaceRank(joindObj.getSpace().getId(), userDetail.getId());
+					Integer countAllUsersInSpace = joinedRepository
+							.countBySpaceIdAndDeletedFalse(joindObj.getSpace().getId());
+					userSpaceRanking.add(
+							new UserSpaceRankingModel(joindObj.getSpace().getName(), joindObj.getSpace().getThumbnail(),
+									rank != null ? rank : 0, countAllUsersInSpace != null ? countAllUsersInSpace : 0));
+				});
+			}
+			return ResponseModel.done(userSpaceRanking);
+		} else
+			throw new NotPermittedException();
+	}
+
+	/** Created by A.Alsayed on 14/03/2019. */
+	/** this method is used for Getting Top Users Ranking */
+	@Transactional
+	public ResponseModel getTopUsersRanking() {
+		// 1. get current logged-in user:
+		// ==============================
+		CurrentUserDetail userDetail = SecurityUtils.getCurrentUser();
+		if (userDetail != null) {
+			// 2. from joined table, get global ranking for logged-in user:
+			return ResponseModel.done(userRepository.getTopUsersRanking());
+		} else
+			throw new NotPermittedException();
+	}
+
+	public ResponseModel encodePasseword(String password) {
+		return ResponseModel.done((Object) passwordEncoder.encode(password));
+	}
 
 }
