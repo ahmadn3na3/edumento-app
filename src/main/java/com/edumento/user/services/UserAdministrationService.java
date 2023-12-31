@@ -685,8 +685,8 @@ public class UserAdministrationService {
 			throw new InvalidException("error.foundation.org.limit");
 		} else if (ZonedDateTime.now(ZoneOffset.UTC)
 				.isAfter(ZonedDateTime.ofInstant(foundation.getEndDate().toInstant(), ZoneOffset.UTC))
-				|| !foundation.getActive()) {
-			if (foundation.getActive()) {
+				|| Boolean.TRUE.equals(!foundation.getActive())) {
+			if (Boolean.TRUE.equals(foundation.getActive())) {
 				foundation.setActive(false);
 				foundationRepository.save(foundation);
 			}

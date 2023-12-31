@@ -1,16 +1,17 @@
 package com.edumento.discussion.repos.mongodb;
 
-import com.edumento.core.repos.AbstractMongoRepository;
-import com.edumento.discussion.domain.Like;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
+
+import com.edumento.discussion.domain.Like;
 
 /** Created by ayman on 25/08/16. */
 @Repository
-public interface LikeRepository extends AbstractMongoRepository<Like, String> {
+public interface LikeRepository extends MongoRepository<Like, String> {
 
 	Optional<Like> findOneByUserIdAndParentIdAndDeletedFalse(Long userId, String parentId);
 

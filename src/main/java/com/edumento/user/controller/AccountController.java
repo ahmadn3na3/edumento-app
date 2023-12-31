@@ -29,7 +29,7 @@ import com.edumento.user.model.account.RegesiterAccountModel;
 import com.edumento.user.model.account.ResetPasswordModel;
 import com.edumento.user.model.user.UserCreateModel;
 import com.edumento.user.services.AccountService;
-import com.edumento.user.services.UploadService;
+import com.edumento.user.services.UserUploadService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -45,7 +45,7 @@ public class AccountController {
 	private AccountService accountService;
 
 	@Autowired
-	private UploadService uploadService;
+	private UserUploadService uploadService;
 
 	@Autowired
 	private CategoryRepository categoryRepository;
@@ -105,7 +105,7 @@ public class AccountController {
 	@GetMapping(value = "/account", produces = MediaType.APPLICATION_JSON_VALUE)
 //	@ApiOperaton(value = "Get Account", notes = "this method is used to get user authorities")
 	public ResponseModel getAccount(HttpServletRequest request) {
-		return accountService.getUserWithAuthorities();
+		return ResponseModel.done(accountService.getUserWithAuthorities());
 	}
 
 	/** POST /account -> update the current user information. */

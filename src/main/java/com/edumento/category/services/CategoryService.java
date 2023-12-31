@@ -31,7 +31,7 @@ import com.edumento.category.domain.CategoryGradesAndChapter;
 import com.edumento.category.model.CategoryModel;
 import com.edumento.category.model.CreateCategoryModel;
 import com.edumento.category.model.LoadCategoryModel;
-import com.edumento.category.repos.CategoryGradesAndChapterRepository;
+import com.edumento.category.repos.mongodb.CategoryGradesAndChapterRepository;
 import com.edumento.category.repos.CategoryRepository;
 import com.edumento.core.configuration.auditing.Auditable;
 import com.edumento.core.configuration.notifications.Message;

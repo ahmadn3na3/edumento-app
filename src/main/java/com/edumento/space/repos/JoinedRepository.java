@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,7 +18,7 @@ import com.edumento.user.domain.User;
 
 /** Created by ahmad on 3/21/16. */
 @Repository
-public interface JoinedRepository extends AbstractRepository<Joined, Long> {
+public interface JoinedRepository extends JpaRepository<Joined, Long> {
 
   Optional<Joined> findOneByUserIdAndSpaceIdAndDeletedFalse(Long userId, Long spaceId);
 

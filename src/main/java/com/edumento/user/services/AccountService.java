@@ -323,9 +323,9 @@ public class AccountService {
 	}
 
 	@Transactional(readOnly = true)
-	public ResponseModel getUserWithAuthorities() {
+	public UserInfoModel getUserWithAuthorities() {
 		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
-				.map(user -> ResponseModel.done(getUserInfoWithPermission(user, true)))
+				.map(user -> getUserInfoWithPermission(user, true))
 				.orElseThrow(() -> new NotFoundException("user"));
 	}
 

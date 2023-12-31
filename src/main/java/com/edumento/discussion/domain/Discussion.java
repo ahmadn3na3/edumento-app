@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /** Created by ayman on 25/08/16. */
-@Document(collection = "mint.discussions")
+@Document()
 public class Discussion extends AbstractEntity {
 	@Id
 	private String id;

@@ -21,7 +21,6 @@ public abstract class AbstractEntity implements Serializable {
 
   @Column
   private String createBy = "System";
-//      SecurityUtils.getCurrentUserLogin() == null ? "System" : SecurityUtils.getCurrentUserLogin();
 
   @Column
   @Temporal(TemporalType.TIMESTAMP)

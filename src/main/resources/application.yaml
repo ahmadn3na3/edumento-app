@@ -1,15 +1,110 @@
-# add default properites values for the spring boot application in yamel file
 spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/edumneto
-    username: edumento
-    password: 123456
+  main:
+    allow-bean-definition-overriding: true
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
     hibernate:
       ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/edumento
+      username: edumento
+      password: edumento
+
+    redis:
+      host: localhost
+      port: 6379
+      password: edumento
+      database: 0
+  datasource:
+    url: jdbc:postgresql://localhost:5432/edumento
+    username: edumento
+    password: edumento
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 30000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
+  messages:
+    basename: i18n/messages
+    fallback-to-system-locale: false
+  http:
+    multipart:
+      max-file-size: 150Mb
+      max-request-size: 300Mb
+  thymeleaf:
+    enabled: false
+  devtools:
+    livereload:
+      enabled: false
+  pid:
+    file: e.pid
+  application:
+    name: edumento
+  security:
+   basic:
+    enabled: false
+  
+    
+    
 server:
   port: 8080
+  address: 0.0.0.0
+mint:
+  async:
+    corePoolSize: 2
+    maxPoolSize: 50
+    queueCapacity: 10000
+  security:
+    authentication:
+      oauthAndroid:
+        clientid: f8e0ce25-0a4b-46f2-8697-cbb4b4f9d7d4
+        secret: 0fc41344-e321-4909-8df1-1b0f60fbce5b
+        tokenValidityInSeconds: 1814400
+      oauthWeb:
+        clientid: 879f430c-e87e-4b9d-a58e-12c055f1d7d2
+        secret: 8ff368cd-774b-4dbc-bc06-cc5f4a8173a3
+        tokenValidityInSeconds: 1814400
+      oauthControlPanel:
+        clientid: 1d3bfe18-e485-487b-899e-b2a49ea335ad
+        secret: 298fbcbb-3ade-48d8-826a-02517a644f63
+        tokenValidityInSeconds: 1814400
+      oauthQuestionBank:
+        clientid: 58a3f767-00b4-4633-84f6-4ee3e4393341
+        secret: 962da9ae-771e-4d45-8897-d73f8335aa1a
+        tokenValidityInSeconds: 1814400
+      oauthIos:
+        clientid: ddae60c9-a540-4a99-b740-0ba337f81c6f
+        secret: 7380453d-6e25-4f85-8dd3-4e67d719e2d0
+        tokenValidityInSeconds: 1814400
+    signingKey: AFAD2SFA#REGFdf46%44
+    rememberme:
+      key: be9c35f6fd41682121bd5a70362ca837459bac42
+  ffmpeg: /usr/bin/ffmpeg
+  ffprobe: /usr/bin/ffprobe
+  upload:
+    img:
+      path: /data/img
+    content:
+      path: /data/content
+    audio:
+      path: /data/audio
+  view:
+      content:
+        path: /data/view
+
+  url: //content.mintplatform.net
+  viewurl: //static.mintplatform.net/view/
+  app: http://10.1.0.6:8080/
+  lockPass: 12345678    
+endpoints:
+  health:
+    sensitive: true
+    enabled: true

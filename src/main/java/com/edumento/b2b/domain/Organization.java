@@ -2,9 +2,10 @@ package com.edumento.b2b.domain;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Locale.Category;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+
+import com.edumento.category.domain.Category;
 import com.edumento.core.domain.AbstractEntity;
 import com.edumento.user.domain.User;
 import jakarta.persistence.Column;

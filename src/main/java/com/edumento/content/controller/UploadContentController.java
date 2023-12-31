@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.edumento.content.models.InitUploadModel;
-import com.edumento.content.services.UploadService;
+import com.edumento.content.services.ContentUploadService;
 import com.edumento.core.model.ResponseModel;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,7 +20,7 @@ import jakarta.servlet.http.HttpServletRequest;
 @RequestMapping("/api/content/upload")
 public class UploadContentController {
 
-  @Autowired UploadService uploadService;
+  @Autowired ContentUploadService uploadService;
 
   @RequestMapping(path = "/{id}", method = RequestMethod.GET)
   // @ApiOperation(

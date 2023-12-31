@@ -11,7 +11,7 @@ import com.edumento.discussion.domain.Comment;
 import com.edumento.discussion.domain.Like;
 import com.edumento.discussion.model.discussion.CommentCreateModel;
 import com.edumento.discussion.repos.CommentRepository;
-import com.edumento.discussion.repos.LikeRepository;
+import com.edumento.discussion.repos.mongodb.LikeRepository;
 import com.edumento.space.repos.SpaceRepository;
 import com.edumento.user.domain.User;
 import com.edumento.user.repo.UserRepository;

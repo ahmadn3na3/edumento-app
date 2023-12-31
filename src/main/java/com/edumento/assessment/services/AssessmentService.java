@@ -1,43 +1,5 @@
 package com.edumento.assessment.services;
 
-import com.edumento.assessment.domain.*;
-import com.edumento.assessment.mappers.AssessmentsMapper;
-import com.edumento.assessment.model.*;
-import com.edumento.assessment.model.challenge.ChallengeCreateModel;
-import com.edumento.assessment.model.challenge.ChallengeSummaryModel;
-import com.edumento.assessment.model.challenge.ChallengeesGrade;
-import com.edumento.assessment.model.runnable.AssessmentAutoSolvingRunnable;
-import com.edumento.assessment.repos.*;
-import com.edumento.content.domain.Content;
-import com.edumento.content.models.ContentUserModel;
-import com.edumento.content.repos.ContentRepository;
-import com.edumento.core.configuration.MintProperties;
-import com.edumento.core.configuration.auditing.Auditable;
-import com.edumento.core.configuration.notifications.Message;
-import com.edumento.core.constants.*;
-import com.edumento.core.constants.notification.EntityAction;
-import com.edumento.core.exception.InvalidException;
-import com.edumento.core.exception.MintException;
-import com.edumento.core.exception.NotFoundException;
-import com.edumento.core.exception.NotPermittedException;
-import com.edumento.core.model.PageRequestModel;
-import com.edumento.core.model.PageResponseModel;
-import com.edumento.core.model.ResponseModel;
-import com.edumento.core.model.messages.From;
-import com.edumento.core.model.messages.assessment.AssessementsInfoMessage;
-import com.edumento.core.model.messages.assessment.AssessmentSubmitMessage;
-import com.edumento.core.model.messages.user.UserInfoMessage;
-import com.edumento.core.security.CurrentUserDetail;
-import com.edumento.core.security.SecurityUtils;
-import com.edumento.core.util.DateConverter;
-import com.edumento.core.util.RandomUtils;
-import com.edumento.space.domain.Joined;
-import com.edumento.space.domain.Space;
-import com.edumento.space.repos.JoinedRepository;
-import com.edumento.space.repos.SpaceRepository;
-import com.edumento.user.domain.User;
-import com.edumento.user.repo.UserRepository;
-import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -59,8 +21,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
@@ -70,6 +31,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -77,10 +39,82 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import com.edumento.assessment.domain.Assessment;
+import com.edumento.assessment.domain.AssessmentQuestion;
+import com.edumento.assessment.domain.AssessmentQuestionChoice;
+import com.edumento.assessment.domain.QuestionAnswer;
+import com.edumento.assessment.domain.UserAssessment;
+import com.edumento.assessment.mappers.AssessmentsMapper;
+import com.edumento.assessment.model.AssessmentCreateModel;
+import com.edumento.assessment.model.AssessmentGetAllModel;
+import com.edumento.assessment.model.AssessmentListModel;
+import com.edumento.assessment.model.AssessmentModel;
+import com.edumento.assessment.model.AssessmentQuestionCreateModel;
+import com.edumento.assessment.model.AssessmentUserModel;
+import com.edumento.assessment.model.AssessmentsUpdatesModel;
+import com.edumento.assessment.model.ChoicesModel;
+import com.edumento.assessment.model.PracticeGenerateModel;
+import com.edumento.assessment.model.QuestionAnswerGetModel;
+import com.edumento.assessment.model.QuestionAnswerModel;
+import com.edumento.assessment.model.QuestionBankResponseModel;
+import com.edumento.assessment.model.QuestionSearchModel;
+import com.edumento.assessment.model.UserAssessmentModel;
+import com.edumento.assessment.model.UserPracticeModel;
+import com.edumento.assessment.model.challenge.ChallengeCreateModel;
+import com.edumento.assessment.model.challenge.ChallengeSummaryModel;
+import com.edumento.assessment.model.challenge.ChallengeesGrade;
+import com.edumento.assessment.model.runnable.AssessmentAutoSolvingRunnable;
+import com.edumento.assessment.repos.AssessmentQuestionChoicesRepository;
+import com.edumento.assessment.repos.AssessmentQuestionRepository;
+import com.edumento.assessment.repos.AssessmentRepository;
+import com.edumento.assessment.repos.QuestionAnswerRepository;
+import com.edumento.assessment.repos.UserAssessmentRepository;
+import com.edumento.content.domain.Content;
+import com.edumento.content.models.ContentUserModel;
+import com.edumento.content.repos.ContentRepository;
+import com.edumento.core.configuration.MintProperties;
+import com.edumento.core.configuration.auditing.Auditable;
+import com.edumento.core.configuration.notifications.Message;
+import com.edumento.core.constants.AssessmentStatus;
+import com.edumento.core.constants.AssessmentType;
+import com.edumento.core.constants.Code;
+import com.edumento.core.constants.ContentStatus;
+import com.edumento.core.constants.ContentType;
+import com.edumento.core.constants.Services;
+import com.edumento.core.constants.SortField;
+import com.edumento.core.constants.SpaceRole;
+import com.edumento.core.constants.notification.EntityAction;
+import com.edumento.core.exception.InvalidException;
+import com.edumento.core.exception.MintException;
+import com.edumento.core.exception.NotFoundException;
+import com.edumento.core.exception.NotPermittedException;
+import com.edumento.core.model.PageRequestModel;
+import com.edumento.core.model.PageResponseModel;
+import com.edumento.core.model.ResponseModel;
+import com.edumento.core.model.messages.From;
+import com.edumento.core.model.messages.assessment.AssessementsInfoMessage;
+import com.edumento.core.model.messages.assessment.AssessmentSubmitMessage;
+import com.edumento.core.model.messages.user.UserInfoMessage;
+import com.edumento.core.security.CurrentUserDetail;
+import com.edumento.core.security.SecurityUtils;
+import com.edumento.core.util.DateConverter;
+import com.edumento.core.util.RandomUtils;
+import com.edumento.space.domain.Joined;
+import com.edumento.space.domain.Space;
+import com.edumento.space.repos.JoinedRepository;
+import com.edumento.space.repos.SpaceRepository;
+import com.edumento.user.domain.User;
+import com.edumento.user.model.user.UserInfoModel;
+import com.edumento.user.repo.UserRepository;
+import com.edumento.user.services.AccountService;
+
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
+
 /** Created by ayman on 13/06/16. */
 @Service
+@Slf4j
 public class AssessmentService {
-  private final Logger log = LoggerFactory.getLogger(AssessmentService.class);
   private final QuestionAnswerRepository questionAnswerRepository;
   private final AssessmentRepository assessmentRepository;
   private final AssessmentQuestionRepository assessmentQuestionRepository;
@@ -93,21 +127,21 @@ public class AssessmentService {
   private final SpaceRepository spaceRepository;
   private final ContentRepository contentRepository;
 
-  private final UserRepository userRepository;
+  private final AccountService userService;
 
   private final JoinedRepository joinedRepository;
 
   private final UserAssessmentRepository userAssessmentRepository;
   private final MessageSource messageSource;
 
-  @Autowired private ThreadPoolTaskScheduler taskScheduler;
-
   @Autowired
+  private ThreadPoolTaskScheduler taskScheduler;
+
   public AssessmentService(
       AssessmentQuestionChoicesRepository assessmentQuestionChoicesRepository,
       AssessmentQuestionRepository assessmentQuestionRepository,
       UserAssessmentRepository userAssessmentRepository,
-      UserRepository userRepository,
+      AccountService userService,
       AssessmentRepository assessmentRepository,
       QuestionAnswerRepository questionAnswerRepository,
       MintProperties mintProperties,
@@ -118,7 +152,7 @@ public class AssessmentService {
     this.assessmentQuestionChoicesRepository = assessmentQuestionChoicesRepository;
     this.assessmentQuestionRepository = assessmentQuestionRepository;
     this.userAssessmentRepository = userAssessmentRepository;
-    this.userRepository = userRepository;
+    this.userService = userService;
     this.assessmentRepository = assessmentRepository;
     this.mintProperties = mintProperties;
     this.spaceRepository = spaceRepository;
@@ -138,53 +172,48 @@ public class AssessmentService {
       challengeCreateModel.getQuestionSearchModel().setSpaceId(challengeCreateModel.getSpaceId());
     }
     challengeCreateModel.getQuestionSearchModel().setLimit(10);
-    QuestionBankResponseModel responseModel =
-        searchQuestionBank(challengeCreateModel.getQuestionSearchModel(), request);
+    QuestionBankResponseModel responseModel = searchQuestionBank(challengeCreateModel.getQuestionSearchModel(),
+        request);
     if (responseModel.getCode() == 10) {
       if (responseModel.getData() != null && !responseModel.getData().isEmpty()) {
         /*
          * modified by A.Alsayed 7-2-2019 Add new filter for getting challengees with
          * school name not equal that of the challenge creator.
          */
-        Optional<User> loggedInUser =
-            userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin());
-        String ownerSchool =
-            loggedInUser.get().getSchool() != null ? loggedInUser.get().getSchool() : "";
-        User userOptional =
-            joinedRepository
-                .findBySpaceIdAndDeletedFalse(challengeCreateModel.getSpaceId())
-                .filter(
-                    joined ->
-                        joined.getSpaceRole() == SpaceRole.EDITOR
-                            || joined.getSpaceRole() == SpaceRole.COLLABORATOR)
-                .map(Joined::getUser)
-                .filter(user -> !user.getId().equals(SecurityUtils.getCurrentUser().getId()))
-                .filter(user -> user.getSchool() == null || !user.getSchool().equals(ownerSchool))
-                .sorted(
-                    (user1, user2) ->
-                        RandomUtils.generateResetKey().compareTo(RandomUtils.generateResetKey()))
-                .findAny()
-                .orElseThrow(() -> new NotFoundException("error.assessment.challngeenotfound"));
+        UserInfoModel loggedInUser = userService.getUserWithAuthorities();
+        // String ownerSchool =
+        // loggedInUser.getSchool() != null ? loggedInUser.getSchool() : "";
+        User userOptional = joinedRepository
+            .findBySpaceIdAndDeletedFalse(challengeCreateModel.getSpaceId())
+            .filter(
+                joined -> joined.getSpaceRole() == SpaceRole.EDITOR
+                    || joined.getSpaceRole() == SpaceRole.COLLABORATOR)
+            .map(Joined::getUser)
+            .filter(user -> !user.getId().equals(SecurityUtils.getCurrentUser().getId()))
+            // .filter(user -> user.getSchool() == null ||
+            // !user.getSchool().equals(ownerSchool))
+            .sorted(
+                (user1, user2) -> RandomUtils.generateResetKey().compareTo(RandomUtils.generateResetKey()))
+            .findAny()
+            .orElseThrow(() -> new NotFoundException("error.assessment.challngeenotfound"));
 
-        List<AssessmentQuestionCreateModel> assessmentQuestionCreateModels =
-            responseModel.getData().stream()
-                .limit(10)
-                .map(
-                    questionModel -> {
-                      AssessmentQuestionCreateModel assessmentQuestionCreateModel =
-                          new AssessmentQuestionCreateModel(questionModel);
-                      assessmentQuestionCreateModel.setQuestionWeight(1);
-                      return assessmentQuestionCreateModel;
-                    })
-                .collect(Collectors.toList());
+        List<AssessmentQuestionCreateModel> assessmentQuestionCreateModels = responseModel.getData().stream()
+            .limit(10)
+            .map(
+                questionModel -> {
+                  AssessmentQuestionCreateModel assessmentQuestionCreateModel = new AssessmentQuestionCreateModel(
+                      questionModel);
+                  assessmentQuestionCreateModel.setQuestionWeight(1);
+                  return assessmentQuestionCreateModel;
+                })
+            .collect(Collectors.toList());
         log.debug("assessmentQuestionCreateModels == > {}", assessmentQuestionCreateModels.size());
-        AssessmentCreateModel assessmentCreateModel =
-            new AssessmentCreateModel(
-                challengeCreateModel.getTitle(),
-                AssessmentType.CHALLENGE,
-                true,
-                challengeCreateModel.getSpaceId(),
-                assessmentQuestionCreateModels);
+        AssessmentCreateModel assessmentCreateModel = new AssessmentCreateModel(
+            challengeCreateModel.getTitle(),
+            AssessmentType.CHALLENGE,
+            true,
+            challengeCreateModel.getSpaceId(),
+            assessmentQuestionCreateModels);
 
         assessmentCreateModel.setLockMint(false);
         assessmentCreateModel.setLimitDuration(challengeCreateModel.getLimitDuration());
@@ -222,39 +251,35 @@ public class AssessmentService {
     if (practiceGenerateModel.getQuestionSearchModel().getSpaceId() == null) {
       practiceGenerateModel.getQuestionSearchModel().setSpaceId(practiceGenerateModel.getSpaceId());
     }
-    QuestionBankResponseModel responseModel =
-        searchQuestionBank(practiceGenerateModel.getQuestionSearchModel(), request);
+    QuestionBankResponseModel responseModel = searchQuestionBank(practiceGenerateModel.getQuestionSearchModel(),
+        request);
     if (responseModel.getCode() == 10) {
       if (responseModel.getData() != null
           && !responseModel.getData().isEmpty()
-          && responseModel.getData().size()
-              >= practiceGenerateModel.getQuestionSearchModel().getLimit()) {
-        int maximum =
-            practiceGenerateModel.getQuestionSearchModel().getQuestionType().length
-                * practiceGenerateModel.getMinimum();
+          && responseModel.getData().size() >= practiceGenerateModel.getQuestionSearchModel().getLimit()) {
+        int maximum = practiceGenerateModel.getQuestionSearchModel().getQuestionType().length
+            * practiceGenerateModel.getMinimum();
         log.debug("maximum == > {}", maximum);
-        List<AssessmentQuestionCreateModel> assessmentQuestionCreateModels =
-            responseModel.getData().stream()
-                .map(
-                    questionModel -> {
-                      AssessmentQuestionCreateModel assessmentQuestionCreateModel =
-                          new AssessmentQuestionCreateModel(questionModel);
-                      assessmentQuestionCreateModel.setQuestionWeight(1);
-                      return assessmentQuestionCreateModel;
-                    })
-                .collect(Collectors.toList());
+        List<AssessmentQuestionCreateModel> assessmentQuestionCreateModels = responseModel.getData().stream()
+            .map(
+                questionModel -> {
+                  AssessmentQuestionCreateModel assessmentQuestionCreateModel = new AssessmentQuestionCreateModel(
+                      questionModel);
+                  assessmentQuestionCreateModel.setQuestionWeight(1);
+                  return assessmentQuestionCreateModel;
+                })
+            .collect(Collectors.toList());
         Collections.shuffle(assessmentQuestionCreateModels);
         log.debug("assessmentQuestionCreateModels == > {}", assessmentQuestionCreateModels.size());
 
-        AssessmentCreateModel assessmentCreateModel =
-            new AssessmentCreateModel(
-                practiceGenerateModel.getPracticeName(),
-                AssessmentType.PRACTICE,
-                true,
-                practiceGenerateModel.getSpaceId(),
-                assessmentQuestionCreateModels.stream()
-                    .limit(maximum)
-                    .collect(Collectors.toList()));
+        AssessmentCreateModel assessmentCreateModel = new AssessmentCreateModel(
+            practiceGenerateModel.getPracticeName(),
+            AssessmentType.PRACTICE,
+            true,
+            practiceGenerateModel.getSpaceId(),
+            assessmentQuestionCreateModels.stream()
+                .limit(maximum)
+                .collect(Collectors.toList()));
 
         assessmentCreateModel.setLockMint(false);
 
@@ -272,113 +297,107 @@ public class AssessmentService {
   @PreAuthorize("hasAuthority('ASSESSMENT_CREATE')")
   @Message(entityAction = EntityAction.ASSESSMENT_CREATE, services = Services.NOTIFICATIONS)
   public ResponseModel create(AssessmentCreateModel assesmentCreateModel, User challengee) {
-    return userRepository
-        .findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
-        .map(
-            user -> {
-              if (assesmentCreateModel.getSpaceId() == null) {
-                throw new MintException(Code.INVALID_KEY, "spaceId");
-              }
-              Space space =
-                  spaceRepository
-                      .findOneByIdAndDeletedFalse(assesmentCreateModel.getSpaceId())
-                      .orElseThrow(NotFoundException::new);
+    var user = User.of(SecurityUtils.getCurrentUser().getId());
 
-              Joined joined =
-                  joinedRepository
-                      .findOneBySpaceIdAndUserIdAndSpaceRoleInAndDeletedFalse(
-                          space.getId(),
-                          user.getId(),
-                          SpaceRole.COLLABORATOR,
-                          SpaceRole.CO_OWNER,
-                          SpaceRole.EDITOR,
-                          SpaceRole.OWNER)
-                      .orElseThrow(NotPermittedException::new);
+    if (assesmentCreateModel.getSpaceId() == null) {
+      throw new MintException(Code.INVALID_KEY, "spaceId");
+    }
+    Space space = spaceRepository
+        .findOneByIdAndDeletedFalse(assesmentCreateModel.getSpaceId())
+        .orElseThrow(NotFoundException::new);
 
-              if (assesmentCreateModel.isPublish()
-                  && assesmentCreateModel.getAssessmentQuestionCreateModels().isEmpty()
-                  && (assesmentCreateModel.getAssessmentType() == AssessmentType.ASSIGNMENT
-                      || assesmentCreateModel.getAssessmentType() == AssessmentType.QUIZ)) {
-                throw new MintException(Code.INVALID, "error.assessment.question.empty");
-              }
-              Assessment assessment = new Assessment();
-              AssessmentsMapper.INSTANCE.createModelToEntity(assesmentCreateModel, assessment);
-
-              assessment.setOwner(user);
-              assessment.setSpace(space);
-              if (assesmentCreateModel.getStartDate() != null) {
-                if (!validateDate((assesmentCreateModel.getStartDate()))) {
-                  throw new InvalidException("error.invalid.date");
-                }
-                assessment.setStartDateTime(
-                    DateConverter.convertZonedDateTimeToDate(assesmentCreateModel.getStartDate()));
-              }
-              if (assesmentCreateModel.getDueDate() != null) {
-                if (!validateDate(assesmentCreateModel.getDueDate())) {
-                  throw new InvalidException("error.invalid.date");
-                }
-                assessment.setDueDate(
-                    DateConverter.convertZonedDateTimeToDate(assesmentCreateModel.getDueDate()));
-              }
-
-              if (assessment.getPublish()) {
-                assessment.setPublishDate(new Date());
-              }
-
-              assessmentRepository.save(assessment);
-
-                switch (assesmentCreateModel.getAssessmentType()) {
-                    case ASSIGNMENT, QUIZ, PRACTICE, CHALLENGE -> {
-                        if (assesmentCreateModel.getAssessmentType() == AssessmentType.PRACTICE
-                                || assesmentCreateModel.getAssessmentType() == AssessmentType.CHALLENGE) {
-                            assessment.setPublishDate(assessment.getCreationDate());
-                        }
-                        mapAndSaveQuestion(assesmentCreateModel, assessment);
-                    }
-                    case WORKSHEET -> {
-                        if (assesmentCreateModel.getWorkSheetContentId() != null
-                                && assesmentCreateModel.getWorkSheetContentId() != 0) {
-                            Content content =
-                                    this.contentRepository.getReferenceById(
-                                            assesmentCreateModel.getWorkSheetContentId());
-                            if ( content.getType() != ContentType.WORKSHEET
-                                    || (content.getType() == ContentType.WORKSHEET
-                                    && content.getStatus() != ContentStatus.READY)) {
-
-                                return ResponseModel.error(Code.INVALID, "error.worksheet.content.invalid");
-                            }
-                            assessment.setContent(content);
-                            if (assesmentCreateModel.getTotalAssessmentPoints() == null
-                                    || assesmentCreateModel.getTotalAssessmentPoints() == 0) {
-                                return ResponseModel.error(Code.INVALID, "error.assessment.totalpoints");
-                            }
-                            assessment.setTotalPoints(assesmentCreateModel.getTotalAssessmentPoints());
-                        }
-                    }
-                    default -> {
-                    }
-                }
-
-              assessmentRepository.save(assessment);
-              joined.setAssessmentCount(
-                  assessmentRepository.countByOwnerIdAndSpaceIdAndDeletedFalse(
-                      user.getId(), space.getId()));
-              joinedRepository.save(joined);
-              return ResponseModel.done(
-                  assessment.getId(),
-                  new AssessementsInfoMessage(
-                      assessment.getId(),
-                      assessment.getTitle(),
-                      assessment.getAssessmentType(),
-                      new From(user.getId(), user.getFullName(), user.getThumbnail(), null),
-                      assessment.getSpace().getId(),
-                      assessment.getStartDateTime(),
-                      assessment.getDueDate(),
-                      space.getName(),
-                      space.getCategory().getName(),
-                      challengee != null ? challengee.getId() : null));
-            })
+    Joined joined = joinedRepository
+        .findOneBySpaceIdAndUserIdAndSpaceRoleInAndDeletedFalse(
+            space.getId(),
+            user.getId(),
+            SpaceRole.COLLABORATOR,
+            SpaceRole.CO_OWNER,
+            SpaceRole.EDITOR,
+            SpaceRole.OWNER)
         .orElseThrow(NotPermittedException::new);
+
+    if (assesmentCreateModel.isPublish()
+        && assesmentCreateModel.getAssessmentQuestionCreateModels().isEmpty()
+        && (assesmentCreateModel.getAssessmentType() == AssessmentType.ASSIGNMENT
+            || assesmentCreateModel.getAssessmentType() == AssessmentType.QUIZ)) {
+      throw new MintException(Code.INVALID, "error.assessment.question.empty");
+    }
+    Assessment assessment = new Assessment();
+    AssessmentsMapper.INSTANCE.createModelToEntity(assesmentCreateModel, assessment);
+
+    assessment.setOwner(user);
+    assessment.setSpace(space);
+    if (assesmentCreateModel.getStartDate() != null) {
+      if (!validateDate((assesmentCreateModel.getStartDate()))) {
+        throw new InvalidException("error.invalid.date");
+      }
+      assessment.setStartDateTime(
+          DateConverter.convertZonedDateTimeToDate(assesmentCreateModel.getStartDate()));
+    }
+    if (assesmentCreateModel.getDueDate() != null) {
+      if (!validateDate(assesmentCreateModel.getDueDate())) {
+        throw new InvalidException("error.invalid.date");
+      }
+      assessment.setDueDate(
+          DateConverter.convertZonedDateTimeToDate(assesmentCreateModel.getDueDate()));
+    }
+
+    if (assessment.getPublish()) {
+      assessment.setPublishDate(new Date());
+    }
+
+    assessmentRepository.save(assessment);
+
+    switch (assesmentCreateModel.getAssessmentType()) {
+      case ASSIGNMENT, QUIZ, PRACTICE, CHALLENGE -> {
+        if (assesmentCreateModel.getAssessmentType() == AssessmentType.PRACTICE
+            || assesmentCreateModel.getAssessmentType() == AssessmentType.CHALLENGE) {
+          assessment.setPublishDate(assessment.getCreationDate());
+        }
+        mapAndSaveQuestion(assesmentCreateModel, assessment);
+      }
+      case WORKSHEET -> {
+        if (assesmentCreateModel.getWorkSheetContentId() != null
+            && assesmentCreateModel.getWorkSheetContentId() != 0) {
+          Content content = this.contentRepository.getReferenceById(
+              assesmentCreateModel.getWorkSheetContentId());
+          if (content.getType() != ContentType.WORKSHEET
+              || (content.getType() == ContentType.WORKSHEET
+                  && content.getStatus() != ContentStatus.READY)) {
+
+            return ResponseModel.error(Code.INVALID, "error.worksheet.content.invalid");
+          }
+          assessment.setContent(content);
+          if (assesmentCreateModel.getTotalAssessmentPoints() == null
+              || assesmentCreateModel.getTotalAssessmentPoints() == 0) {
+            return ResponseModel.error(Code.INVALID, "error.assessment.totalpoints");
+          }
+          assessment.setTotalPoints(assesmentCreateModel.getTotalAssessmentPoints());
+        }
+      }
+      default -> {
+      }
+    }
+
+    assessmentRepository.save(assessment);
+    joined.setAssessmentCount(
+        assessmentRepository.countByOwnerIdAndSpaceIdAndDeletedFalse(
+            user.getId(), space.getId()));
+    joinedRepository.save(joined);
+    return ResponseModel.done(
+        assessment.getId(),
+        new AssessementsInfoMessage(
+            assessment.getId(),
+            assessment.getTitle(),
+            assessment.getAssessmentType(),
+            new From(user.getId(), user.getFullName(), user.getThumbnail(), null),
+            assessment.getSpace().getId(),
+            assessment.getStartDateTime(),
+            assessment.getDueDate(),
+            space.getName(),
+            space.getCategory().getName(),
+            challengee != null ? challengee.getId() : null));
+
   }
 
   private void extractChoices(
@@ -405,52 +424,45 @@ public class AssessmentService {
   @PreAuthorize("hasAuthority('ASSESSMENT_UPDATE')")
   @Message(entityAction = EntityAction.ASSESSMENT_UPDATE, services = Services.NOTIFICATIONS)
   public ResponseModel update(Long id, AssessmentCreateModel assessmentModel) {
-    return userRepository
-        .findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+    return Optional.of(assessmentRepository.getReferenceById(id))
         .map(
-            user ->
-                Optional.of(assessmentRepository.getReferenceById(id))
-                    .map(
-                        assessment -> {
-                          if (assessment.getPublish() == Boolean.TRUE) {
-                            throw new MintException(Code.INVALID, "error.assessment.status");
-                          }
+            assessment -> {
+              if (assessment.getPublish() == Boolean.TRUE) {
+                throw new MintException(Code.INVALID, "error.assessment.status");
+              }
 
-                          AssessmentsMapper.INSTANCE.createModelToEntity(
-                              assessmentModel, assessment);
-                          assessment.setStartDateTime(
-                              DateConverter.convertZonedDateTimeToDate(
-                                  assessmentModel.getStartDate()));
-                          assessment.setDueDate(
-                              DateConverter.convertZonedDateTimeToDate(
-                                  assessmentModel.getDueDate()));
-                          assessmentRepository.save(assessment);
+              AssessmentsMapper.INSTANCE.createModelToEntity(
+                  assessmentModel, assessment);
+              assessment.setStartDateTime(
+                  DateConverter.convertZonedDateTimeToDate(
+                      assessmentModel.getStartDate()));
+              assessment.setDueDate(
+                  DateConverter.convertZonedDateTimeToDate(
+                      assessmentModel.getDueDate()));
+              assessmentRepository.save(assessment);
 
-                          List<AssessmentQuestion> assessmentQuestions =
-                              assessmentQuestionRepository.findByAssessmentAndDeletedFalse(
-                                  assessment);
+              List<AssessmentQuestion> assessmentQuestions = assessmentQuestionRepository
+                  .findByAssessmentAndDeletedFalse(
+                      assessment);
 
-                          if (assessmentQuestions != null && !assessmentQuestions.isEmpty()) {
-                            assessmentQuestions.stream()
-                                .filter(
-                                    assessmentQuestion ->
-                                        assessmentQuestion.getAssessmentQuestionChoices() != null
-                                            && !assessmentQuestion
-                                                .getAssessmentQuestionChoices()
-                                                .isEmpty())
-                                .forEach(
-                                    assessmentQuestion ->
-                                        assessmentQuestionChoicesRepository.deleteAll(
-                                            assessmentQuestion.getAssessmentQuestionChoices()));
-                            assessmentQuestionRepository.deleteAll(assessmentQuestions);
-                          }
-                          assessment.setTotalPoints(0);
-                          mapAndSaveQuestion(assessmentModel, assessment);
-                          assessmentRepository.save(assessment);
-                          return ResponseModel.done();
-                        })
-                    .orElseThrow(NotFoundException::new))
-        .orElseThrow(NotPermittedException::new);
+              if (assessmentQuestions != null && !assessmentQuestions.isEmpty()) {
+                assessmentQuestions.stream()
+                    .filter(
+                        assessmentQuestion -> assessmentQuestion.getAssessmentQuestionChoices() != null
+                            && !assessmentQuestion
+                                .getAssessmentQuestionChoices()
+                                .isEmpty())
+                    .forEach(
+                        assessmentQuestion -> assessmentQuestionChoicesRepository.deleteAll(
+                            assessmentQuestion.getAssessmentQuestionChoices()));
+                assessmentQuestionRepository.deleteAll(assessmentQuestions);
+              }
+              assessment.setTotalPoints(0);
+              mapAndSaveQuestion(assessmentModel, assessment);
+              assessmentRepository.save(assessment);
+              return ResponseModel.done();
+            })
+        .orElseThrow(NotFoundException::new);
   }
 
   private void mapAndSaveQuestion(AssessmentCreateModel assessmentModel, Assessment assessment) {
@@ -479,24 +491,19 @@ public class AssessmentService {
   @Transactional
   @PreAuthorize("hasAuthority('ASSESSMENT_READ')")
   public ResponseModel get(Long id) {
-    return userRepository
-        .findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+    var user = User.of(SecurityUtils.getCurrentUser().getId());
+    return assessmentRepository
+        .findOneByIdAndDeletedFalse(id)
         .map(
-            user ->
-                assessmentRepository
-                    .findOneByIdAndDeletedFalse(id)
-                    .map(
-                        assesment -> {
-                          AssessmentModel assessmentModel =
-                              assessmentMapping(assesment, user.getId());
-                          if (assesment.getLimitDuration() != null) {
-                            assessmentModel.setLimitedByTime(true);
-                          }
+            assesment -> {
+              AssessmentModel assessmentModel = assessmentMapping(assesment, user.getId());
+              if (assesment.getLimitDuration() != null) {
+                assessmentModel.setLimitedByTime(true);
+              }
 
-                          return ResponseModel.done(assessmentModel);
-                        })
-                    .orElseThrow(NotFoundException::new))
-        .orElseThrow(NotPermittedException::new);
+              return ResponseModel.done(assessmentModel);
+            })
+        .orElseThrow(NotFoundException::new);
   }
 
   /** Created by A.Alsayed on 05/01/19. */
@@ -513,14 +520,13 @@ public class AssessmentService {
        * status is finished.
        */
       LocalDateTime currentDate = LocalDate.now().atTime(23, 59, 59, 999999999);
-      Page<Assessment> allAssessmentsPage =
-          assessmentRepository.getUserChallenges(
-              AssessmentType.CHALLENGE,
-              spaceId,
-              userDetail.getId(),
-              AssessmentStatus.FINISHED,
-              Date.from(currentDate.toInstant(ZoneOffset.UTC)),
-              pageRequest);
+      Page<Assessment> allAssessmentsPage = assessmentRepository.getUserChallenges(
+          AssessmentType.CHALLENGE,
+          spaceId,
+          userDetail.getId(),
+          AssessmentStatus.FINISHED,
+          Date.from(currentDate.toInstant(ZoneOffset.UTC)),
+          pageRequest);
       /*
        * 3. transfer data to Challenge Summary Model
        */
@@ -554,9 +560,8 @@ public class AssessmentService {
       log.info("calling assessmentRepository.findOneByIdAndDeletedFalseAndAssessmentType ........");
       List<ChallengeesGrade> opponents = new ArrayList<ChallengeesGrade>();
 
-      Optional<Assessment> assessment =
-          assessmentRepository.findOneByIdAndDeletedFalseAndAssessmentType(
-              challengeId, AssessmentType.CHALLENGE);
+      Optional<Assessment> assessment = assessmentRepository.findOneByIdAndDeletedFalseAndAssessmentType(
+          challengeId, AssessmentType.CHALLENGE);
       if (assessment.isPresent()) {
         log.info("assessment.isPresent() .......");
         opponents = getChallengeOppenentGrades(assessment.get());
@@ -583,35 +588,33 @@ public class AssessmentService {
 
   private void getChallengeUserAssessments(
       Assessment assessment, Long currentUserId, ChallengeSummaryModel challengeSummaryModel) {
-    List<ChallengeesGrade> opponents =
-        userAssessmentRepository
-            .findByAssessmentIdAndDeletedFalseOrderByTotalGradeAsc(assessment.getId())
-            .map(
-                userAssessment -> {
-                  ChallengeesGrade grade = new ChallengeesGrade();
-                  grade.setTotalGrade(userAssessment.getTotalGrade());
-                  grade.setStatus(userAssessment.getAssessmentStatus());
-                  if (userAssessment.getUserId().equals(assessment.getOwner().getId())) {
-                    grade.setId(assessment.getOwner().getId());
-                    grade.setName(assessment.getOwner().getFullName());
-                    grade.setCreator(true);
-                    grade.setSchool(assessment.getOwner().getSchool());
-                    grade.setThumbnail(assessment.getOwner().getThumbnail());
+    List<ChallengeesGrade> opponents = userAssessmentRepository
+        .findByAssessmentIdAndDeletedFalseOrderByTotalGradeAsc(assessment.getId())
+        .map(
+            userAssessment -> {
+              ChallengeesGrade grade = new ChallengeesGrade();
+              grade.setTotalGrade(userAssessment.getTotalGrade());
+              grade.setStatus(userAssessment.getAssessmentStatus());
+              if (userAssessment.getUserId().equals(assessment.getOwner().getId())) {
+                grade.setId(assessment.getOwner().getId());
+                grade.setName(assessment.getOwner().getFullName());
+                grade.setCreator(true);
+                grade.setSchool(assessment.getOwner().getSchool());
+                grade.setThumbnail(assessment.getOwner().getThumbnail());
 
-                  } else {
-                    User user =
-                        assessment.getChallengees().stream()
-                            .filter(u -> userAssessment.getUserId().equals(u.getId()))
-                            .findFirst()
-                            .get();
-                    grade.setId(user.getId());
-                    grade.setName(user.getFullName());
-                    grade.setSchool(user.getSchool());
-                    grade.setThumbnail(user.getThumbnail());
-                  }
-                  return grade;
-                })
-            .collect(Collectors.toList());
+              } else {
+                User user = assessment.getChallengees().stream()
+                    .filter(u -> userAssessment.getUserId().equals(u.getId()))
+                    .findFirst()
+                    .get();
+                grade.setId(user.getId());
+                grade.setName(user.getFullName());
+                grade.setSchool(user.getSchool());
+                grade.setThumbnail(user.getThumbnail());
+              }
+              return grade;
+            })
+        .collect(Collectors.toList());
 
     challengeSummaryModel.setOpponents(opponents);
   }
@@ -619,35 +622,33 @@ public class AssessmentService {
   /** Created by A.Alsayed on 18/02/19. */
   private List<ChallengeesGrade> getChallengeOppenentGrades(Assessment assessment) {
     log.info("calling getChallengeOppenentGrades inside function........" + assessment.getId());
-    List<ChallengeesGrade> opponents =
-        userAssessmentRepository
-            .findByAssessmentIdAndDeletedFalseOrderByTotalGradeAsc(assessment.getId())
-            .map(
-                userAssessment -> {
-                  log.info("calling userAssessment........" + userAssessment);
-                  ChallengeesGrade grade = new ChallengeesGrade();
-                  grade.setTotalGrade(userAssessment.getTotalGrade());
-                  grade.setStatus(userAssessment.getAssessmentStatus());
-                  if (userAssessment.getUserId().equals(assessment.getOwner().getId())) {
-                    grade.setId(assessment.getOwner().getId());
-                    grade.setName(assessment.getOwner().getFullName());
-                    grade.setCreator(true);
-                    grade.setSchool(assessment.getOwner().getSchool());
-                    grade.setThumbnail(assessment.getOwner().getThumbnail());
-                  } else {
-                    User user =
-                        assessment.getChallengees().stream()
-                            .filter(u -> userAssessment.getUserId().equals(u.getId()))
-                            .findFirst()
-                            .get();
-                    grade.setId(user.getId());
-                    grade.setName(user.getFullName());
-                    grade.setSchool(user.getSchool());
-                    grade.setThumbnail(user.getThumbnail());
-                  }
-                  return grade;
-                })
-            .collect(Collectors.toList());
+    List<ChallengeesGrade> opponents = userAssessmentRepository
+        .findByAssessmentIdAndDeletedFalseOrderByTotalGradeAsc(assessment.getId())
+        .map(
+            userAssessment -> {
+              log.info("calling userAssessment........" + userAssessment);
+              ChallengeesGrade grade = new ChallengeesGrade();
+              grade.setTotalGrade(userAssessment.getTotalGrade());
+              grade.setStatus(userAssessment.getAssessmentStatus());
+              if (userAssessment.getUserId().equals(assessment.getOwner().getId())) {
+                grade.setId(assessment.getOwner().getId());
+                grade.setName(assessment.getOwner().getFullName());
+                grade.setCreator(true);
+                grade.setSchool(assessment.getOwner().getSchool());
+                grade.setThumbnail(assessment.getOwner().getThumbnail());
+              } else {
+                User user = assessment.getChallengees().stream()
+                    .filter(u -> userAssessment.getUserId().equals(u.getId()))
+                    .findFirst()
+                    .get();
+                grade.setId(user.getId());
+                grade.setName(user.getFullName());
+                grade.setSchool(user.getSchool());
+                grade.setThumbnail(user.getThumbnail());
+              }
+              return grade;
+            })
+        .collect(Collectors.toList());
     log.info("opponents size ........" + opponents.size());
     return opponents;
   }
@@ -655,90 +656,75 @@ public class AssessmentService {
   @Transactional
   @PreAuthorize("hasAuthority('ASSESSMENT_READ')")
   public ResponseModel get(AssessmentGetAllModel assessmentGetAllModel, PageRequest pageRequest) {
-    return userRepository
-        .findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
-        .map(
-            user -> {
-              if (spaceRepository.getReferenceById(assessmentGetAllModel.getSpaceId()) != null) {
-                PageRequest pageRequestWithDefaultSort = pageRequest;
-                if (pageRequest.getSort() == null) {
-                  PageRequestModel.getPageRequestModel(
-                      pageRequest.getPageNumber(),
-                      pageRequest.getPageSize(),
-                      Sort.by(Sort.Direction.DESC, SortField.PUBLISH_DATE.getFieldName()));
-                }
-                if (assessmentGetAllModel.getAssessmentType() != null) {
-                  Page<Assessment> allAssessmentsPage = null;
-                  if (assessmentGetAllModel.getAssessmentType() == AssessmentType.PRACTICE) {
-                    allAssessmentsPage =
-                        assessmentRepository.findAllByAssessmentTypeandOwnerId(
-                            assessmentGetAllModel.getAssessmentType(),
-                            assessmentGetAllModel.getSpaceId(),
-                            user.getId(),
-                            pageRequestWithDefaultSort);
-                  } else {
-                    allAssessmentsPage =
-                        assessmentRepository.findAllByAssessmentType(
-                            assessmentGetAllModel.getAssessmentType(),
-                            assessmentGetAllModel.getSpaceId(),
-                            user.getId(),
-                            pageRequestWithDefaultSort);
-                  }
-                  return PageResponseModel.done(
-                      allAssessmentsPage.getContent().stream()
-                          .map(assessment -> assessmentListMapping(assessment, user.getId()))
-                          .collect(Collectors.toList()),
-                      allAssessmentsPage.getTotalPages(),
-                      pageRequestWithDefaultSort.getPageNumber(),
-                      allAssessmentsPage.getTotalElements());
-                }
-                Page<Assessment> ownedPage =
-                    assessmentRepository.findBySpaceIdAndDeletedFalseAndOwnerOrPublishTrue(
-                        assessmentGetAllModel.getSpaceId(), user, pageRequest);
+    var user = User.of(SecurityUtils.getCurrentUser().getId());
+    if (spaceRepository.existsById(assessmentGetAllModel.getSpaceId())) {
+      PageRequest pageRequestWithDefaultSort = pageRequest;
+      if (pageRequest.getSort().isUnsorted()) {
+        PageRequestModel.getPageRequestModel(
+            pageRequest.getPageNumber(),
+            pageRequest.getPageSize(),
+            Sort.by(Sort.Direction.DESC, SortField.PUBLISH_DATE.getFieldName()));
+      }
+      if (assessmentGetAllModel.getAssessmentType() != null) {
+        Page<Assessment> allAssessmentsPage = null;
+        if (assessmentGetAllModel.getAssessmentType() == AssessmentType.PRACTICE) {
+          allAssessmentsPage = assessmentRepository.findAllByAssessmentTypeandOwnerId(
+              assessmentGetAllModel.getAssessmentType(),
+              assessmentGetAllModel.getSpaceId(),
+              user.getId(),
+              pageRequestWithDefaultSort);
+        } else {
+          allAssessmentsPage = assessmentRepository.findAllByAssessmentType(
+              assessmentGetAllModel.getAssessmentType(),
+              assessmentGetAllModel.getSpaceId(),
+              user.getId(),
+              pageRequestWithDefaultSort);
+        }
+        return PageResponseModel.done(
+            allAssessmentsPage.getContent().stream()
+                .map(assessment -> assessmentListMapping(assessment, user.getId()))
+                .collect(Collectors.toList()),
+            allAssessmentsPage.getTotalPages(),
+            pageRequestWithDefaultSort.getPageNumber(),
+            allAssessmentsPage.getTotalElements());
+      }
+      Page<Assessment> ownedPage = assessmentRepository.findBySpaceIdAndDeletedFalseAndOwnerOrPublishTrue(
+          assessmentGetAllModel.getSpaceId(), user, pageRequest);
 
-                Set<AssessmentListModel> assessmentModels = new HashSet<>();
-                assessmentModels.addAll(
-                    ownedPage.getContent().stream()
-                        .map(assessment -> assessmentListMapping(assessment, user.getId()))
-                        .filter(
-                            assessmentListModel ->
-                                !(assessmentListModel.getAssessmentType() == AssessmentType.PRACTICE
-                                    && !Objects.equals(
-                                        assessmentListModel.getOwner(), user.getId())))
-                        .collect(Collectors.toSet()));
-                return PageResponseModel.done(
-                    assessmentModels,
-                    ownedPage.getTotalPages(),
-                    pageRequest.getPageNumber(),
-                    assessmentModels.size());
+      Set<AssessmentListModel> assessmentModels = new HashSet<>();
+      assessmentModels.addAll(
+          ownedPage.getContent().stream()
+              .map(assessment -> assessmentListMapping(assessment, user.getId()))
+              .filter(
+                  assessmentListModel -> !(assessmentListModel.getAssessmentType() == AssessmentType.PRACTICE
+                      && !Objects.equals(
+                          assessmentListModel.getOwner(), user.getId())))
+              .collect(Collectors.toSet()));
+      return PageResponseModel.done(
+          assessmentModels,
+          ownedPage.getTotalPages(),
+          pageRequest.getPageNumber(),
+          assessmentModels.size());
+    } else {
+      throw new NotFoundException("error.space.notfound");
+    }
 
-              } else {
-                throw new NotFoundException("space");
-              }
-            })
-        .orElseThrow(NotPermittedException::new);
   }
 
   @Transactional
   @PreAuthorize("hasAuthority('ASSESSMENT_READ')")
   public ResponseModel getAssessmentOverview(Long spaceId) {
-    return userRepository
-        .findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
-        .map(
-            user -> {
-              Map<AssessmentType, List<AssessmentListModel>> assessmentGroups =
-                  assessmentRepository
-                      .findBySpaceIdAndPublishTrueAndPublishDateNotNullAndDeletedFalseOrderByPublishDateDesc(
-                          spaceId)
-                      .collect(
-                          Collectors.groupingBy(
-                              Assessment::getAssessmentType,
-                              HashMap::new,
-                              Collectors.collectingAndThen(
-                                  Collectors.toSet(), list -> mapList(list, user.getId()))));
-              return ResponseModel.done(assessmentGroups);
-            })
-        .orElseThrow(NotPermittedException::new);
+    var assessmentGroups = assessmentRepository
+        .findBySpaceIdAndPublishTrueAndPublishDateNotNullAndDeletedFalseOrderByPublishDateDesc(
+            spaceId)
+        .collect(
+            Collectors.groupingBy(
+                Assessment::getAssessmentType,
+                HashMap::new,
+                Collectors.collectingAndThen(
+                    Collectors.toSet(), list -> mapList(list, SecurityUtils.getCurrentUser().getId()))));
+    return ResponseModel.done(assessmentGroups);
+
   }
 
   private List<AssessmentListModel> mapList(Set<Assessment> assessmentList, Long currentUserId) {
@@ -746,13 +732,12 @@ public class AssessmentService {
         .limit(3)
         .map(
             assessment -> {
-              AssessmentListModel assessmentListModel =
-                  new AssessmentListModel(
-                      assessment,
-                      userAssessmentRepository
-                          .findByAssessmentIdAndDeletedFalse(assessment.getId())
-                          .collect(Collectors.toList()),
-                      currentUserId);
+              AssessmentListModel assessmentListModel = new AssessmentListModel(
+                  assessment,
+                  userAssessmentRepository
+                      .findByAssessmentIdAndDeletedFalse(assessment.getId())
+                      .collect(Collectors.toList()),
+                  currentUserId);
               assessmentListModel.setNumberOfQuestions(
                   assessmentQuestionRepository.countByAssessmentIdAndDeletedFalse(
                       assessmentListModel.getId()));
@@ -765,41 +750,33 @@ public class AssessmentService {
   @PreAuthorize("hasAuthority('ASSESSMENT_READ') and hasAuthority('ADMIN')")
   public ResponseModel getAll(
       PageRequest pageRequest, Long spaceId, AssessmentType assessmentType) {
-    return userRepository
-        .findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
-        .map(
-            user -> {
-              Specification<Assessment> spaceIdSpec = null;
-              Specification<Assessment> typeSpec = null;
-              if (spaceId != null) {
-                Space space =
-                    spaceRepository
-                        .findOneByIdAndDeletedFalse(spaceId)
-                        .orElseThrow(NotFoundException::new);
-                spaceIdSpec = (root, query, cb) -> cb.equal(root.get("space"), space);
-              }
+    Specification<Assessment> spaceIdSpec = null;
+    Specification<Assessment> typeSpec = null;
+    if (spaceId != null) {
+      Space space = spaceRepository
+          .findOneByIdAndDeletedFalse(spaceId)
+          .orElseThrow(NotFoundException::new);
+      spaceIdSpec = (root, query, cb) -> cb.equal(root.get("space"), space);
+    }
 
-              if (assessmentType != null) {
-                typeSpec =
-                    (root, query, cb) -> cb.equal(root.get("assessmentType"), assessmentType);
-              }
+    if (assessmentType != null) {
+      typeSpec = (root, query, cb) -> cb.equal(root.get("assessmentType"), assessmentType);
+    }
 
-              Page<AssessmentListModel> allAssessmentsPage =
-                  assessmentRepository
-                      .findAll(
-                          Specification.where(spaceIdSpec)
-                              .and(typeSpec)
-                              .and((root, query, cb) -> cb.isFalse(root.get("deleted"))),
-                          pageRequest)
-                      .map(assessment -> assessmentListMapping(assessment, user.getId()));
+    Page<AssessmentListModel> allAssessmentsPage = assessmentRepository
+        .findAll(
+            Specification.where(spaceIdSpec)
+                .and(typeSpec)
+                .and((root, query, cb) -> cb.isFalse(root.get("deleted"))),
+            pageRequest)
+        .map(assessment -> assessmentListMapping(assessment, SecurityUtils.getCurrentUser().getId()));
 
-              return PageResponseModel.done(
-                  allAssessmentsPage.getContent(),
-                  allAssessmentsPage.getTotalPages(),
-                  pageRequest.getPageNumber(),
-                  allAssessmentsPage.getTotalElements());
-            })
-        .orElseThrow(NotPermittedException::new);
+    return PageResponseModel.done(
+        allAssessmentsPage.getContent(),
+        allAssessmentsPage.getTotalPages(),
+        pageRequest.getPageNumber(),
+        allAssessmentsPage.getTotalElements());
+
   }
 
   @Transactional
@@ -812,35 +789,31 @@ public class AssessmentService {
           .map(
               assessment -> {
                 if (assessment.getAssessmentType() != AssessmentType.PRACTICE
-                    && userAssessmentRepository.findByAssessmentIdAndDeletedFalse(id).count()
-                        >= 1) {
+                    && userAssessmentRepository.findByAssessmentIdAndDeletedFalse(id).count() >= 1) {
                   throw new MintException(Code.INVALID, "error.assessment.status");
                 }
 
-                Joined joined =
-                    joinedRepository
-                        .findOneBySpaceIdAndUserIdAndSpaceRoleInAndDeletedFalse(
-                            assessment.getSpace().getId(),
-                            SecurityUtils.getCurrentUser().getId(),
-                            SpaceRole.COLLABORATOR,
-                            SpaceRole.CO_OWNER,
-                            SpaceRole.EDITOR,
-                            SpaceRole.OWNER)
-                        .orElseThrow(NotPermittedException::new);
+                Joined joined = joinedRepository
+                    .findOneBySpaceIdAndUserIdAndSpaceRoleInAndDeletedFalse(
+                        assessment.getSpace().getId(),
+                        SecurityUtils.getCurrentUser().getId(),
+                        SpaceRole.COLLABORATOR,
+                        SpaceRole.CO_OWNER,
+                        SpaceRole.EDITOR,
+                        SpaceRole.OWNER)
+                    .orElseThrow(NotPermittedException::new);
 
-                List<AssessmentQuestion> assessmentQuestions =
-                    assessmentQuestionRepository.findByAssessmentAndDeletedFalse(assessment);
+                List<AssessmentQuestion> assessmentQuestions = assessmentQuestionRepository
+                    .findByAssessmentAndDeletedFalse(assessment);
 
                 if (assessmentQuestions != null && !assessmentQuestions.isEmpty()) {
-                  for (Iterator<AssessmentQuestion> iterator = assessmentQuestions.iterator();
-                      iterator.hasNext(); ) {
+                  for (Iterator<AssessmentQuestion> iterator = assessmentQuestions.iterator(); iterator.hasNext();) {
                     if (iterator.hasNext()) {
                       AssessmentQuestion assessmentQuestion = iterator.next();
                       if (assessmentQuestion.getAssessmentQuestionChoices() != null
                           && !assessmentQuestion.getAssessmentQuestionChoices().isEmpty()) {
-                        for (Iterator<AssessmentQuestionChoice> iteratorChoices =
-                                assessmentQuestion.getAssessmentQuestionChoices().iterator();
-                            iterator.hasNext(); ) {
+                        for (Iterator<AssessmentQuestionChoice> iteratorChoices = assessmentQuestion
+                            .getAssessmentQuestionChoices().iterator(); iterator.hasNext();) {
                           if (iteratorChoices.hasNext()) {
                             AssessmentQuestionChoice choice = iteratorChoices.next();
                             assessmentQuestionChoicesRepository.delete(choice);
@@ -870,20 +843,19 @@ public class AssessmentService {
   /** created by A.Alsayed 07-03-2019 */
   public void autoSubmitChallenge(UserAssessmentModel userAssessmentModel) {
     log.info("autoSubmitChallenge ::: Start ...........................");
-    Optional<Assessment> assessment =
-        assessmentRepository.findOneByIdAndDeletedFalse(userAssessmentModel.getAssessmentId());
+    Optional<Assessment> assessment = assessmentRepository
+        .findOneByIdAndDeletedFalse(userAssessmentModel.getAssessmentId());
     if (assessment.isPresent()) {
       log.info("autoSubmitChallenge ::: assessment [" + assessment.get().getId() + "] exists");
-      Optional<UserAssessment> userAssessment =
-          userAssessmentRepository.findOneByUserIdAndAssessmentIdAndDeletedFalse(
-              userAssessmentModel.getUserId(), userAssessmentModel.getAssessmentId());
+      Optional<UserAssessment> userAssessment = userAssessmentRepository.findOneByUserIdAndAssessmentIdAndDeletedFalse(
+          userAssessmentModel.getUserId(), userAssessmentModel.getAssessmentId());
       if (userAssessment.isPresent()) {
         log.info(
             "autoSubmitChallenge ::: userAssessment [" + userAssessment.get().getId() + "] exists");
         if (Arrays.asList(
-                AssessmentStatus.FINISHED,
-                AssessmentStatus.NOT_EVALUATED,
-                AssessmentStatus.EVALUATED)
+            AssessmentStatus.FINISHED,
+            AssessmentStatus.NOT_EVALUATED,
+            AssessmentStatus.EVALUATED)
             .contains(userAssessment.get().getAssessmentStatus())) {
           throw new MintException(Code.INVALID, "error.assessment.taken");
         }
@@ -892,12 +864,11 @@ public class AssessmentService {
           userAssessment.get().setDuration(userAssessmentModel.getDuration());
         }
 
-        List<AssessmentQuestion> assessmentQuestions =
-            assessmentQuestionRepository.findByAssessmentAndDeletedFalse(assessment.get());
+        List<AssessmentQuestion> assessmentQuestions = assessmentQuestionRepository
+            .findByAssessmentAndDeletedFalse(assessment.get());
         assessmentQuestions.forEach(assessmentQuestion -> assessmentQuestion.setQuestionWeight(1));
 
-        boolean isChallengeFinished =
-            checkChallengeStatus(assessment.get().getId(), userAssessmentModel.getUserId());
+        boolean isChallengeFinished = checkChallengeStatus(assessment.get().getId(), userAssessmentModel.getUserId());
         if (isChallengeFinished) {
           assessment.get().setAssessmentStatus(AssessmentStatus.FINISHED);
         }
@@ -911,7 +882,7 @@ public class AssessmentService {
             userAssessment.get(),
             assessmentQuestions,
             assessment.get(),
-            userRepository.findOneByIdAndDeletedFalse(userAssessmentModel.getUserId()).get());
+            User.of(userAssessmentModel.getUserId()));
 
         userAssessmentRepository.save(userAssessment.get());
 
@@ -927,195 +898,186 @@ public class AssessmentService {
   @PreAuthorize("hasAuthority('ASSESSMENT_SOLVE_CREATE')")
   @Message(entityAction = EntityAction.ASSESSMENT_SUBMIT, services = Services.NOTIFICATIONS)
   public ResponseModel submit(UserAssessmentModel userAssessmentModel, String lang) {
-    return userRepository
-        .findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+    var user = User.of(SecurityUtils.getCurrentUser().getId());
+    return assessmentRepository
+        .findOneByIdAndDeletedFalse(userAssessmentModel.getAssessmentId())
         .map(
-            user ->
-                assessmentRepository
-                    .findOneByIdAndDeletedFalse(userAssessmentModel.getAssessmentId())
-                    .map(
-                        assessment -> {
-                          UserAssessment userAssessment =
-                              userAssessmentRepository
-                                  .findOneByUserIdAndAssessmentIdAndDeletedFalse(
-                                      user.getId(), userAssessmentModel.getAssessmentId())
-                                  .orElseGet(
-                                      () -> {
-                                        UserAssessment userAssessment2 = new UserAssessment();
-                                        userAssessment2.setUserId(user.getId());
-                                        userAssessment2.setAssessmentId(assessment.getId());
-                                        userAssessment2.setFullGrade(assessment.getTotalPoints());
-                                        return userAssessment2;
-                                      });
+            assessment -> {
+              UserAssessment userAssessment = userAssessmentRepository
+                  .findOneByUserIdAndAssessmentIdAndDeletedFalse(
+                      user.getId(), userAssessmentModel.getAssessmentId())
+                  .orElseGet(
+                      () -> {
+                        UserAssessment userAssessment2 = new UserAssessment();
+                        userAssessment2.setUserId(user.getId());
+                        userAssessment2.setAssessmentId(assessment.getId());
+                        userAssessment2.setFullGrade(assessment.getTotalPoints());
+                        return userAssessment2;
+                      });
 
-                          if (Arrays.asList(
-                                  AssessmentStatus.FINISHED,
-                                  AssessmentStatus.NOT_EVALUATED,
-                                  AssessmentStatus.EVALUATED)
-                              .contains(userAssessment.getAssessmentStatus())) {
-                            throw new MintException(Code.INVALID, "error.assessment.taken");
-                          }
-                          if (assessment.getAssessmentType() != AssessmentType.PRACTICE
-                              && assessment.getAssessmentType() != AssessmentType.CHALLENGE
-                              && userAssessmentModel.getUserId() != null
-                              && !userAssessmentModel.getUserId().equals(user.getId())
-                              && user.equals(assessment.getOwner())) {
-                            userAssessment =
-                                userAssessmentRepository
-                                    .findOneByUserIdAndAssessmentIdAndDeletedFalse(
-                                        userAssessmentModel.getUserId(), assessment.getId())
-                                    .orElseThrow(
-                                        () ->
-                                            new MintException(
-                                                Code.INVALID, "error.assessment.nottaken"));
-                          }
+              if (Arrays.asList(
+                  AssessmentStatus.FINISHED,
+                  AssessmentStatus.NOT_EVALUATED,
+                  AssessmentStatus.EVALUATED)
+                  .contains(userAssessment.getAssessmentStatus())) {
+                throw new MintException(Code.INVALID, "error.assessment.taken");
+              }
+              if (assessment.getAssessmentType() != AssessmentType.PRACTICE
+                  && assessment.getAssessmentType() != AssessmentType.CHALLENGE
+                  && userAssessmentModel.getUserId() != null
+                  && !userAssessmentModel.getUserId().equals(user.getId())
+                  && user.equals(assessment.getOwner())) {
+                userAssessment = userAssessmentRepository
+                    .findOneByUserIdAndAssessmentIdAndDeletedFalse(
+                        userAssessmentModel.getUserId(), assessment.getId())
+                    .orElseThrow(
+                        () -> new MintException(
+                            Code.INVALID, "error.assessment.nottaken"));
+              }
 
-                          userAssessment.setAssessmentStatus(
-                              userAssessmentModel.getAssessmentStatus());
+              userAssessment.setAssessmentStatus(
+                  userAssessmentModel.getAssessmentStatus());
 
-                          if (userAssessmentModel.getDuration() != null) {
-                            userAssessment.setDuration(userAssessmentModel.getDuration());
-                          }
+              if (userAssessmentModel.getDuration() != null) {
+                userAssessment.setDuration(userAssessmentModel.getDuration());
+              }
 
-                          switch (assessment.getAssessmentType()) {
-                            case ASSIGNMENT:
-                            case QUIZ:
-                            case PRACTICE:
-                            case CHALLENGE:
-                              boolean isChallengeFinished = false;
-                              List<AssessmentQuestion> assessmentQuestions =
-                                  assessmentQuestionRepository.findByAssessmentAndDeletedFalse(
-                                      assessment);
-                              if (assessment.getAssessmentType().equals(AssessmentType.PRACTICE)
-                                  || assessment
-                                      .getAssessmentType()
-                                      .equals(AssessmentType.CHALLENGE)) {
-                                assessmentQuestions.forEach(
-                                    assessmentQuestion -> assessmentQuestion.setQuestionWeight(1));
-                                if (assessment
-                                    .getAssessmentType()
-                                    .equals(AssessmentType.CHALLENGE)) {
-                                  /** changes by A.Alsayed 20-02-2019 */
-                                  // check challenge status using owner and opponent.
-                                  isChallengeFinished =
-                                      checkChallengeStatus(assessment.getId(), user.getId());
-                                  if (isChallengeFinished) {
-                                    assessment.setAssessmentStatus(AssessmentStatus.FINISHED);
-                                  }
-                                } else {
-                                  assessment.setAssessmentStatus(
-                                      userAssessmentModel.getAssessmentStatus());
-                                }
-                                assessmentQuestionRepository.saveAll(assessmentQuestions);
-                                assessmentRepository.save(assessment);
-                              }
+              switch (assessment.getAssessmentType()) {
+                case ASSIGNMENT:
+                case QUIZ:
+                case PRACTICE:
+                case CHALLENGE:
+                  boolean isChallengeFinished = false;
+                  List<AssessmentQuestion> assessmentQuestions = assessmentQuestionRepository
+                      .findByAssessmentAndDeletedFalse(
+                          assessment);
+                  if (assessment.getAssessmentType().equals(AssessmentType.PRACTICE)
+                      || assessment
+                          .getAssessmentType()
+                          .equals(AssessmentType.CHALLENGE)) {
+                    assessmentQuestions.forEach(
+                        assessmentQuestion -> assessmentQuestion.setQuestionWeight(1));
+                    if (assessment
+                        .getAssessmentType()
+                        .equals(AssessmentType.CHALLENGE)) {
+                      /** changes by A.Alsayed 20-02-2019 */
+                      // check challenge status using owner and opponent.
+                      isChallengeFinished = checkChallengeStatus(assessment.getId(), user.getId());
+                      if (isChallengeFinished) {
+                        assessment.setAssessmentStatus(AssessmentStatus.FINISHED);
+                      }
+                    } else {
+                      assessment.setAssessmentStatus(
+                          userAssessmentModel.getAssessmentStatus());
+                    }
+                    assessmentQuestionRepository.saveAll(assessmentQuestions);
+                    assessmentRepository.save(assessment);
+                  }
 
-                              grade(
-                                  userAssessmentModel,
-                                  userAssessment,
-                                  assessmentQuestions,
-                                  assessment,
-                                  user);
+                  grade(
+                      userAssessmentModel,
+                      userAssessment,
+                      assessmentQuestions,
+                      assessment,
+                      user);
 
-                              break;
-                            case WORKSHEET:
-                              if (!assessment.getOwner().getId().equals(user.getId())
-                                  && userAssessmentModel.getUserWorkSheetAnswerModel() != null) {
-                                userAssessment.setWorkSheetAnswerModel(
-                                    AssessmentsMapper.INSTANCE.cloneToNewModel(
-                                        userAssessmentModel.getUserWorkSheetAnswerModel()));
-                                userAssessmentModel.setFullGrade(assessment.getTotalPoints());
-                                userAssessment.setAssessmentStatus(AssessmentStatus.NOT_EVALUATED);
-                              } else if (assessment.getOwner().getId().equals(user.getId())
-                                  && userAssessmentModel.getOwnerWorkSheetAnswerModel() != null) {
-                                userAssessment.setOwnerWorkSheetAnswerModel(
-                                    AssessmentsMapper.INSTANCE.cloneToNewModel(
-                                        userAssessmentModel.getOwnerWorkSheetAnswerModel()));
-                                userAssessment.setTotalGrade(userAssessmentModel.getTotalGrade());
-                                if (assessment.getTotalPoints() > 0
-                                    && null != assessment.getTotalPoints()) {
-                                  userAssessment.setPercentage(
-                                      (userAssessment.getTotalGrade()
-                                              / assessment.getTotalPoints().floatValue())
-                                          * 100);
-                                }
-                                userAssessment.setAssessmentStatus(AssessmentStatus.EVALUATED);
-                              } else {
-                                throw new MintException(Code.INVALID);
-                              }
-                              break;
-                            default:
-                              throw new InvalidException("error.assessment.type");
-                          }
-                          userAssessmentRepository.save(userAssessment);
+                  break;
+                case WORKSHEET:
+                  if (!assessment.getOwner().getId().equals(user.getId())
+                      && userAssessmentModel.getUserWorkSheetAnswerModel() != null) {
+                    userAssessment.setWorkSheetAnswerModel(
+                        AssessmentsMapper.INSTANCE.cloneToNewModel(
+                            userAssessmentModel.getUserWorkSheetAnswerModel()));
+                    userAssessmentModel.setFullGrade(assessment.getTotalPoints());
+                    userAssessment.setAssessmentStatus(AssessmentStatus.NOT_EVALUATED);
+                  } else if (assessment.getOwner().getId().equals(user.getId())
+                      && userAssessmentModel.getOwnerWorkSheetAnswerModel() != null) {
+                    userAssessment.setOwnerWorkSheetAnswerModel(
+                        AssessmentsMapper.INSTANCE.cloneToNewModel(
+                            userAssessmentModel.getOwnerWorkSheetAnswerModel()));
+                    userAssessment.setTotalGrade(userAssessmentModel.getTotalGrade());
+                    if (assessment.getTotalPoints() > 0
+                        && null != assessment.getTotalPoints()) {
+                      userAssessment.setPercentage(
+                          (userAssessment.getTotalGrade()
+                              / assessment.getTotalPoints().floatValue())
+                              * 100);
+                    }
+                    userAssessment.setAssessmentStatus(AssessmentStatus.EVALUATED);
+                  } else {
+                    throw new MintException(Code.INVALID);
+                  }
+                  break;
+                default:
+                  throw new InvalidException("error.assessment.type");
+              }
+              userAssessmentRepository.save(userAssessment);
 
-                          /** changes by A.Alsayed 15-01-2019 */
-                          // update user space score with the new grade of assessment after
-                          // evaluation:
-                          if (assessment.getAssessmentType().equals(AssessmentType.PRACTICE)) {
-                            updateUserSpaceScore(
-                                user.getId(),
-                                assessment.getSpace().getId(),
-                                userAssessment.getTotalGrade() * 10);
-                          } else if (assessment.getAssessmentType().equals(AssessmentType.CHALLENGE)
-                              && checkChallengeStatus(assessment.getId(), user.getId())) {
-                            // user space score with challenge results.
-                            updateUserChallengeScores(
-                                assessment.getId(), assessment.getSpace().getId());
-                          }
+              /** changes by A.Alsayed 15-01-2019 */
+              // update user space score with the new grade of assessment after
+              // evaluation:
+              if (assessment.getAssessmentType().equals(AssessmentType.PRACTICE)) {
+                updateUserSpaceScore(
+                    user.getId(),
+                    assessment.getSpace().getId(),
+                    userAssessment.getTotalGrade() * 10);
+              } else if (assessment.getAssessmentType().equals(AssessmentType.CHALLENGE)
+                  && checkChallengeStatus(assessment.getId(), user.getId())) {
+                // user space score with challenge results.
+                updateUserChallengeScores(
+                    assessment.getId(), assessment.getSpace().getId());
+              }
 
-                          final AssessmentUserModel contentUserModel = new AssessmentUserModel();
-                          User user1 = user;
-                          if (!user.getId().equals(userAssessment.getUserId())) {
-                            user1 =
-                                userRepository
-                                    .findById(userAssessment.getUserId())
-                                    .orElseThrow(NotFoundException::new);
-                          }
-                          contentUserModel.setId(user1.getId());
-                          contentUserModel.setName(user1.getFullName());
-                          contentUserModel.setUserName(user1.getUserName());
-                          contentUserModel.setImage(user1.getThumbnail());
-                          contentUserModel.setFullGrade(userAssessment.getFullGrade());
-                          contentUserModel.setTotalGrade(userAssessment.getTotalGrade());
-                          contentUserModel.setAssessmentStatus(
-                              userAssessment.getAssessmentStatus());
-                          contentUserModel.setPercentage(userAssessment.getPercentage());
-                          contentUserModel.setMessage(
-                              getReportMessage(
-                                  userAssessment.getPercentage(),
-                                  Locale.forLanguageTag(lang == null ? "en" : lang)));
-                          return ResponseModel.done(
-                              contentUserModel,
-                              new AssessmentSubmitMessage(
-                                  assessment.getId(),
-                                  assessment.getTitle(),
-                                  assessment.getAssessmentType(),
-                                  new From(SecurityUtils.getCurrentUser()),
-                                  assessment.getSpace().getId(),
-                                  assessment.getStartDateTime(),
-                                  assessment.getDueDate(),
-                                  assessment.getSpace().getName(),
-                                  assessment.getSpace().getCategory().getName(),
-                                  userAssessment.getAssessmentStatus(),
-                                  user.equals(assessment.getOwner()),
-                                  new UserInfoMessage(user1),
-                                  new UserInfoMessage(assessment.getOwner())));
-                        })
-                    .orElseThrow(NotFoundException::new))
-        .orElseThrow(NotPermittedException::new);
+              final AssessmentUserModel contentUserModel = new AssessmentUserModel();
+              User user1 = user;
+              if (!user.getId().equals(userAssessment.getUserId())) {
+                user1 = User.of(userAssessment.getUserId());
+              }
+              contentUserModel.setId(user1.getId());
+              contentUserModel.setName(user1.getFullName());
+              contentUserModel.setUserName(user1.getUserName());
+              contentUserModel.setImage(user1.getThumbnail());
+              contentUserModel.setFullGrade(userAssessment.getFullGrade());
+              contentUserModel.setTotalGrade(userAssessment.getTotalGrade());
+              contentUserModel.setAssessmentStatus(
+                  userAssessment.getAssessmentStatus());
+              contentUserModel.setPercentage(userAssessment.getPercentage());
+              contentUserModel.setMessage(
+                  getReportMessage(
+                      userAssessment.getPercentage(),
+                      Locale.forLanguageTag(lang == null ? "en" : lang)));
+              return ResponseModel.done(
+                  contentUserModel,
+                  new AssessmentSubmitMessage(
+                      assessment.getId(),
+                      assessment.getTitle(),
+                      assessment.getAssessmentType(),
+                      new From(SecurityUtils.getCurrentUser()),
+                      assessment.getSpace().getId(),
+                      assessment.getStartDateTime(),
+                      assessment.getDueDate(),
+                      assessment.getSpace().getName(),
+                      assessment.getSpace().getCategory().getName(),
+                      userAssessment.getAssessmentStatus(),
+                      user.equals(assessment.getOwner()),
+                      new UserInfoMessage(user1),
+                      new UserInfoMessage(assessment.getOwner())));
+            })
+        .orElseThrow(NotFoundException::new);
   }
 
-  /** created by A.Alsayed 20-02-2019 Check if all users complete their challenge. */
+  /**
+   * created by A.Alsayed 20-02-2019 Check if all users complete their challenge.
+   */
   private boolean checkChallengeStatus(Long assessmentId, Long userId) {
-    List<UserAssessment> userAssessmentsList =
-        userAssessmentRepository
-            .findByAssessmentIdAndDeletedFalse(assessmentId)
-            .collect(Collectors.toList());
-    if (userAssessmentsList != null && userAssessmentsList.size() > 0) {
+    List<UserAssessment> userAssessmentsList = userAssessmentRepository
+        .findByAssessmentIdAndDeletedFalse(assessmentId)
+        .collect(Collectors.toList());
+    if (userAssessmentsList != null && !userAssessmentsList.isEmpty()) {
       for (UserAssessment userAssessment : userAssessmentsList) {
         if (userAssessment.getAssessmentStatus() != AssessmentStatus.EVALUATED
-            && userAssessment.getUserId().longValue() != userId.longValue()) return false;
+            && userAssessment.getUserId().longValue() != userId.longValue())
+          return false;
       }
     }
     return true;
@@ -1136,26 +1098,27 @@ public class AssessmentService {
               joinedRepository.save(joined);
             });
     /**
-     * modified by A.Alsayed 23-01-2019 Update total user score, this attribute to be used for
+     * modified by A.Alsayed 23-01-2019 Update total user score, this attribute to
+     * be used for
      * getting user global ranking.
      */
-    userRepository
-        .findOneByIdAndDeletedFalse(userId)
-        .ifPresent(
-            user -> {
-              user.setTotalScore(user.getTotalScore() + totalGrade);
-              userRepository.save(user);
-            });
+    // TODO: restructre this code to gamification
+    // userRepository
+    // .findOneByIdAndDeletedFalse(userId)
+    // .ifPresent(
+    // user -> {
+    // user.setTotalScore(user.getTotalScore() + totalGrade);
+    // userRepository.save(user);
+    // });
   }
 
   private void updateUserChallengeScores(Long assessmentId, Long spaceId) {
-    List<UserAssessment> userAssessmentsList =
-        userAssessmentRepository
-            .findByAssessmentIdAndDeletedFalseOrderByTotalGradeDesc(assessmentId)
-            .collect(Collectors.toList());
+    List<UserAssessment> userAssessmentsList = userAssessmentRepository
+        .findByAssessmentIdAndDeletedFalseOrderByTotalGradeDesc(assessmentId)
+        .collect(Collectors.toList());
     if (userAssessmentsList != null && userAssessmentsList.size() == 2) {
-      if (userAssessmentsList.get(0).getTotalGrade().floatValue()
-          > userAssessmentsList.get(1).getTotalGrade().floatValue()) {
+      if (userAssessmentsList.get(0).getTotalGrade().floatValue() > userAssessmentsList.get(1).getTotalGrade()
+          .floatValue()) {
         // winner found
         updateUserSpaceScore(
             userAssessmentsList.get(0).getUserId(),
@@ -1178,166 +1141,156 @@ public class AssessmentService {
   // TODO: use lamda experssion
   @Transactional
   public ResponseModel startChallenge(long assessmentId) {
-    Optional<User> user =
-        userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin());
-    if (user.isPresent()) {
-      log.info("startChallenge ::: user exists");
-      Assessment assessment = checkAssessmentByOwnerOrChallengee(assessmentId, user.get());
-      if (assessment != null) {
-        log.info("startChallenge ::: assessment [" + assessment.getId() + "] exists");
-        // mark assessment as started:
-        if (assessment.getAssessmentStatus() != null
-            && (assessment.getAssessmentStatus() == AssessmentStatus.NEW
-                || assessment.getAssessmentStatus() == AssessmentStatus.NOT_STARTED)) {
-          assessment.setAssessmentStatus(AssessmentStatus.STARTED);
-          assessmentRepository.save(assessment);
-          log.info("startChallenge ::: mark assessment as started");
-        }
 
-        Optional<UserAssessment> userAssessment =
-            userAssessmentRepository.findOneByUserIdAndAssessmentIdAndDeletedFalse(
-                user.get().getId(), assessmentId);
-        if (userAssessment.isPresent()) {
-          log.info(
-              "startChallenge ::: userAssessment [" + userAssessment.get().getId() + "] exists");
-          // mark user assessment as started
-          userAssessment.get().setAssessmentStatus(AssessmentStatus.STARTED);
-          userAssessmentRepository.save(userAssessment.get());
-          log.info("startChallenge ::: mark userAssessment as started");
+    log.info("startChallenge ::: user exists");
+    Assessment assessment = checkAssessmentByOwnerOrChallengee(assessmentId, SecurityUtils.getCurrentUser().getId());
+    if (assessment != null) {
+      log.info("startChallenge ::: assessment [" + assessment.getId() + "] exists");
+      // mark assessment as started:
+      if (assessment.getAssessmentStatus() != null
+          && (assessment.getAssessmentStatus() == AssessmentStatus.NEW
+              || assessment.getAssessmentStatus() == AssessmentStatus.NOT_STARTED)) {
+        assessment.setAssessmentStatus(AssessmentStatus.STARTED);
+        assessmentRepository.save(assessment);
+        log.info("startChallenge ::: mark assessment as started");
+      }
 
-          // start the auto solving process:
-          // ===============================
-          UserPracticeModel userPracticeModel = new UserPracticeModel();
+      Optional<UserAssessment> userAssessment = userAssessmentRepository
+          .findOneByUserIdAndAssessmentIdAndDeletedFalse(
+              SecurityUtils.getCurrentUser().getId(), assessmentId);
+      if (userAssessment.isPresent()) {
+        log.info(
+            "startChallenge ::: userAssessment [" + userAssessment.get().getId() + "] exists");
+        // mark user assessment as started
+        userAssessment.get().setAssessmentStatus(AssessmentStatus.STARTED);
+        userAssessmentRepository.save(userAssessment.get());
+        log.info("startChallenge ::: mark userAssessment as started");
 
-          userPracticeModel.setAssessmentId(assessmentId);
-          userPracticeModel.setAssessmentStatus(AssessmentStatus.STARTED);
-          userPracticeModel.setUserId(user.get().getId());
+        // start the auto solving process:
+        // ===============================
+        UserPracticeModel userPracticeModel = new UserPracticeModel();
 
-          log.info("startChallenge ::: start the auto solving process");
-          taskScheduler.schedule(
-              new AssessmentAutoSolvingRunnable(
-                  assessmentId,
-                  user.get().getId(),
-                  assessment.getLimitDuration(),
-                  userAssessmentRepository,
-                  this),
-              new Date(System.currentTimeMillis() + assessment.getLimitDuration() + 120000));
+        userPracticeModel.setAssessmentId(assessmentId);
+        userPracticeModel.setAssessmentStatus(AssessmentStatus.STARTED);
+        userPracticeModel.setUserId(SecurityUtils.getCurrentUser().getId());
 
-          return ResponseModel.done(userPracticeModel);
-        } else {
-          throw new NotFoundException();
-        }
+        log.info("startChallenge ::: start the auto solving process");
+
+        taskScheduler.schedule(
+            new AssessmentAutoSolvingRunnable(
+                assessmentId,
+                SecurityUtils.getCurrentUser().getId(),
+                assessment.getLimitDuration(),
+                userAssessmentRepository,
+                this),
+            LocalDateTime.now().plusSeconds(120 + (assessment.getLimitDuration() / 1000)).toInstant(ZoneOffset.UTC));
+
+        return ResponseModel.done(userPracticeModel);
       } else {
         throw new NotFoundException();
       }
     } else {
-      throw new NotPermittedException();
+      throw new NotFoundException();
     }
+
   }
 
   @Transactional
   @Auditable(EntityAction.ASSESSMENT_SUBMIT)
   public ResponseModel submitQuestion(UserPracticeModel userPracticeModel) {
-    Optional<User> user =
-        userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin());
-    if (user.isPresent()) {
-      Assessment assessment =
-          checkAssessmentByOwnerOrChallengee(userPracticeModel.getAssessmentId(), user.get());
-      if (assessment != null) {
-        // change assessment status to Started:
-        if (assessment.getAssessmentStatus() != null
-            && (assessment.getAssessmentStatus() == AssessmentStatus.NEW
-                || assessment.getAssessmentStatus() == AssessmentStatus.NOT_STARTED)) {
-          assessment.setAssessmentStatus(AssessmentStatus.STARTED);
-          assessmentRepository.save(assessment);
 
-          // NEW: Start counting based on the limit duration (automatic solving):
-          // ====================================================================
-          //					if (assessment.getAssessmentType() == AssessmentType.CHALLENGE) {
-          //						taskScheduler.schedule(
-          //								new AssessmentAutoSolvingRunnable(userPracticeModel,
-          // assessment.getLimitDuration()),
-          //								new Date(System.currentTimeMillis() + assessment.getLimitDuration()));
-          //					}
-        }
+    Assessment assessment = checkAssessmentByOwnerOrChallengee(userPracticeModel.getAssessmentId(),
+        SecurityUtils.getCurrentUser().getId());
+    if (assessment != null) {
+      // change assessment status to Started:
+      if (assessment.getAssessmentStatus() != null
+          && (assessment.getAssessmentStatus() == AssessmentStatus.NEW
+              || assessment.getAssessmentStatus() == AssessmentStatus.NOT_STARTED)) {
+        assessment.setAssessmentStatus(AssessmentStatus.STARTED);
+        assessmentRepository.save(assessment);
 
-        Optional<UserAssessment> userAssessment =
-            userAssessmentRepository.findOneByUserIdAndAssessmentIdAndDeletedFalse(
-                user.get().getId(), userPracticeModel.getAssessmentId());
-        if (userAssessment.isPresent()) {
-          QuestionAnswer questionAnswer =
-              questionAnswerRepository
-                  .findOneByUserIdAndQuestionIdAndDeletedFalse(
-                      user.get().getId(),
-                      userPracticeModel.getQuestionAnswerModels().getQuestionId())
-                  .map(
-                      questionAnswer1 -> {
-                        questionAnswer1.setUserAnswer(
-                            userPracticeModel.getQuestionAnswerModels().getUserAnswer());
-                        questionAnswer1.setGrade(
-                            userPracticeModel.getQuestionAnswerModels().getGrade());
-                        return questionAnswer1;
-                      })
-                  .orElseGet(
-                      () -> {
-                        QuestionAnswer questionAnswer1 = new QuestionAnswer();
-                        questionAnswer1.setUserAnswer(
-                            userPracticeModel.getQuestionAnswerModels().getUserAnswer());
-                        questionAnswer1.setQuestionId(
-                            userPracticeModel.getQuestionAnswerModels().getQuestionId());
-                        questionAnswer1.setUserId(user.get().getId());
-                        questionAnswer1.setGrade(
-                            userPracticeModel.getQuestionAnswerModels().getGrade());
-                        return questionAnswer1;
-                      });
-          questionAnswerRepository.save(questionAnswer);
-          if (!userAssessment.get().getQuestionAnswerList().contains(questionAnswer)) {
-            userAssessment.get().getQuestionAnswerList().add(questionAnswer);
-          }
-          userAssessment
-              .get()
-              .setAssessmentStatus(
-                  (userPracticeModel.getAssessmentStatus() == AssessmentStatus.NEW
-                          || userPracticeModel.getAssessmentStatus()
-                              == AssessmentStatus.NOT_STARTED)
-                      ? AssessmentStatus.STARTED
-                      : userPracticeModel.getAssessmentStatus());
-          userAssessmentRepository.save(userAssessment.get());
-          return ResponseModel.done((Object) userAssessment.get().getId());
-        } else {
-          UserAssessment newUserAssessment = new UserAssessment();
-          newUserAssessment.setAssessmentId(userPracticeModel.getAssessmentId());
-          newUserAssessment.setUserId(user.get().getId());
-          newUserAssessment.setAssessmentStatus(
-              (userPracticeModel.getAssessmentStatus() == AssessmentStatus.NEW
-                      || userPracticeModel.getAssessmentStatus() == AssessmentStatus.NOT_STARTED)
-                  ? AssessmentStatus.STARTED
-                  : userPracticeModel.getAssessmentStatus());
-          newUserAssessment.setQuestionAnswerList(new ArrayList<>());
-          QuestionAnswer questionAnswer = new QuestionAnswer();
-          questionAnswer.setUserAnswer(userPracticeModel.getQuestionAnswerModels().getUserAnswer());
-          questionAnswer.setQuestionId(userPracticeModel.getQuestionAnswerModels().getQuestionId());
-          questionAnswer.setUserId(user.get().getId());
-          questionAnswer.setGrade(userPracticeModel.getQuestionAnswerModels().getGrade());
-          questionAnswerRepository.save(questionAnswer);
-          newUserAssessment.getQuestionAnswerList().add(questionAnswer);
-          userAssessmentRepository.save(newUserAssessment);
-          return ResponseModel.done((Object) newUserAssessment.getId());
+        // NEW: Start counting based on the limit duration (automatic solving):
+        // ====================================================================
+        // if (assessment.getAssessmentType() == AssessmentType.CHALLENGE) {
+        // taskScheduler.schedule(
+        // new AssessmentAutoSolvingRunnable(userPracticeModel,
+        // assessment.getLimitDuration()),
+        // new Date(System.currentTimeMillis() + assessment.getLimitDuration()));
+        // }
+      }
+
+      Optional<UserAssessment> userAssessment = userAssessmentRepository
+          .findOneByUserIdAndAssessmentIdAndDeletedFalse(
+              SecurityUtils.getCurrentUser().getId(), userPracticeModel.getAssessmentId());
+      if (userAssessment.isPresent()) {
+        QuestionAnswer questionAnswer = questionAnswerRepository
+            .findOneByUserIdAndQuestionIdAndDeletedFalse(
+                SecurityUtils.getCurrentUser().getId(),
+                userPracticeModel.getQuestionAnswerModels().getQuestionId())
+            .map(
+                questionAnswer1 -> {
+                  questionAnswer1.setUserAnswer(
+                      userPracticeModel.getQuestionAnswerModels().getUserAnswer());
+                  questionAnswer1.setGrade(
+                      userPracticeModel.getQuestionAnswerModels().getGrade());
+                  return questionAnswer1;
+                })
+            .orElseGet(
+                () -> {
+                  QuestionAnswer questionAnswer1 = new QuestionAnswer();
+                  questionAnswer1.setUserAnswer(
+                      userPracticeModel.getQuestionAnswerModels().getUserAnswer());
+                  questionAnswer1.setQuestionId(
+                      userPracticeModel.getQuestionAnswerModels().getQuestionId());
+                  questionAnswer1.setUserId(SecurityUtils.getCurrentUser().getId());
+                  questionAnswer1.setGrade(
+                      userPracticeModel.getQuestionAnswerModels().getGrade());
+                  return questionAnswer1;
+                });
+        questionAnswerRepository.save(questionAnswer);
+        if (!userAssessment.get().getQuestionAnswerList().contains(questionAnswer)) {
+          userAssessment.get().getQuestionAnswerList().add(questionAnswer);
         }
+        userAssessment
+            .get()
+            .setAssessmentStatus(
+                (userPracticeModel.getAssessmentStatus() == AssessmentStatus.NEW
+                    || userPracticeModel.getAssessmentStatus() == AssessmentStatus.NOT_STARTED)
+                        ? AssessmentStatus.STARTED
+                        : userPracticeModel.getAssessmentStatus());
+        userAssessmentRepository.save(userAssessment.get());
+        return ResponseModel.done((Object) userAssessment.get().getId());
       } else {
-        throw new NotFoundException();
+        UserAssessment newUserAssessment = new UserAssessment();
+        newUserAssessment.setAssessmentId(userPracticeModel.getAssessmentId());
+        newUserAssessment.setUserId(SecurityUtils.getCurrentUser().getId());
+        newUserAssessment.setAssessmentStatus(
+            (userPracticeModel.getAssessmentStatus() == AssessmentStatus.NEW
+                || userPracticeModel.getAssessmentStatus() == AssessmentStatus.NOT_STARTED)
+                    ? AssessmentStatus.STARTED
+                    : userPracticeModel.getAssessmentStatus());
+        newUserAssessment.setQuestionAnswerList(new ArrayList<>());
+        QuestionAnswer questionAnswer = new QuestionAnswer();
+        questionAnswer.setUserAnswer(userPracticeModel.getQuestionAnswerModels().getUserAnswer());
+        questionAnswer.setQuestionId(userPracticeModel.getQuestionAnswerModels().getQuestionId());
+        questionAnswer.setUserId(SecurityUtils.getCurrentUser().getId());
+        questionAnswer.setGrade(userPracticeModel.getQuestionAnswerModels().getGrade());
+        questionAnswerRepository.save(questionAnswer);
+        newUserAssessment.getQuestionAnswerList().add(questionAnswer);
+        userAssessmentRepository.save(newUserAssessment);
+        return ResponseModel.done((Object) newUserAssessment.getId());
       }
     } else {
-      throw new NotPermittedException();
+      throw new NotFoundException();
     }
+
   }
 
-  private Assessment checkAssessmentByOwnerOrChallengee(Long assessmentId, User user) {
-    log.info("checkAssessmentByOwnerOrChallengee user exist with id = " + user.getId());
+  private Assessment checkAssessmentByOwnerOrChallengee(Long assessmentId, Long userId) {
+    log.info("checkAssessmentByOwnerOrChallengee user exist with id = " + userId);
     // 1. check if assessment type is challenge or practice and the user is owner:
-    Optional<Assessment> assessment =
-        assessmentRepository.findOneByIdAndDeletedFalseAndOwnerAndAssessmentTypeIn(
-            assessmentId, user, AssessmentType.PRACTICE, AssessmentType.CHALLENGE);
+    Optional<Assessment> assessment = assessmentRepository.findOneByIdAndDeletedFalseAndOwnerIdAndAssessmentTypeIn(
+        assessmentId, userId, AssessmentType.PRACTICE, AssessmentType.CHALLENGE);
     if (assessment.isPresent()) {
       log.info(
           "checkAssessmentByOwnerOrChallengee OWNER assessment exist with id = "
@@ -1347,8 +1300,7 @@ public class AssessmentService {
       // 2. check if assessment type is challenge or practice and the user is
       // challengee:
       log.info("checkAssessmentByOwnerOrChallengee trying to get using challengee id....");
-      List<Assessment> assessments =
-          assessmentRepository.findAssessmentByChallengee(user.getId(), assessmentId);
+      List<Assessment> assessments = assessmentRepository.findAssessmentByChallengee(userId, assessmentId);
       if (assessments != null && assessments.size() > 0) {
         log.info(
             "checkAssessmentByOwnerOrChallengee CHALLENGEE assessment exist with id = "
@@ -1362,43 +1314,36 @@ public class AssessmentService {
   @Transactional
   @PreAuthorize("hasAuthority('ASSESSMENT_READ')")
   public ResponseModel getUpdates(AssessmentGetAllModel assessmentGetAllModel) {
-    return userRepository
-        .findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
-        .map(
-            user -> {
-              AssessmentsUpdatesModel assessmentsUpdatesModel = new AssessmentsUpdatesModel();
-              if (spaceRepository.getOne(assessmentGetAllModel.getSpaceId()) != null) {
-                assessmentsUpdatesModel.setDeletedAssessments(
-                    assessmentRepository
-                        .findBySpaceIdAndDeletedDateAfterAndDeletedTrue(
-                            assessmentGetAllModel.getSpaceId(),
-                            DateConverter.convertZonedDateTimeToDate(
-                                assessmentGetAllModel.getDate()))
-                        .map(assessment -> assessmentMapping(assessment, user.getId()))
-                        .collect(Collectors.toList()));
-                assessmentsUpdatesModel.setUpdatedAssessments(
-                    assessmentRepository
-                        .findBySpaceIdAndLastModifiedDateAfterAndDeletedFalse(
-                            assessmentGetAllModel.getSpaceId(),
-                            DateConverter.convertZonedDateTimeToDate(
-                                assessmentGetAllModel.getDate()))
-                        .map(assessment -> assessmentMapping(assessment, user.getId()))
-                        .collect(Collectors.toList()));
-                assessmentsUpdatesModel.setNewAssessments(
-                    assessmentRepository
-                        .findBySpaceIdAndLastModifiedDateIsNullAndCreationDateAfterAndDeletedFalse(
-                            assessmentGetAllModel.getSpaceId(),
-                            DateConverter.convertZonedDateTimeToDate(
-                                assessmentGetAllModel.getDate()))
-                        .map(assessment -> assessmentMapping(assessment, user.getId()))
-                        .collect(Collectors.toList()));
 
-                return ResponseModel.done(assessmentsUpdatesModel);
-              } else {
-                throw new NotFoundException("space");
-              }
-            })
-        .orElseThrow(NotPermittedException::new);
+    AssessmentsUpdatesModel assessmentsUpdatesModel = new AssessmentsUpdatesModel();
+    var userId = SecurityUtils.getCurrentUser().getId();
+    assessmentsUpdatesModel.setDeletedAssessments(
+        assessmentRepository
+            .findBySpaceIdAndDeletedDateAfterAndDeletedTrue(
+                assessmentGetAllModel.getSpaceId(),
+                DateConverter.convertZonedDateTimeToDate(
+                    assessmentGetAllModel.getDate()))
+            .map(assessment -> assessmentMapping(assessment, userId))
+            .collect(Collectors.toList()));
+    assessmentsUpdatesModel.setUpdatedAssessments(
+        assessmentRepository
+            .findBySpaceIdAndLastModifiedDateAfterAndDeletedFalse(
+                assessmentGetAllModel.getSpaceId(),
+                DateConverter.convertZonedDateTimeToDate(
+                    assessmentGetAllModel.getDate()))
+            .map(assessment -> assessmentMapping(assessment, userId))
+            .collect(Collectors.toList()));
+    assessmentsUpdatesModel.setNewAssessments(
+        assessmentRepository
+            .findBySpaceIdAndLastModifiedDateIsNullAndCreationDateAfterAndDeletedFalse(
+                assessmentGetAllModel.getSpaceId(),
+                DateConverter.convertZonedDateTimeToDate(
+                    assessmentGetAllModel.getDate()))
+            .map(assessment -> assessmentMapping(assessment, userId))
+            .collect(Collectors.toList()));
+
+    return ResponseModel.done(assessmentsUpdatesModel);
+
   }
 
   @Transactional
@@ -1411,7 +1356,7 @@ public class AssessmentService {
             assessment -> {
               if (assessment.getPublish().equals(Boolean.FALSE)) {
                 if ((assessment.getAssessmentType() == AssessmentType.QUIZ
-                        || assessment.getAssessmentType() == AssessmentType.ASSIGNMENT)
+                    || assessment.getAssessmentType() == AssessmentType.ASSIGNMENT)
                     && assessmentQuestionRepository
                         .findByAssessmentAndDeletedFalse(assessment)
                         .isEmpty()) {
@@ -1436,37 +1381,32 @@ public class AssessmentService {
         .map(
             assessment -> {
               Set<AssessmentUserModel> communityList = new HashSet<>();
-              Supplier<Stream<UserAssessment>> userAssessmentSupplier =
-                  () -> userAssessmentRepository.findByAssessmentIdAndDeletedFalse(id);
-              Set<Long> userIdList =
-                  joinedRepository
-                      .findBySpaceIdAndDeletedFalse(assessment.getSpace().getId())
-                      .filter(joined -> !joined.getUser().equals(assessment.getOwner()))
-                      .map(joined -> joined.getUser().getId())
-                      .collect(Collectors.toSet());
-              if (userIdList != null && !userIdList.isEmpty()) {
-                List<User> userList = new ArrayList<>();
-                userRepository.findAllById(userIdList).forEach(userList::add);
-                for (User user : userList) {
-                  final AssessmentUserModel contentUserModel = new AssessmentUserModel();
-                  contentUserModel.setId(user.getId());
-                  contentUserModel.setName(user.getFullName());
-                  contentUserModel.setUserName(user.getUserName());
-                  contentUserModel.setImage(user.getThumbnail());
-                  userAssessmentSupplier
-                      .get()
-                      .filter(userAssessment -> userAssessment.getUserId().equals(user.getId()))
-                      .findFirst()
-                      .ifPresent(
-                          userAssessment -> {
-                            contentUserModel.setFullGrade(userAssessment.getFullGrade());
-                            contentUserModel.setTotalGrade(userAssessment.getTotalGrade());
-                            contentUserModel.setAssessmentStatus(
-                                userAssessment.getAssessmentStatus());
-                          });
+              Supplier<Stream<UserAssessment>> userAssessmentSupplier = () -> userAssessmentRepository
+                  .findByAssessmentIdAndDeletedFalse(id);
+              var userList = joinedRepository
+                  .findBySpaceIdAndDeletedFalse(assessment.getSpace().getId())
+                  .filter(joined -> !joined.getUser().equals(assessment.getOwner()))
+                  .map(Joined::getUser)
+                  .collect(Collectors.toSet());
+              for (User user : userList) {
+                final AssessmentUserModel contentUserModel = new AssessmentUserModel();
+                contentUserModel.setId(user.getId());
+                contentUserModel.setName(user.getFullName());
+                contentUserModel.setUserName(user.getUserName());
+                contentUserModel.setImage(user.getThumbnail());
+                userAssessmentSupplier
+                    .get()
+                    .filter(userAssessment -> userAssessment.getUserId().equals(user.getId()))
+                    .findFirst()
+                    .ifPresent(
+                        userAssessment -> {
+                          contentUserModel.setFullGrade(userAssessment.getFullGrade());
+                          contentUserModel.setTotalGrade(userAssessment.getTotalGrade());
+                          contentUserModel.setAssessmentStatus(
+                              userAssessment.getAssessmentStatus());
+                        });
 
-                  communityList.add(contentUserModel);
-                }
+                communityList.add(contentUserModel);
               }
               return ResponseModel.done(communityList);
             })
@@ -1477,16 +1417,14 @@ public class AssessmentService {
   @PreAuthorize("hasAuthority('ASSESSMENT_READ')")
   public ResponseModel getUserAssessment(Long assessmentId, Long userId) {
     User user = userRepository.findById(userId).orElseThrow(NotFoundException::new);
-    Assessment assessment =
-        assessmentRepository.findById(assessmentId).orElseThrow(NotFoundException::new);
+    Assessment assessment = assessmentRepository.findById(assessmentId).orElseThrow(NotFoundException::new);
 
     return userAssessmentRepository
         .findOneByUserIdAndAssessmentIdAndDeletedFalse(user.getId(), assessmentId)
         .map(
             userAssessment -> {
-              AssessmentModel userAssessmentGetModel =
-                  new AssessmentModel(
-                      assessment, Collections.singletonList(userAssessment), user.getId());
+              AssessmentModel userAssessmentGetModel = new AssessmentModel(
+                  assessment, Collections.singletonList(userAssessment), user.getId());
               userAssessmentGetModel.getAssessmentQuestionCreateModels().clear();
               switch (assessment.getAssessmentType()) {
                 case ASSIGNMENT:
@@ -1496,14 +1434,13 @@ public class AssessmentService {
                       .filter(assessmentQuestion -> !assessmentQuestion.isDeleted())
                       .forEach(
                           assessmentQuestion -> {
-                            QuestionAnswerGetModel questionAnswerGetModel =
-                                mapQuestionAnswerGetModel(assessmentQuestion);
+                            QuestionAnswerGetModel questionAnswerGetModel = mapQuestionAnswerGetModel(
+                                assessmentQuestion);
                             userAssessment.getQuestionAnswerList().stream()
                                 .filter(
-                                    questionAnswer ->
-                                        questionAnswer
-                                            .getQuestionId()
-                                            .equals(questionAnswerGetModel.getId()))
+                                    questionAnswer -> questionAnswer
+                                        .getQuestionId()
+                                        .equals(questionAnswerGetModel.getId()))
                                 .findFirst()
                                 .ifPresent(
                                     questionAnswer -> {
@@ -1538,14 +1475,13 @@ public class AssessmentService {
                         .filter(assessmentQuestion -> !assessmentQuestion.isDeleted())
                         .forEach(
                             assessmentQuestion -> {
-                              QuestionAnswerGetModel questionAnswerGetModel =
-                                  mapQuestionAnswerGetModel(assessmentQuestion);
+                              QuestionAnswerGetModel questionAnswerGetModel = mapQuestionAnswerGetModel(
+                                  assessmentQuestion);
                               userAssessment.getQuestionAnswerList().stream()
                                   .filter(
-                                      questionAnswer ->
-                                          questionAnswer
-                                              .getQuestionId()
-                                              .equals(questionAnswerGetModel.getId()))
+                                      questionAnswer -> questionAnswer
+                                          .getQuestionId()
+                                          .equals(questionAnswerGetModel.getId()))
                                   .findFirst()
                                   .ifPresent(
                                       questionAnswer -> {
@@ -1574,76 +1510,57 @@ public class AssessmentService {
   @Auditable(EntityAction.ASSESSMENT_UPDATE)
   public ResponseModel updateAssessmentStatus(
       Long assessmentId, AssessmentStatus assessmentStatus) {
-    return userRepository
-        .findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+    return assessmentRepository
+        .findOneByIdAndDeletedFalseAndOwnerIdAndAssessmentTypeIn(
+            assessmentId, SecurityUtils.getCurrentUser().getId(), AssessmentType.PRACTICE)
         .map(
-            user ->
-                assessmentRepository
-                    .findOneByIdAndDeletedFalseAndOwnerAndAssessmentTypeIn(
-                        assessmentId, user, AssessmentType.PRACTICE)
-                    .map(
-                        assessment -> {
-                          assessment.setAssessmentStatus(assessmentStatus);
-                          if (assessmentStatus.equals(AssessmentStatus.STARTED)) {
-                            assessment.setStartDateTime(new Date());
-                          }
-                          assessmentRepository.save(assessment);
-                          return ResponseModel.done();
-                        })
-                    .orElseThrow(NotFoundException::new))
-        .orElseThrow(NotPermittedException::new);
+            assessment -> {
+              assessment.setAssessmentStatus(assessmentStatus);
+              if (assessmentStatus.equals(AssessmentStatus.STARTED)) {
+                assessment.setStartDateTime(new Date());
+              }
+              assessmentRepository.save(assessment);
+              return ResponseModel.done();
+            })
+        .orElseThrow(NotFoundException::new);
   }
 
   // TODO: Review
   @Transactional
   @Auditable(EntityAction.ASSESSMENT_UPDATE)
   public ResponseModel reset(Long id) {
-    return userRepository
-        .findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
-        .map(
-            user ->
-                assessmentRepository
-                    .findOneByIdAndDeletedFalseAndOwnerAndAssessmentTypeIn(
-                        id, user, AssessmentType.PRACTICE)
-                    .map(
-                        assessment ->
-                            userAssessmentRepository
-                                .findOneByUserIdAndAssessmentIdAndDeletedFalse(
-                                    user.getId(), assessment.getId())
-                                .map(
-                                    userAssessment -> {
-                                      questionAnswerRepository.deleteAll(
-                                          userAssessment.getQuestionAnswerList());
-                                      userAssessmentRepository.delete(userAssessment);
-                                      assessment.setStartDateTime(null);
-                                      assessment.setAssessmentStatus(AssessmentStatus.NEW);
-                                      assessment.setLimitDuration(0l);
-                                      assessmentRepository.save(assessment);
-                                      return ResponseModel.done(assessment.getId());
-                                    })
-                                .orElseThrow(NotFoundException::new))
-                    .orElseThrow(NotFoundException::new))
-        .orElseThrow(NotPermittedException::new);
+    userAssessmentRepository
+        .findOneByUserIdAndAssessmentIdAndDeletedFalse(
+            SecurityUtils.getCurrentUser().getId(), id)
+        .ifPresent(
+            userAssessment -> {
+              questionAnswerRepository.deleteAll(
+                  userAssessment.getQuestionAnswerList());
+              userAssessmentRepository.delete(userAssessment);
+              assessmentRepository.findById(id).ifPresent(assessment -> {
+                assessment.setAssessmentStatus(AssessmentStatus.NEW);
+                assessment.setStartDateTime(null);
+                assessment.setLimitDuration(0l);
+                assessmentRepository.save(assessment);
+              });
+            });
+    return ResponseModel.done();
   }
 
   private AssessmentListModel assessmentListMapping(Assessment assessment, Long currentUserId) {
 
-    List<UserAssessment> userAssessmentsList =
-        userAssessmentRepository
-            .findByAssessmentIdAndDeletedFalseOrderByTotalGradeAsc(assessment.getId())
-            .collect(Collectors.toList());
-    AssessmentListModel assessmentListModel =
-        new AssessmentListModel(assessment, userAssessmentsList, currentUserId);
+    List<UserAssessment> userAssessmentsList = userAssessmentRepository
+        .findByAssessmentIdAndDeletedFalseOrderByTotalGradeAsc(assessment.getId())
+        .collect(Collectors.toList());
+    AssessmentListModel assessmentListModel = new AssessmentListModel(assessment, userAssessmentsList, currentUserId);
 
-    List<Long> userIdList =
-        userAssessmentsList.stream()
-            .filter(
-                userAssessment1 ->
-                    userAssessment1.getAssessmentStatus() == AssessmentStatus.FINISHED
-                        || userAssessment1.getAssessmentStatus() == AssessmentStatus.NOT_EVALUATED)
-            .limit(MAX_USER_IN_COMMUNITY)
-            .map(UserAssessment::getUserId)
-            .collect(Collectors.toList());
+    List<Long> userIdList = userAssessmentsList.stream()
+        .filter(
+            userAssessment1 -> userAssessment1.getAssessmentStatus() == AssessmentStatus.FINISHED
+                || userAssessment1.getAssessmentStatus() == AssessmentStatus.NOT_EVALUATED)
+        .limit(MAX_USER_IN_COMMUNITY)
+        .map(UserAssessment::getUserId)
+        .collect(Collectors.toList());
     assessmentListModel.setUserCommunity(getCommunityList(userIdList));
     assessmentListModel.setNumberOfQuestions(
         assessmentQuestionRepository.countByAssessmentIdAndDeletedFalse(assessment.getId()));
@@ -1652,23 +1569,19 @@ public class AssessmentService {
 
   private AssessmentModel assessmentMapping(Assessment assessment, Long currentUserId) {
 
-    List<UserAssessment> userAssessmentsList =
-        userAssessmentRepository
-            .findByAssessmentIdAndDeletedFalseOrderByTotalGradeAsc(assessment.getId())
-            .collect(Collectors.toList());
+    List<UserAssessment> userAssessmentsList = userAssessmentRepository
+        .findByAssessmentIdAndDeletedFalseOrderByTotalGradeAsc(assessment.getId())
+        .collect(Collectors.toList());
 
-    AssessmentModel assessmentModel =
-        new AssessmentModel(assessment, userAssessmentsList, currentUserId);
+    AssessmentModel assessmentModel = new AssessmentModel(assessment, userAssessmentsList, currentUserId);
 
-    List<Long> userIdList =
-        userAssessmentsList.stream()
-            .filter(
-                userAssessment1 ->
-                    userAssessment1.getAssessmentStatus() == AssessmentStatus.FINISHED
-                        || userAssessment1.getAssessmentStatus() == AssessmentStatus.NOT_EVALUATED)
-            .limit(MAX_USER_IN_COMMUNITY)
-            .map(UserAssessment::getUserId)
-            .collect(Collectors.toList());
+    List<Long> userIdList = userAssessmentsList.stream()
+        .filter(
+            userAssessment1 -> userAssessment1.getAssessmentStatus() == AssessmentStatus.FINISHED
+                || userAssessment1.getAssessmentStatus() == AssessmentStatus.NOT_EVALUATED)
+        .limit(MAX_USER_IN_COMMUNITY)
+        .map(UserAssessment::getUserId)
+        .collect(Collectors.toList());
     if (!userIdList.isEmpty()) {
       assessmentModel.setUserCommunity(getCommunityList(userIdList));
     }
@@ -1700,12 +1613,11 @@ public class AssessmentService {
     if (userAssessmentModel.getQuestionAnswerModels() != null
         && !userAssessmentModel.getQuestionAnswerModels().isEmpty()) {
       for (AssessmentQuestion assessmentQuestion : assessmentQuestions) {
-        Optional<QuestionAnswerModel> questionAnswerModelOptional =
-            userAssessmentModel.getQuestionAnswerModels().stream()
-                .filter(
-                    questionAnswerModel1 ->
-                        questionAnswerModel1.getQuestionId().equals(assessmentQuestion.getId()))
-                .findFirst();
+        Optional<QuestionAnswerModel> questionAnswerModelOptional = userAssessmentModel.getQuestionAnswerModels()
+            .stream()
+            .filter(
+                questionAnswerModel1 -> questionAnswerModel1.getQuestionId().equals(assessmentQuestion.getId()))
+            .findFirst();
 
         if (!questionAnswerModelOptional.isPresent()) {
           continue;
@@ -1734,19 +1646,19 @@ public class AssessmentService {
             continue;
           }
           questionAnswerModel.setGrade(0f);
-            switch (assessmentQuestion.getQuestionType()) {
-                case TRUE_FALSE -> gradeTrueFalseQuestion(questionAnswerModel, assessmentQuestion);
-                case SINGLE_CHOICE -> gradeSingleChoiceQuestion(questionAnswerModel, assessmentQuestion);
-                case MATCHING -> gradeMatchingQuestion(questionAnswerModel, assessmentQuestion);
-                case MULTIPLE_CHOICES -> gradeMultipleChoicesQuestion(questionAnswerModel, assessmentQuestion);
-                case SEQUENCE -> gradeSequenceQuestion(questionAnswerModel, assessmentQuestion);
-                case COMPLETE -> gradeCompleteQuestion(questionAnswerModel, assessmentQuestion);
-                case ESSAY -> {
-                    if (!user.getId().equals(assessment.getOwner().getId())) {
-                        userAssessment.setAssessmentStatus(AssessmentStatus.NOT_EVALUATED);
-                    }
-                }
+          switch (assessmentQuestion.getQuestionType()) {
+            case TRUE_FALSE -> gradeTrueFalseQuestion(questionAnswerModel, assessmentQuestion);
+            case SINGLE_CHOICE -> gradeSingleChoiceQuestion(questionAnswerModel, assessmentQuestion);
+            case MATCHING -> gradeMatchingQuestion(questionAnswerModel, assessmentQuestion);
+            case MULTIPLE_CHOICES -> gradeMultipleChoicesQuestion(questionAnswerModel, assessmentQuestion);
+            case SEQUENCE -> gradeSequenceQuestion(questionAnswerModel, assessmentQuestion);
+            case COMPLETE -> gradeCompleteQuestion(questionAnswerModel, assessmentQuestion);
+            case ESSAY -> {
+              if (!user.getId().equals(assessment.getOwner().getId())) {
+                userAssessment.setAssessmentStatus(AssessmentStatus.NOT_EVALUATED);
+              }
             }
+          }
 
           totalGrade += questionAnswerModel.getGrade();
         }
@@ -1762,10 +1674,9 @@ public class AssessmentService {
     userAssessment.setTotalGrade(totalGrade);
 
     if (assessment.getTotalPoints() > 0 && null != assessment.getTotalPoints()) {
-      double temp =
-          Double.valueOf(totalGrade)
-              / Double.valueOf(assessment.getTotalPoints().floatValue())
-              * 100;
+      double temp = Double.valueOf(totalGrade)
+          / Double.valueOf(assessment.getTotalPoints().floatValue())
+          * 100;
       userAssessment.setPercentage((float) temp);
     }
 
@@ -1790,15 +1701,12 @@ public class AssessmentService {
 
   private void gradeSingleChoiceQuestion(
       QuestionAnswerModel questionAnswerModel, AssessmentQuestion assessmentQuestion) {
-    ArrayList<String> userAnswers =
-        new ArrayList<>(Arrays.asList(questionAnswerModel.getUserAnswer().split(",")));
+    ArrayList<String> userAnswers = new ArrayList<>(Arrays.asList(questionAnswerModel.getUserAnswer().split(",")));
     if (userAnswers.size() == 1) {
-      Set<AssessmentQuestionChoice> assessmentQuestionChoices =
-          assessmentQuestion.getAssessmentQuestionChoices();
+      Set<AssessmentQuestionChoice> assessmentQuestionChoices = assessmentQuestion.getAssessmentQuestionChoices();
       for (AssessmentQuestionChoice assessmentQuestionChoice : assessmentQuestionChoices) {
         if (assessmentQuestionChoice.getCorrectAnswer()) {
-          if (assessmentQuestionChoice.getId()
-              == Long.parseLong(questionAnswerModel.getUserAnswer())) {
+          if (assessmentQuestionChoice.getId() == Long.parseLong(questionAnswerModel.getUserAnswer())) {
             questionAnswerModel.setGrade(assessmentQuestion.getQuestionWeight().floatValue());
           }
         }
@@ -1808,10 +1716,8 @@ public class AssessmentService {
 
   private void gradeMultipleChoicesQuestion(
       QuestionAnswerModel questionAnswerModel, AssessmentQuestion assessmentQuestion) {
-    Set<AssessmentQuestionChoice> assessmentQuestionChoices =
-        assessmentQuestion.getAssessmentQuestionChoices();
-    ArrayList<String> userAnswers =
-        new ArrayList<>(Arrays.asList(questionAnswerModel.getUserAnswer().split(",")));
+    Set<AssessmentQuestionChoice> assessmentQuestionChoices = assessmentQuestion.getAssessmentQuestionChoices();
+    ArrayList<String> userAnswers = new ArrayList<>(Arrays.asList(questionAnswerModel.getUserAnswer().split(",")));
     ArrayList<String> correctAnswers = new ArrayList<>();
     for (AssessmentQuestionChoice assessmentQuestionChoice : assessmentQuestionChoices) {
       if (Optional.ofNullable(assessmentQuestionChoice.getCorrectAnswer()).orElse(Boolean.FALSE)) {
@@ -1828,13 +1734,11 @@ public class AssessmentService {
   private void gradeSequenceQuestion(
       QuestionAnswerModel questionAnswerModel, AssessmentQuestion assessmentQuestion) {
 
-    List<String> correctAnswers =
-        assessmentQuestion.getAssessmentQuestionChoices().stream()
-            .sorted(Comparator.comparingInt(AssessmentQuestionChoice::getCorrectOrder))
-            .map(assessmentQuestionChoice -> assessmentQuestionChoice.getId().toString())
-            .collect(Collectors.toList());
-    ArrayList<String> userAnswers =
-        new ArrayList<>(Arrays.asList(questionAnswerModel.getUserAnswer().split(",")));
+    List<String> correctAnswers = assessmentQuestion.getAssessmentQuestionChoices().stream()
+        .sorted(Comparator.comparingInt(AssessmentQuestionChoice::getCorrectOrder))
+        .map(assessmentQuestionChoice -> assessmentQuestionChoice.getId().toString())
+        .collect(Collectors.toList());
+    ArrayList<String> userAnswers = new ArrayList<>(Arrays.asList(questionAnswerModel.getUserAnswer().split(",")));
 
     if (correctAnswers.equals(userAnswers)) {
       questionAnswerModel.setGrade(assessmentQuestion.getQuestionWeight().floatValue());
@@ -1849,12 +1753,12 @@ public class AssessmentService {
     ArrayList<Set<String>> userAnswers = new ArrayList<>();
     ArrayList<Set<String>> correctAnswers = new ArrayList<>();
 
-    List<AssessmentQuestionChoice> assessmentQuestionChoices =
-        assessmentQuestion.getAssessmentQuestionChoices().stream()
-            .sorted(
-                Comparator.comparingInt(AssessmentQuestionChoice::getCorrectOrder)
-                    .thenComparing(AssessmentQuestionChoice::getPairCol))
-            .toList();
+    List<AssessmentQuestionChoice> assessmentQuestionChoices = assessmentQuestion.getAssessmentQuestionChoices()
+        .stream()
+        .sorted(
+            Comparator.comparingInt(AssessmentQuestionChoice::getCorrectOrder)
+                .thenComparing(AssessmentQuestionChoice::getPairCol))
+        .toList();
 
     Arrays.stream(questionAnswerModel.getUserAnswer().split(","))
         .forEach(
@@ -1888,8 +1792,7 @@ public class AssessmentService {
         .sorted(Comparator.comparingInt(AssessmentQuestionChoice::getCorrectOrder))
         .forEach(
             assessmentQuestionChoice -> correctAnswers.add(assessmentQuestionChoice.getLabel()));
-    ArrayList<String> userAnswers =
-        new ArrayList<>(Arrays.asList(questionAnswerModel.getUserAnswer().split(",")));
+    ArrayList<String> userAnswers = new ArrayList<>(Arrays.asList(questionAnswerModel.getUserAnswer().split(",")));
     if (correctAnswers.equals(userAnswers)) {
       questionAnswerModel.setGrade(assessmentQuestion.getQuestionWeight().floatValue());
     }

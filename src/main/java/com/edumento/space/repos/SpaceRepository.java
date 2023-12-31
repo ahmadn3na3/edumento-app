@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -17,7 +18,7 @@ import com.edumento.space.domain.Space;
 
 /** Created by ahmad on 3/2/16. */
 @Repository
-public interface SpaceRepository extends AbstractRepository<Space, Long> {
+public interface SpaceRepository extends JpaRepository<Space, Long> {
 
     Integer countByNameAndUserIdAndCategoryAndDeletedFalse(String name, Long userId,
             Category category);
