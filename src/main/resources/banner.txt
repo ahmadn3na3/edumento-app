@@ -1,0 +1,6 @@
+${AnsiColor.GREEN}  __  __   _           _
+${AnsiColor.GREEN} |  \/  | (_)  _ __   | |_
+${AnsiColor.GREEN} | |\/| | | | | '_ \  | __|
+${AnsiColor.GREEN} | |  | | | | | | | | | |_
+${AnsiColor.GREEN} |_|  |_| |_| |_| |_|  \__|
+
