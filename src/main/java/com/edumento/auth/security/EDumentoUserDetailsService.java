@@ -38,13 +38,18 @@ import jakarta.servlet.http.HttpServletRequest;
 public class EDumentoUserDetailsService
     implements UserDetailsService {
 
-  private final Logger log = LoggerFactory.getLogger(UserDetailsService.class);
-  @Autowired
-  PermissionRepository permissionRepository;
-  @Autowired
-  private UserRepository userRepository;
-  @Autowired
-  private MessageSource messageSource;
+  private final Logger log;
+  private final PermissionRepository permissionRepository;
+  private final UserRepository userRepository;
+  private final MessageSource messageSource;
+
+  
+  public EDumentoUserDetailsService(PermissionRepository permissionRepository, UserRepository userRepository, MessageSource messageSource) {
+    this.log = LoggerFactory.getLogger(UserDetailsService.class);
+    this.permissionRepository = permissionRepository;
+    this.userRepository = userRepository;
+    this.messageSource = messageSource;
+  }
 
   @Override
   @Transactional(readOnly = true)

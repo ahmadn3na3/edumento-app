@@ -63,7 +63,7 @@ public class ContentViewService {
 	@Value("${mint.ffprobe}")
 	private String pathToffprobe;
 
-	@Value("${mint.pdf.encryption.enabled}")
+	@Value("${mint.pdf.encryption.enabled:false}")
 	private boolean pdfEncryptionEnabled;
 
 	@Autowired

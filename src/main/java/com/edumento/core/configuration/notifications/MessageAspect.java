@@ -29,7 +29,7 @@ public class MessageAspect {
   @Autowired
   ObjectMapper objectMapper;
 
-  @Value("${mint.enableNotificaion}")
+  @Value("${mint.enableNotificaion:false}")
   private boolean enableNotificaion;
 
   @AfterReturning(pointcut = "@annotation(message)", returning = "responseModel")

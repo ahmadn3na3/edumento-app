@@ -106,7 +106,7 @@ public class SpaceService {
   @Value("${mint.url}")
   private String url;
 
-  @Value("${spring.profiles.active}")
+  @Value("${spring.profiles.active:dev}")
   private String profile;
 
   @Autowired

@@ -53,7 +53,7 @@ public interface JoinedRepository extends JpaRepository<Joined, Long> {
   Double getAvarageRatingOnSpace(@Param("spaceId") Long spaceId);
 
   @Query(
-      "update Joined j set  j.lastAccessed= UTC_TIMESTAMP,j.lastModifiedDate=UTC_TIMESTAMP where j.space = ?1 and j.user=?2")
+      "update Joined j set  j.lastAccessed= current_timestamp(),j.lastModifiedDate=current_timestamp() where j.space = ?1 and j.user=?2")
   @Modifying
   void updateLastAccessed(Space space, User user);
 

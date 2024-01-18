@@ -50,7 +50,7 @@ public class AccountController {
 	@Autowired
 	private CategoryRepository categoryRepository;
 
-	@Value("${mint.version}")
+	@Value("${mint.version:0.0.0}")
 	private String version;
 
 	/** POST /register -> register the user. */

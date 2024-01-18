@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.catalina.mapper.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +24,6 @@ import com.edumento.b2b.domain.TimeLock;
 import com.edumento.b2b.mappers.OrganizationMapper;
 import com.edumento.b2b.model.organization.OrganizationCreateModel;
 import com.edumento.b2b.model.organization.OrganizationModel;
-import com.edumento.b2b.model.organization.OrganizationSettingModel;
 import com.edumento.b2b.repo.FoundationRepository;
 import com.edumento.b2b.repo.GroupsRepository;
 import com.edumento.b2b.repo.OrganizationRepository;
@@ -72,7 +70,6 @@ public class OrganizationService {
 
   private final FoundationRepository foundationRepository;
   private final RoleService roleService;
-  private final Mapper mapper;
 
   @Autowired
   public OrganizationService(
@@ -81,7 +78,6 @@ public class OrganizationService {
       OrganizationRepository organizationRepository,
       CategoryService categoryService,
       GroupsRepository groupsRepository,
-      Mapper mapper,
       UserRepository userRepository,
       UserAdministrationService userService,
       SpaceService spaceService,
@@ -92,7 +88,6 @@ public class OrganizationService {
     this.organizationRepository = organizationRepository;
     this.categoryService = categoryService;
     this.groupsRepository = groupsRepository;
-    this.mapper = mapper;
     this.userRepository = userRepository;
     this.userService = userService;
     this.spaceService = spaceService;

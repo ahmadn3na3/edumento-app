@@ -73,7 +73,7 @@ public interface UserRepository extends CrudRepository<User, Long>, JpaSpecifica
 
 	Page<User> findAllByTypeAndDeletedFalse(UserType userType, Pageable pageable);
 
-	Stream<User> findByRolesIdInAndDeletedFalse(Long id);
+	// Stream<User> findByRolesIdInAndDeletedFalse(Long id);
 
 	Stream<User> findByTimeLockIdAndDeletedFalse(Long timeLockId);
 

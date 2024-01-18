@@ -50,7 +50,7 @@ public interface SpaceRepository extends JpaRepository<Space, Long> {
 
     Optional<Space> findOneByIdAndDeletedTrue(Long id);
 
-    @Query("update Space s set  s.lastModifiedDate = UTC_TIMESTAMP where s = ?1")
+    @Query("update Space s set  s.lastModifiedDate = current_timestamp() where s = ?1")
     @Modifying
     void updateSpaceModificationDate(Space space);
 

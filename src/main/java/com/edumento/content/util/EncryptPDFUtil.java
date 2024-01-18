@@ -23,7 +23,7 @@ import com.edumento.core.constants.ContentStatus;
 public class EncryptPDFUtil {
 	private static final Logger log = LoggerFactory.getLogger(FileUtil.class);
 
-	@Value("${mint.pdf.encryption.enabled}")
+	@Value("${mint.pdf.encryption.enabled:false}")
 	private boolean pdfEncryptionEnabled;
 
 	@Autowired

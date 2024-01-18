@@ -107,6 +107,7 @@ import com.edumento.user.domain.User;
 import com.edumento.user.model.user.UserInfoModel;
 import com.edumento.user.repo.UserRepository;
 import com.edumento.user.services.AccountService;
+import com.edumento.user.services.InnerUserService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -133,9 +134,8 @@ public class AssessmentService {
 
   private final UserAssessmentRepository userAssessmentRepository;
   private final MessageSource messageSource;
-
-  @Autowired
-  private ThreadPoolTaskScheduler taskScheduler;
+  private final ThreadPoolTaskScheduler taskScheduler;
+  private final InnerUserService innerUserService;
 
   public AssessmentService(
       AssessmentQuestionChoicesRepository assessmentQuestionChoicesRepository,
@@ -148,7 +148,9 @@ public class AssessmentService {
       SpaceRepository spaceRepository,
       JoinedRepository joinedRepository,
       ContentRepository contentRepository,
-      MessageSource messageSource) {
+      MessageSource messageSource,
+      InnerUserService innerUserService,
+      ThreadPoolTaskScheduler taskScheduler) {
     this.assessmentQuestionChoicesRepository = assessmentQuestionChoicesRepository;
     this.assessmentQuestionRepository = assessmentQuestionRepository;
     this.userAssessmentRepository = userAssessmentRepository;
@@ -160,6 +162,8 @@ public class AssessmentService {
     this.questionAnswerRepository = questionAnswerRepository;
     this.contentRepository = contentRepository;
     this.messageSource = messageSource;
+    this.innerUserService = innerUserService;
+    this.taskScheduler = taskScheduler;
   }
 
   @Transactional
@@ -180,7 +184,7 @@ public class AssessmentService {
          * modified by A.Alsayed 7-2-2019 Add new filter for getting challengees with
          * school name not equal that of the challenge creator.
          */
-        UserInfoModel loggedInUser = userService.getUserWithAuthorities();
+        // UserInfoModel loggedInUser = userService.getUserWithAuthorities();
         // String ownerSchool =
         // loggedInUser.getSchool() != null ? loggedInUser.getSchool() : "";
         User userOptional = joinedRepository
@@ -283,7 +287,7 @@ public class AssessmentService {
 
         assessmentCreateModel.setLockMint(false);
 
-        return create(assessmentCreateModel, null);
+        return this.create(assessmentCreateModel, null);
       } else {
         throw new NotFoundException("error.assessment.noenoughquestion");
       }
@@ -342,7 +346,7 @@ public class AssessmentService {
           DateConverter.convertZonedDateTimeToDate(assesmentCreateModel.getDueDate()));
     }
 
-    if (assessment.getPublish()) {
+    if (assessment.getPublish().booleanValue()) {
       assessment.setPublishDate(new Date());
     }
 
@@ -1416,15 +1420,14 @@ public class AssessmentService {
   @Transactional
   @PreAuthorize("hasAuthority('ASSESSMENT_READ')")
   public ResponseModel getUserAssessment(Long assessmentId, Long userId) {
-    User user = userRepository.findById(userId).orElseThrow(NotFoundException::new);
     Assessment assessment = assessmentRepository.findById(assessmentId).orElseThrow(NotFoundException::new);
 
     return userAssessmentRepository
-        .findOneByUserIdAndAssessmentIdAndDeletedFalse(user.getId(), assessmentId)
+        .findOneByUserIdAndAssessmentIdAndDeletedFalse(userId, assessmentId)
         .map(
             userAssessment -> {
               AssessmentModel userAssessmentGetModel = new AssessmentModel(
-                  assessment, Collections.singletonList(userAssessment), user.getId());
+                  assessment, Collections.singletonList(userAssessment), userId);
               userAssessmentGetModel.getAssessmentQuestionCreateModels().clear();
               switch (assessment.getAssessmentType()) {
                 case ASSIGNMENT:
@@ -1592,9 +1595,9 @@ public class AssessmentService {
   private List<ContentUserModel> getCommunityList(List<Long> userIdList) {
     List<ContentUserModel> communityList = new ArrayList<>();
     if (!userIdList.isEmpty()) {
-      userRepository
-          .findAllById(userIdList)
-          .forEach(user -> communityList.add(new ContentUserModel(user)));
+      this.innerUserService
+          .findAllById(userIdList, user -> new ContentUserModel(user))
+          .forEach(user -> communityList.add(user));
     }
     return communityList;
   }

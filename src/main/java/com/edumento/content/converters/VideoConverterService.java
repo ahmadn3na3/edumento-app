@@ -53,7 +53,7 @@ public class VideoConverterService {
   @Value("${mint.ffprobe}")
   private String pathToffprobe;
 
-  @Value("${mint.encryption.enabled}")
+  @Value("${mint.encryption.enabled:false}")
   private boolean encryptionEnabled;
 
   @Autowired private FileUtil fileUtil;
