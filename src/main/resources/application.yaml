@@ -84,7 +84,8 @@ mint:
         clientid: ddae60c9-a540-4a99-b740-0ba337f81c6f
         secret: 7380453d-6e25-4f85-8dd3-4e67d719e2d0
         tokenValidityInSeconds: 1814400
-    signingKey: AFAD2SFA#REGFdf46%44
+    signingKey: xT6YYPxqMksH3VAWIPJ/WifMoLVXZwTbVCpGn3rl2w4cjVqiSb2Fgfb49RcZ7FoWQWm329uQoORj77dQrAnhBd2I79gxVOEOTKxkprYF1iWgAaJCZ1W1s03SoaVIE2LGeaL9gE8h7E0nJBTQ7457jOqk03+h7RHUeUoPgu2sA+Am8E0nsPft2nqWNifxVme+0kMccdCgwgDnwmeQbiNj1k4uCbU9vfvmxjERMA==
+    tokenValidityInSeconds: 1814400
     rememberme:
       key: be9c35f6fd41682121bd5a70362ca837459bac42
   ffmpeg: /usr/bin/ffmpeg
@@ -108,3 +109,6 @@ endpoints:
   health:
     sensitive: true
     enabled: true
+logging:
+  level:
+    '[org.springframework.security]' : DEBUG 

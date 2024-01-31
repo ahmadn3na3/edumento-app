@@ -3,6 +3,7 @@ package com.edumento.user.controller;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,8 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
@@ -25,7 +28,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.edumento.auth.configuration.JWTAuthConfig;
+import com.edumento.core.security.CurrentUserDetail;
+import com.edumento.user.model.account.LoginModel;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.nimbusds.jose.JWSAlgorithm;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
@@ -40,7 +46,7 @@ public class AuthenticateController {
 
     private final JwtEncoder jwtEncoder;
 
-    @Value("${jhipster.security.authentication.jwt.token-validity-in-seconds:0}")
+    @Value("${jhipster.security.authentication.jwt.token-validity-in-seconds:18600}")
     private long tokenValidityInSeconds;
 
     @Value("${jhipster.security.authentication.jwt.token-validity-in-seconds-for-remember-me:0}")
@@ -55,15 +61,14 @@ public class AuthenticateController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginVM loginVM) {
+    public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginModel loginVM) {
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(loginVM.getUsername(),
-                        loginVM.getPassword());
+                new UsernamePasswordAuthenticationToken(loginVM.username(), loginVM.password());
 
         Authentication authentication =
                 authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = this.createToken(authentication, loginVM.isRememberMe());
+        String jwt = this.createToken(authentication, loginVM.rememberMe());
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setBearerAuth(jwt);
         return new ResponseEntity<>(new JWTToken(jwt), httpHeaders, HttpStatus.OK);
@@ -92,16 +97,21 @@ public class AuthenticateController {
         } else {
             validity = now.plus(this.tokenValidityInSeconds, ChronoUnit.SECONDS);
         }
-
+        var userdetails = (CurrentUserDetail) authentication.getPrincipal();
         // @formatter:off
         JwtClaimsSet claims = JwtClaimsSet.builder()
             .issuedAt(now)
             .expiresAt(validity)
             .subject(authentication.getName())
             .claim(JWTAuthConfig.AUTHORITIES_KEY, authorities)
+            .claim("id", userdetails.getId())
+            .claim("companyId",  Optional.ofNullable(userdetails.getOrganizationId()).orElse(-1l))
+            .claim("foundationid", Optional.ofNullable(userdetails.getFoundationId()).orElse(-1l))
+            .claim("type", userdetails.getType())
             .build();
 
-        JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
+        JwsHeader jwsHeader = JwsHeader.with(MacAlgorithm.HS512).build();
+        
         return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
     }
 

@@ -33,7 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 
-@Service
+@Service()
 public class ModuleService {
 	Logger log = LoggerFactory.getLogger(ModuleService.class);
 	private final ModuleRepository moduleRepository;
@@ -48,6 +48,7 @@ public class ModuleService {
 		this.moduleRepository = moduleRepository;
 		this.permissionRepository = permissionRepository;
 		this.userRepository = userRepository;
+		initializeModulesAndPermission();
 	}
 
 	@Transactional()
@@ -116,40 +117,43 @@ public class ModuleService {
 				}).orElseThrow(NotPermittedException::new);
 	}
 
-	@PostConstruct()
+
 	@Transactional
-	public void initializeModulesAndPermission() throws IOException {
+	@PostConstruct
+	public void initializeModulesAndPermission() {
 
 		ClassPathResource classPathResource = new ClassPathResource("data/module/module.json");
 		ObjectMapper objectMapper = new ObjectMapper();
-		InputStream file = classPathResource.getInputStream();
-		List<ModuleModel> moduleModels = objectMapper.readValue(file, objectMapper.getTypeFactory()
-				.constructCollectionType(ArrayList.class, ModuleModel.class));
-		log.debug("modules ===> {}", moduleModels);
+		try (InputStream file = classPathResource.getInputStream()) {
+			List<ModuleModel> moduleModels = objectMapper.readValue(file, objectMapper
+					.getTypeFactory().constructCollectionType(ArrayList.class, ModuleModel.class));
+			log.debug("modules ===> {}", moduleModels);
 
-		moduleModels.forEach(moduleModel -> {
-			var module = moduleRepository.findOneByKeyCode(moduleModel.getKey());
-			if (module == null) {
-				addNewModule(moduleModel);
+			moduleModels.forEach(moduleModel -> {
+				var module = moduleRepository.findOneByKeyCode(moduleModel.getKey());
+				if (module == null) {
+					addNewModule(moduleModel);
 
-			} else {
-				log.debug("updating Module=>{} ", moduleModel.getName());
-				moduleModel.getPermissions().forEach(permissionModel -> {
-					Permission permission =
-							new Permission(permissionModel.getName(), permissionModel.getKeyCode(),
-									permissionModel.getCode(), permissionModel.getType(), module);
-					Set<Permission> permissions = module.getPermissions();
-					permissions.size();
-					log.trace("updating permission=>{} and key =>{}", permissionModel.getName(),
-							permissionModel.getKeyCode());
-					if (!permissions.contains(permission)) {
-						if (permissionRepository.findByName(permission.getName()) == null) {
-							permissionRepository.save(permission);
+				} else {
+					log.debug("updating Module=>{} ", moduleModel.getName());
+					moduleModel.getPermissions().forEach(permissionModel -> {
+						Permission permission = new Permission(permissionModel.getName(),
+								permissionModel.getKeyCode(), permissionModel.getCode(),
+								permissionModel.getType(), module);
+						Set<Permission> permissions = module.getPermissions();
+						log.trace("updating permission=>{} and key =>{}", permissionModel.getName(),
+								permissionModel.getKeyCode());
+						if (!permissions.contains(permission)) {
+							if (permissionRepository.findByName(permission.getName()) == null) {
+								permissionRepository.save(permission);
+							}
 						}
-					}
-				});
-			}
-		});
+					});
+				}
+			});
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void addNewModule(ModuleModel moduleModel) {
