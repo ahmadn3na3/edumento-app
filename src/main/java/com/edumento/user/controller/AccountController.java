@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,7 +55,7 @@ public class AccountController {
 	private String version;
 
 	/** POST /register -> register the user. */
-	@RequestMapping(path = "/register", method = RequestMethod.POST)
+	@PostMapping(path = "/register")
 	//@ApiOperation(value = "Register new account", notes = "this method is used to register for a new account", response = ResponseModel.class)
 	public ResponseModel registerAccount(@Valid @RequestBody RegesiterAccountModel userDTO,
 			HttpServletRequest request) {
@@ -74,20 +75,20 @@ public class AccountController {
 	}
 
 //	@ApiOperation(value = "Register new B2B account", notes = "this method is used to register for a new B2B account", response = ResponseModel.class)
-	@RequestMapping(path = "/b2bregister", method = RequestMethod.POST)
+	@PostMapping(path = "/b2bregister")
 	public ResponseModel registerB2bAccount(@Valid @RequestBody FoundationRegesiterAccountModel userDTO,
 			HttpServletRequest request) {
 		return accountService.createUser(userDTO);
 	}
 	
 //	@ApiOperation(value = "Register new B2B account with ", notes = "this method is used to register for a new B2B account", response = ResponseModel.class)
-	@RequestMapping(path = "/b2bregisterWithEncodePassword", method = RequestMethod.POST)
+	@PostMapping(path = "/b2bregisterWithEncodePassword")
 	public ResponseModel registerB2bAccountWithEncodePassword(@Valid @RequestBody FoundationRegesiterAccountWithEncodePasswordModel userDTO,
 			HttpServletRequest request) {
 		return accountService.createUser(userDTO);
 	}
 
-	@RequestMapping(path = "/reactivate", method = RequestMethod.POST)
+	@PostMapping(path = "/reactivate")
 //	@ApiOperation(value = "Resend Activtion Code", notes = "This method is used to resend activation code to registered users", response = ResponseModel.class)
 	public ResponseModel resendActivationMail(@RequestBody @Validated ResetPasswordModel model,
 			@RequestHeader(required = false, defaultValue = "en") String lang) {
@@ -109,21 +110,21 @@ public class AccountController {
 	}
 
 	/** POST /account -> update the current user information. */
-	@RequestMapping(path = "/account", method = RequestMethod.POST)
+	@PostMapping(path = "/account")
 //	@ApiOperation(value = "Save Account", notes = "this method is used to save user's information")
 	public ResponseModel saveAccount(@RequestBody UserCreateModel userDTO, HttpServletRequest request) {
 		return accountService.updateUserInformation(userDTO);
 	}
 
 	/** POST /change_password -> changes the current user's password */
-	@RequestMapping(path = "/account/change_password", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(path = "/account/change_password", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 //	@ApiOperation(value = "Change password", notes = "this method is used to change user's password")
 	public ResponseModel changePassword(@RequestBody @Validated ChangePasswordModel model, HttpServletRequest request) {
 
 		return accountService.changePassword(model);
 	}
 
-	@RequestMapping(path = "/account/forget_password/init", method = RequestMethod.POST)
+	@PostMapping(path = "/account/forget_password/init")
 //	@ApiOperation(value = "Request Reset password", notes = "this method is used to request resetting user's password")
 	public ResponseModel requestPasswordReset(@RequestBody @Validated ResetPasswordModel model,
 			@RequestHeader(defaultValue = "en", required = false) String lang) {
@@ -136,7 +137,7 @@ public class AccountController {
 		return accountService.checkResetCode(key);
 	}
 
-	@RequestMapping(path = "/account/forget_password/finish", method = RequestMethod.POST)
+	@PostMapping(path = "/account/forget_password/finish")
 //	@ApiOperation(value = "Reset password", notes = "this method is used to complete reset password process")
 	public ResponseModel finishPasswordReset(@Valid @RequestBody KeyAndPasswordDTO keyAndPassword,
 			HttpServletRequest request) {
@@ -177,49 +178,49 @@ public class AccountController {
 	public ResponseModel getDefaultImagesAndThumbnails() {
 		return uploadService.getDefaultImagesAndThumbnails();
 	}
-
-	@RequestMapping(path = "/account/changegrade/{fromId}/to/{toId}", method = RequestMethod.PUT)
-	public ResponseModel changeGrade(@PathVariable("fromId") Long fromId, @PathVariable("toId") Long toId) {
-		return accountService.changeGrade(fromId, toId);
-
-	}
+//
+//	@RequestMapping(path = "/account/changegrade/{fromId}/to/{toId}", method = RequestMethod.PUT)
+//	public ResponseModel changeGrade(@PathVariable("fromId") Long fromId, @PathVariable("toId") Long toId) {
+//		return accountService.changeGrade(fromId, toId);
+//
+//	}
 	
 	/** created by A.Alsayed 16-01-2019 */
 	/** this method is used for returning sum of user spaces score and user level */
-	@RequestMapping(path = "/leaderboard/getUserLevelAndPoints", method = RequestMethod.GET)
-//	@ApiOperation(value = "Get user level", notes = "this method is used to Get sum of user spaces score and user level ")
-	public ResponseModel getUserLevelAndPoints() {
-		return null;
-		
-//		return accountService.getUserLevelAndPoints();
-	}
+//	@RequestMapping(path = "/leaderboard/getUserLevelAndPoints", method = RequestMethod.GET)
+////	@ApiOperation(value = "Get user level", notes = "this method is used to Get sum of user spaces score and user level ")
+//	public ResponseModel getUserLevelAndPoints() {
+//		return null;
+//		
+////		return accountService.getUserLevelAndPoints();
+//	}
 	
 	/** created by A.Alsayed 21-01-2019 */
 	/** this method is used for returning User's global ranking */
-	@RequestMapping(path = "/leaderboard/getUserGlobalRanking", method = RequestMethod.GET)
-//	@ApiOperation(value = "Get User Global Ranking", notes = "this method is used to return User's global ranking")
-	public ResponseModel getUserGlobalRanking() {
-		return null;
-//		return accountService.getUserGlobalRanking();
-	}
+//	@RequestMapping(path = "/leaderboard/getUserGlobalRanking", method = RequestMethod.GET)
+////	@ApiOperation(value = "Get User Global Ranking", notes = "this method is used to return User's global ranking")
+//	public ResponseModel getUserGlobalRanking() {
+//		return null;
+////		return accountService.getUserGlobalRanking();
+//	}
 	
 	/** created by A.Alsayed 21-01-2019 */
 	/** this method is used for returning User's rank per each space */
-	@RequestMapping(path = "/leaderboard/getUserSpaceRanking", method = RequestMethod.GET)
-//	@ApiOperation(value = "Get User Space Ranking", notes = "this method is used to return User's rank per each space")
-	public ResponseModel getUserSpaceRanking() {
-		return null;
-//		return accountService.getUserSpaceRanking();
-	}
+//	@RequestMapping(path = "/leaderboard/getUserSpaceRanking", method = RequestMethod.GET)
+////	@ApiOperation(value = "Get User Space Ranking", notes = "this method is used to return User's rank per each space")
+//	public ResponseModel getUserSpaceRanking() {
+//		return null;
+////		return accountService.getUserSpaceRanking();
+//	}
 	
 	/** Created by A.Alsayed on 14/03/2019. */
 	/** this method is used for Getting Top Users Ranking */
-	@RequestMapping(path = "/leaderboard/getTopUsersRanking", method = RequestMethod.GET)
-//	@ApiOperation(value = "Get Top Users Ranking", notes = "this method is used to return Top Users Ranking")
-	public ResponseModel getTopUsersRanking() {
-		return null;
-//		return accountService.getTopUsersRanking();
-	}
+//	@RequestMapping(path = "/leaderboard/getTopUsersRanking", method = RequestMethod.GET)
+////	@ApiOperation(value = "Get Top Users Ranking", notes = "this method is used to return Top Users Ranking")
+//	public ResponseModel getTopUsersRanking() {
+//		return null;
+////		return accountService.getTopUsersRanking();
+//	}
 	
 //	@ApiOperation(value = "encode Password", notes = "this method is used to encode password if want to send encoded password", response = ResponseModel.class)
 	@RequestMapping(path = "/encodePassword", method = RequestMethod.POST)
