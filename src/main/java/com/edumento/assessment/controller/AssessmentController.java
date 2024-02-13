@@ -1,15 +1,5 @@
 package com.edumento.assessment.controller;
 
-import com.edumento.assessment.model.*;
-import com.edumento.assessment.model.challenge.ChallengeCreateModel;
-import com.edumento.assessment.services.AssessmentService;
-import com.edumento.core.constants.AssessmentStatus;
-import com.edumento.core.constants.AssessmentType;
-import com.edumento.core.constants.SortField;
-import com.edumento.core.controller.abstractcontroller.AbstractController;
-import com.edumento.core.model.PageRequestModel;
-import com.edumento.core.model.ResponseModel;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.validation.annotation.Validated;
@@ -20,6 +10,22 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.edumento.assessment.model.AssessmentCreateModel;
+import com.edumento.assessment.model.AssessmentGetAllModel;
+import com.edumento.assessment.model.PracticeGenerateModel;
+import com.edumento.assessment.model.UserAssessmentModel;
+import com.edumento.assessment.model.UserPracticeModel;
+import com.edumento.assessment.model.challenge.ChallengeCreateModel;
+import com.edumento.assessment.services.AssessmentService;
+import com.edumento.core.constants.AssessmentStatus;
+import com.edumento.core.constants.AssessmentType;
+import com.edumento.core.constants.SortField;
+import com.edumento.core.controller.abstractcontroller.AbstractController;
+import com.edumento.core.model.PageRequestModel;
+import com.edumento.core.model.ResponseModel;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 /** Created by ayman on 13/06/16. */
 @RestController
@@ -62,7 +68,7 @@ public class AssessmentController extends AbstractController<AssessmentCreateMod
 	public ResponseModel getUserChallenges(@PathVariable Long spaceId, @RequestHeader(required = false) Integer page, @RequestHeader(required = false) Integer size) {
 		return assessmentService.getUserChallenges(spaceId, PageRequestModel.getPageRequestModel(page, size));
 	}
-	
+
 
 	/** Created by A.Alsayed on 05/01/19. */
 	@RequestMapping(path = "/challenge/{challengeId}/start", method = RequestMethod.GET)
@@ -70,20 +76,20 @@ public class AssessmentController extends AbstractController<AssessmentCreateMod
 	public ResponseModel startChallenge(@PathVariable Long challengeId) {
 		return assessmentService.startChallenge(challengeId);
 	}
-	
+
 	/** Created by A.Alsayed on 18/02/19. */
 	@RequestMapping(path = "/challengeOpponents/{challengeId}", method = RequestMethod.GET)
 //	@ApiOperation(value = "Get challenge opponent", notes = "this method is used to get challenge opponents")
 	public ResponseModel getChallengeOpponents(@PathVariable Long challengeId) {
 		return assessmentService.getChallengeOpponents(challengeId);
 	}
-	
+
 //	@RequestMapping(path = "/findAssessment/{assessmentId}", method = RequestMethod.GET)
 //	@ApiOperation(value = "testing check assessment", notes = "this method is testing check assessment")
 //	public ResponseModel checkAssessmentByOwnerOrChallengee(@PathVariable Long assessmentId) {
 //		return assessmentService.checkAssessmentByOwnerOrChallengee(assessmentId);
 //	}
-	
+
 	@Override
 	@RequestMapping(path = "/{id}", method = RequestMethod.GET)
 //	@ApiOperation(value = "Get an assessment", notes = "this method is used to get an assessment by id")

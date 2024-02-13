@@ -77,15 +77,18 @@ public abstract class Package extends AbstractEntity {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o)
-      return true;
-    if (o == null || getClass() != o.getClass())
-      return false;
+    if (this == o) {
+		return true;
+	}
+    if (o == null || getClass() != o.getClass()) {
+		return false;
+	}
 
     Package aPackage = (Package) o;
 
-    if (id != null ? !id.equals(aPackage.id) : aPackage.id != null)
-      return false;
+    if (id != null ? !id.equals(aPackage.id) : aPackage.id != null) {
+		return false;
+	}
     return name.equals(aPackage.name);
   }
 

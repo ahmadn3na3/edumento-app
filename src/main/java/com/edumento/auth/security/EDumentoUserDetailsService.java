@@ -8,6 +8,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+
 import com.edumento.core.security.CurrentUserDetail;
 import com.edumento.core.util.PermissionCheck;
 import com.edumento.user.constant.UserType;
@@ -26,6 +28,7 @@ import com.edumento.user.domain.Permission;
 import com.edumento.user.domain.User;
 import com.edumento.user.repo.PermissionRepository;
 import com.edumento.user.repo.UserRepository;
+
 import jakarta.servlet.http.HttpServletRequest;
 
 /** Authenticate a user from the database. */

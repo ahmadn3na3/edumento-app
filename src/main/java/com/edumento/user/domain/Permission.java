@@ -2,8 +2,10 @@ package com.edumento.user.domain;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+
 import com.edumento.core.domain.AbstractEntity;
 import com.edumento.user.constant.UserType;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -104,12 +106,12 @@ public class Permission extends AbstractEntity {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o)
-      return true;
-    if (o == null || getClass() != o.getClass())
-      return false;
-    if (!super.equals(o))
-      return false;
+    if (this == o) {
+		return true;
+	}
+    if (o == null || getClass() != o.getClass() || !super.equals(o)) {
+		return false;
+	}
 
     Permission that = (Permission) o;
 

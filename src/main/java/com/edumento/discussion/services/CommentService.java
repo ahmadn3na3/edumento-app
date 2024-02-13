@@ -2,6 +2,13 @@ package com.edumento.discussion.services;
 
 import static java.lang.Boolean.TRUE;
 
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.edumento.core.constants.CommentType;
 import com.edumento.core.exception.NotFoundException;
 import com.edumento.core.exception.NotPermittedException;
@@ -15,11 +22,6 @@ import com.edumento.discussion.repos.mongodb.LikeRepository;
 import com.edumento.space.repos.SpaceRepository;
 import com.edumento.user.domain.User;
 import com.edumento.user.repo.UserRepository;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 /** Created by ahmad on 10/10/16. */
 @Service

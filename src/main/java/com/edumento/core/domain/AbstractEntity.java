@@ -2,6 +2,7 @@ package com.edumento.core.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;

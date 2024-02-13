@@ -1,6 +1,7 @@
 package com.edumento.core.model.messages.assessment;
 
 import java.util.Date;
+
 import com.edumento.core.constants.AssessmentType;
 import com.edumento.core.model.SimpleModel;
 import com.edumento.core.model.messages.From;

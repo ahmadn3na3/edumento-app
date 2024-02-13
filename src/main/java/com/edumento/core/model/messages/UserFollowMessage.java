@@ -1,6 +1,7 @@
 package com.edumento.core.model.messages;
 
 import java.io.Serializable;
+
 import com.edumento.core.model.messages.user.UserInfoMessage;
 
 public class UserFollowMessage implements Serializable {

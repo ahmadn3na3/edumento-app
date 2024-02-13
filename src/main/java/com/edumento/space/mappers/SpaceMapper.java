@@ -1,15 +1,13 @@
 package com.edumento.space.mappers;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.factory.Mappers;
+
 import com.edumento.space.domain.Space;
 import com.edumento.space.model.space.response.SpaceListingModel;
 import com.edumento.space.model.space.response.SpaceUserModel;
 import com.edumento.user.domain.User;
-
-import java.lang.annotation.Target;
-
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.factory.Mappers;
 
 @Mapper
 public interface SpaceMapper {

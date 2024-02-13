@@ -1,12 +1,7 @@
 package com.edumento.b2b.controller;
 
-import com.edumento.b2b.model.role.AssignRoleModel;
-import com.edumento.b2b.model.role.RoleByModel;
-import com.edumento.b2b.model.role.RoleCreateModel;
-import com.edumento.b2b.services.RoleService;
-import com.edumento.core.controller.abstractcontroller.AbstractController;
-import com.edumento.core.model.ResponseModel;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +9,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.edumento.b2b.model.role.AssignRoleModel;
+import com.edumento.b2b.model.role.RoleByModel;
+import com.edumento.b2b.model.role.RoleCreateModel;
+import com.edumento.b2b.services.RoleService;
+import com.edumento.core.controller.abstractcontroller.AbstractController;
+import com.edumento.core.model.ResponseModel;
 
 /** Created by ahmad on 3/29/16. */
 @RestController

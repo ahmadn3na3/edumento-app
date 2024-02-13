@@ -1,9 +1,9 @@
 package com.edumento.assessment.model;
 
-import com.edumento.core.constants.AssessmentStatus;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import com.edumento.core.constants.AssessmentStatus;
 
 /** Created by ayman on 18/10/16. */
 public class UserAssessmentGetModel {

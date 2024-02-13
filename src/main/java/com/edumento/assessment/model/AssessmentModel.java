@@ -1,13 +1,13 @@
 package com.edumento.assessment.model;
 
-import com.edumento.assessment.domain.Assessment;
-import com.edumento.assessment.domain.UserAssessment;
-import com.edumento.core.constants.AssessmentType;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.edumento.assessment.domain.Assessment;
+import com.edumento.assessment.domain.UserAssessment;
+import com.edumento.core.constants.AssessmentType;
 
 /** Created by ayman on 13/06/16. */
 public class AssessmentModel extends AssessmentListModel {
@@ -35,7 +35,7 @@ public class AssessmentModel extends AssessmentListModel {
         assessment
             .getAssessmentQuestions()
             .stream()
-            .filter(assessmentQuestion -> assessmentQuestion.isDeleted() == Boolean.FALSE)
+            .filter(assessmentQuestion -> !assessmentQuestion.isDeleted())
             .map(
                 assessmentQuestion -> {
                   AssessmentQuestionCreateModel assessmentQuestionCreateModel =
@@ -49,7 +49,7 @@ public class AssessmentModel extends AssessmentListModel {
                           .stream()
                           .filter(
                               assessmentQuestionChoice ->
-                                  assessmentQuestionChoice.isDeleted() == Boolean.FALSE)
+                                  !assessmentQuestionChoice.isDeleted())
                           .map(
                               assessmentQuestionChoice -> {
                                 ChoicesModel choicesModel = new ChoicesModel();

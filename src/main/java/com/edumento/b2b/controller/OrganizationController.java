@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.edumento.b2b.model.organization.OrganizationCreateModel;
-import com.edumento.b2b.model.organization.OrganizationModel;
 import com.edumento.b2b.services.OrganizationService;
 import com.edumento.core.controller.abstractcontroller.AbstractController;
 import com.edumento.core.model.PageRequestModel;

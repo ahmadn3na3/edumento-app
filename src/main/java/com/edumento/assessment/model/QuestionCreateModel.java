@@ -1,12 +1,14 @@
 package com.edumento.assessment.model;
 
-import com.edumento.core.constants.QuestionType;
-import com.edumento.core.constants.ResourceType;
-import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import com.edumento.core.constants.QuestionType;
+import com.edumento.core.constants.ResourceType;
+
+import jakarta.validation.constraints.NotNull;
 
 /** Created by ayman on 13/06/16. */
 public class QuestionCreateModel {
@@ -111,6 +113,6 @@ public class QuestionCreateModel {
 
   public void setResourceType(ResourceType resourceType) {
   this.resourceType = resourceType;}
-  
+
 }
 

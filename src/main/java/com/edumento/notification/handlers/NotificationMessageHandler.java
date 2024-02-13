@@ -1,6 +1,5 @@
 package com.edumento.notification.handlers;
 
-import static com.edumento.core.constants.notification.EntityType.ANNOTATIONS;
 import static com.edumento.core.constants.notification.EntityType.ANNOTATION_REPLY;
 import static com.edumento.core.constants.notification.EntityType.ASSESSMENTS;
 import static com.edumento.core.constants.notification.EntityType.CATEGORY;
@@ -14,10 +13,7 @@ import static com.edumento.core.constants.notification.EntityType.SPACE;
 import static com.edumento.core.constants.notification.EntityType.TIME_LOCK;
 import static com.edumento.core.constants.notification.EntityType.USER;
 
-import org.springframework.amqp.rabbit.annotation.RabbitHandler;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 import com.edumento.core.exception.InvalidException;
@@ -38,7 +34,7 @@ import com.edumento.notification.handlers.impl.UserHandler;
 
 /** Created by ayman on 01/03/17. */
 @Component
-@RabbitListener(queues = "notificationqueue")
+//@RabbitListener(queues = "notificationqueue")
 public class NotificationMessageHandler {
 
 	@Autowired
@@ -52,7 +48,7 @@ public class NotificationMessageHandler {
 
 	@Autowired
 	AnnotationRelplyHandler annotationRelplyHandler;
-	
+
 //	@Autowired
 //	AnnouncementHandler announcementHandler;
 
@@ -83,8 +79,8 @@ public class NotificationMessageHandler {
 	@Autowired
 	AssessmentNotificationHandler assessmentNotificationHandler;
 
-	@RabbitHandler
-	private void handle(@Payload BaseMessage notificationMessage) {
+//TODO:	@RabbitHandler add @Payload if required
+	private void handle( BaseMessage notificationMessage) {
 		int entityType = -1;
 		if (null != notificationMessage) {
 			entityType = notificationMessage.getEntityAction().getEntity();

@@ -126,15 +126,18 @@ public class Role extends AbstractEntity {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o)
-      return true;
-    if (o == null || getClass() != o.getClass())
-      return false;
+    if (this == o) {
+		return true;
+	}
+    if (o == null || getClass() != o.getClass()) {
+		return false;
+	}
 
     Role role = (Role) o;
 
-    if (!getId().equals(role.getId()))
-      return false;
+    if (!getId().equals(role.getId())) {
+		return false;
+	}
     return getName().equals(role.getName());
   }
 

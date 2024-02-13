@@ -1,6 +1,7 @@
 package com.edumento.core.model.messages.space;
 
 import java.util.List;
+
 import com.edumento.core.model.messages.BaseNotificationMessage;
 
 /** Created by ahmad on 2/7/17. */

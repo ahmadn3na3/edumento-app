@@ -1,6 +1,7 @@
 package com.edumento.core.model.messages.user;
 
 import java.io.Serializable;
+
 import com.edumento.core.model.SimpleModel;
 import com.edumento.user.domain.User;
 
@@ -79,7 +80,9 @@ public class UserInfoMessage extends SimpleModel implements Serializable {
   }
 
   public String getLang() {
-    if (lang == null) lang = "en";
+    if (lang == null) {
+		lang = "en";
+	}
     return lang;
   }
 
@@ -122,16 +125,27 @@ public class UserInfoMessage extends SimpleModel implements Serializable {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (!super.equals(obj)) return false;
-    if (getClass() != obj.getClass()) return false;
+    if (this == obj) {
+		return true;
+	}
+    if (!super.equals(obj) || (getClass() != obj.getClass())) {
+		return false;
+	}
     UserInfoMessage other = (UserInfoMessage) obj;
     if (email == null) {
-      if (other.email != null) return false;
-    } else if (!email.equals(other.email)) return false;
+      if (other.email != null) {
+		return false;
+	}
+    } else if (!email.equals(other.email)) {
+		return false;
+	}
     if (login == null) {
-      if (other.login != null) return false;
-    } else if (!login.equals(other.login)) return false;
+      if (other.login != null) {
+		return false;
+	}
+    } else if (!login.equals(other.login)) {
+		return false;
+	}
     return true;
   }
 

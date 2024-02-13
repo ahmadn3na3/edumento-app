@@ -1,6 +1,7 @@
 package com.edumento.core.model.messages.space;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import com.edumento.core.constants.JoinedStatus;
 import com.edumento.core.model.messages.From;
 import com.edumento.core.model.messages.user.UserInfoMessage;

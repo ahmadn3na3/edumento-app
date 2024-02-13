@@ -237,7 +237,9 @@ public class Content extends AbstractEntity {
   }
 
   public void setNumberOfAnnotation(Integer numberOfAnnotation) {
-    if (numberOfAnnotation != null) this.numberOfAnnotation = numberOfAnnotation;
+    if (numberOfAnnotation != null) {
+		this.numberOfAnnotation = numberOfAnnotation;
+	}
   }
 
   public String getOriginalPath() {
@@ -259,16 +261,7 @@ public class Content extends AbstractEntity {
 
     Content content = (Content) o;
 
-    if (!id.equals(content.id)) {
-      return false;
-    }
-    if (name != null ? !name.equals(content.name) : content.name != null) {
-      return false;
-    }
-    if (!shelfName.equals(content.shelfName)) {
-      return false;
-    }
-    if (owner != null ? !owner.equals(content.owner) : content.owner != null) {
+    if (!id.equals(content.id) || (name != null ? !name.equals(content.name) : content.name != null) || !shelfName.equals(content.shelfName) || (owner != null ? !owner.equals(content.owner) : content.owner != null)) {
       return false;
     }
     return space != null ? space.equals(content.space) : content.space == null;

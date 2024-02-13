@@ -1,9 +1,10 @@
 package com.edumento.assessment.domain;
 
-import com.edumento.core.domain.AbstractEntity;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.edumento.core.domain.AbstractEntity;
 
 /** Created by ayman on 03/07/16. */
 @Document
@@ -68,12 +69,18 @@ public class QuestionAnswer extends AbstractEntity {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+		return true;
+	}
+    if (o == null || getClass() != o.getClass()) {
+		return false;
+	}
 
     QuestionAnswer that = (QuestionAnswer) o;
 
-    if (!userId.equals(that.userId)) return false;
+    if (!userId.equals(that.userId)) {
+		return false;
+	}
     return questionId.equals(that.questionId);
   }
 

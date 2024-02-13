@@ -13,6 +13,6 @@ public interface OrganizationMapper {
     OrganizationMapper INSTANCE = Mappers.getMapper(OrganizationMapper.class);
 
     OrganizationModel organizationToOrganizationModel(Organization organization);
-    
+
     SimpleOrganizationModel mapOrganizationToSimpleOrganizationModel(Organization organization);
 }

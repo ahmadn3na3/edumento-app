@@ -122,5 +122,5 @@ public class UserModel extends UserInfoModel {
 		this.dayModels = dayModels;
 	}
 
-	
+
 }

@@ -1,8 +1,8 @@
 package com.edumento.assessment.model;
 
-import com.edumento.core.model.SimpleModel;
-
 import java.time.ZonedDateTime;
+
+import com.edumento.core.model.SimpleModel;
 
 
 /** Created by ayman on 13/06/16. */

@@ -1,5 +1,10 @@
 package com.edumento.notification.handlers.impl;
 
+import static com.edumento.core.constants.notification.Actions.CREATE;
+import static com.edumento.core.constants.notification.Actions.DELETE;
+import static com.edumento.core.constants.notification.Actions.UPDATE;
+import static com.edumento.core.constants.notification.EntityType.CATEGORY;
+
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -7,9 +12,6 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import static com.edumento.core.constants.notification.Actions.*;
-import static com.edumento.core.constants.notification.EntityType.*;
 
 import com.edumento.core.constants.notification.MessageCategory;
 import com.edumento.core.model.messages.BaseMessage;

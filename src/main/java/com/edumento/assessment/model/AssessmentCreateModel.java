@@ -1,10 +1,10 @@
 package com.edumento.assessment.model;
 
-import com.edumento.core.constants.AssessmentType;
-
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.edumento.core.constants.AssessmentType;
 
 /** Created by ayman on 13/06/16. */
 public class AssessmentCreateModel {

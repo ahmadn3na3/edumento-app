@@ -1,6 +1,7 @@
 package com.edumento.core.model.messages.annotation;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import com.edumento.core.model.messages.From;
 
 public class AnnotationMessage {

@@ -6,11 +6,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+
 import com.edumento.core.constants.WeekDay;
 import com.edumento.core.domain.AbstractEntity;
 import com.edumento.user.domain.User;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -214,10 +217,7 @@ public class TimeLock extends AbstractEntity {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
-      return false;
-    }
-    if (!(obj instanceof TimeLock)) {
+    if ((obj == null) || !(obj instanceof TimeLock)) {
       return false;
     }
     TimeLock other = (TimeLock) obj;

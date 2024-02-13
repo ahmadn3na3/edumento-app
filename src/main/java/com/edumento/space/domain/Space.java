@@ -282,13 +282,7 @@ public class Space extends AbstractEntity {
 
     Space space = (Space) o;
 
-    if (id != null ? !id.equals(space.id) : space.id != null) {
-      return false;
-    }
-    if (!name.equals(space.name)) {
-      return false;
-    }
-    if (!category.equals(space.category)) {
+    if ((id != null ? !id.equals(space.id) : space.id != null) || !name.equals(space.name) || !category.equals(space.category)) {
       return false;
     }
     return user.equals(space.user);

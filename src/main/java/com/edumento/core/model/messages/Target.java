@@ -58,13 +58,18 @@ public class Target {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+		return true;
+	}
+    if (o == null || getClass() != o.getClass()) {
+		return false;
+	}
 
     Target target = (Target) o;
 
-    if (type != target.type) return false;
-    if (action != target.action) return false;
+    if ((type != target.type) || (action != target.action)) {
+		return false;
+	}
     return id != null ? id.equals(target.id) : target.id == null;
   }
 

@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.edumento.core.model.ResponseModel;
 import com.edumento.core.model.SimpleModel;
 import com.edumento.space.model.space.request.SpaceShareModel;
-import com.edumento.space.model.space.response.SpaceCommunityModel;
 import com.edumento.space.services.CommunityService;
 import com.edumento.space.services.SpaceService;
 

@@ -52,7 +52,6 @@ import com.edumento.core.constants.SpaceRole;
 import com.edumento.core.constants.WeekDay;
 import com.edumento.core.constants.notification.EntityAction;
 import com.edumento.core.exception.ExistException;
-import com.edumento.core.exception.InvalidException;
 import com.edumento.core.exception.MintException;
 import com.edumento.core.exception.NotFoundException;
 import com.edumento.core.exception.NotPermittedException;
@@ -660,8 +659,9 @@ public class AccountService {
 			userScorePoints = userScorePoints % 100;
 
 			return ResponseModel.done(new LeaderboardModel(userDetail.getUsername(), userlevel, userScorePoints));
-		} else
+		} else {
 			throw new NotPermittedException();
+		}
 	}
 
 	/** created by A.Alsayed 21-01-2019 */
@@ -674,8 +674,9 @@ public class AccountService {
 		if (userDetail != null) {
 			// 2. from joined table, get global ranking for logged-in user:
 			return ResponseModel.done(userRepository.getUserGlobalRanking(userDetail.getId()));
-		} else
+		} else {
 			throw new NotPermittedException();
+		}
 	}
 
 	/** created by A.Alsayed 21-01-2019 */
@@ -689,7 +690,7 @@ public class AccountService {
 			// 2.get all user spaces:
 			Set<Joined> joineds = joinedRepository.findByUserIdAndDeletedFalse(userDetail.getId())
 					.collect(Collectors.toSet());
-			List<UserSpaceRankingModel> userSpaceRanking = new ArrayList<UserSpaceRankingModel>();
+			List<UserSpaceRankingModel> userSpaceRanking = new ArrayList<>();
 			if (joineds != null && !joineds.isEmpty()) {
 				// 3. for each space, get user rank in this space:
 				joineds.forEach(joindObj -> {
@@ -702,8 +703,9 @@ public class AccountService {
 				});
 			}
 			return ResponseModel.done(userSpaceRanking);
-		} else
+		} else {
 			throw new NotPermittedException();
+		}
 	}
 
 	/** Created by A.Alsayed on 14/03/2019. */
@@ -716,8 +718,9 @@ public class AccountService {
 		if (userDetail != null) {
 			// 2. from joined table, get global ranking for logged-in user:
 			return ResponseModel.done(userRepository.getTopUsersRanking());
-		} else
+		} else {
 			throw new NotPermittedException();
+		}
 	}
 
 	public ResponseModel encodePasseword(String password) {

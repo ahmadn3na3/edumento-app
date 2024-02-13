@@ -7,10 +7,10 @@ import java.util.stream.Stream;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
+
 import com.edumento.b2b.domain.Foundation;
 import com.edumento.b2b.domain.Organization;
 import com.edumento.b2b.domain.Role;
-import com.edumento.core.repos.AbstractRepository;
 
 /** Created by ahmad on 3/23/16. */
 @Repository

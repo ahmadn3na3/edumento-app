@@ -1,13 +1,11 @@
 package com.edumento.core.repos;
 
 import java.io.Serializable;
-import java.util.Date;
+
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 
 import com.edumento.core.domain.AbstractEntity;
-import com.edumento.core.exception.NotFoundException;
-import com.edumento.core.security.SecurityUtils;
 
 @NoRepositoryBean
 public interface AbstractMongoRepository<T extends AbstractEntity, ID extends Serializable>

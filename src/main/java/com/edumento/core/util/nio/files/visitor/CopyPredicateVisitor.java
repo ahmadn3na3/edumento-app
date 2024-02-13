@@ -35,8 +35,9 @@ public class CopyPredicateVisitor extends SimpleFileVisitor<Path> {
 
   @Override
   public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-    if (copyPredicate.test(file))
-      Files.copy(file, toPath.resolve(fromPath.relativize(file)));
+    if (copyPredicate.test(file)) {
+		Files.copy(file, toPath.resolve(fromPath.relativize(file)));
+	}
     return FileVisitResult.CONTINUE;
   }
 }

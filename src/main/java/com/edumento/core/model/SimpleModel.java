@@ -36,9 +36,13 @@ public class SimpleModel extends IdModel {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    else if (!super.equals(obj)) return false;
-    else if (getClass() != obj.getClass()) return false;
+    if (this == obj) {
+		return true;
+	} else if (!super.equals(obj)) {
+		return false;
+	} else if (getClass() != obj.getClass()) {
+		return false;
+	}
     return true;
   }
 }

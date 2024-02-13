@@ -1,9 +1,10 @@
 package com.edumento.b2b.mappers;
 
-import com.edumento.b2b.domain.Role;
-import com.edumento.b2b.model.role.RoleModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
+
+import com.edumento.b2b.domain.Role;
+import com.edumento.b2b.model.role.RoleModel;
 
 @Mapper
 public interface RoleMapper {

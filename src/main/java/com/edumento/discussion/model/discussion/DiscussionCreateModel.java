@@ -1,8 +1,9 @@
 package com.edumento.discussion.model.discussion;
 
-import com.edumento.core.constants.DiscussionType;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+
+import com.edumento.core.constants.DiscussionType;
 
 
 /** Created by ayman on 25/08/16. */
@@ -22,8 +23,9 @@ public class DiscussionCreateModel {
    * @return the type
    */
   public DiscussionType getType() {
-    if (this.type == null)
-      return DiscussionType.DISCUSSION;
+    if (this.type == null) {
+		return DiscussionType.DISCUSSION;
+	}
     return type;
   }
 

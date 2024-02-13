@@ -1,11 +1,12 @@
 package com.edumento.discussion.mappers;
 
-import com.edumento.discussion.domain.Comment;
-import com.edumento.discussion.model.comment.CommentViewModel;
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-import java.util.List;
+import com.edumento.discussion.domain.Comment;
+import com.edumento.discussion.model.comment.CommentViewModel;
 
 @Mapper
 public interface CommentMapper {

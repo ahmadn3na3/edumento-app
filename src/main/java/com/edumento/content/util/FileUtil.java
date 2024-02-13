@@ -229,8 +229,9 @@ public class FileUtil {
 		log.info("Start Extract");
 		File dir = new File(extractedFolder.toString());
 		// create output directory if it doesn't exist
-		if (!dir.exists())
+		if (!dir.exists()) {
 			dir.mkdirs();
+		}
 		FileInputStream fis;
 		// buffer for read and write data to file
 		byte[] buffer = new byte[1024];
@@ -304,8 +305,9 @@ public class FileUtil {
 	public void createShortcutFile(String filePath, String shortCutPath, boolean soft) throws IOException {
 		Process process;
 		String cmd = "ln ";
-		if (soft)
+		if (soft) {
 			cmd = cmd + "-s ";
+		}
 		cmd = cmd + filePath + " " + shortCutPath;
 		log.info("command -> {} " + cmd, cmd);
 		process = Runtime.getRuntime().exec(cmd);
@@ -326,7 +328,7 @@ public class FileUtil {
 	}
 
 	private List<File> listChildFiles(File dir) throws IOException {
-		List<File> allFiles = new ArrayList<File>();
+		List<File> allFiles = new ArrayList<>();
 
 		File[] childFiles = dir.listFiles();
 		for (File file : childFiles) {

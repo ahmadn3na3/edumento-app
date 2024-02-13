@@ -2,6 +2,7 @@ package com.edumento.b2b.model.timelock;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import com.edumento.b2b.model.organization.SimpleOrganizationModel;
 
 /** Created by ahmad on 7/27/16. */

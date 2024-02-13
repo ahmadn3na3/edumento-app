@@ -61,14 +61,18 @@ public class BaseNotificationMessage {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+		return true;
+	}
+    if (o == null || getClass() != o.getClass()) {
+		return false;
+	}
 
     BaseNotificationMessage that = (BaseNotificationMessage) o;
 
-    if (notificationCategory != that.notificationCategory) return false;
-    if (date != null ? !date.equals(that.date) : that.date != null) return false;
-    if (!from.equals(that.from)) return false;
+    if ((notificationCategory != that.notificationCategory) || (date != null ? !date.equals(that.date) : that.date != null) || !from.equals(that.from)) {
+		return false;
+	}
     return target.equals(that.target);
   }
 

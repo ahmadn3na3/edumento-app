@@ -2,9 +2,12 @@ package com.edumento.user.domain;
 
 import java.util.HashSet;
 import java.util.Set;
+
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+
 import com.edumento.core.domain.AbstractEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -90,10 +93,7 @@ public class Module extends AbstractEntity {
 		if (this == o) {
 			return true;
 		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		if (!super.equals(o)) {
+		if (o == null || getClass() != o.getClass() || !super.equals(o)) {
 			return false;
 		}
 

@@ -1,8 +1,8 @@
 package com.edumento.assessment.model;
 
-import com.edumento.core.constants.AssessmentType;
-
 import java.time.ZonedDateTime;
+
+import com.edumento.core.constants.AssessmentType;
 
 
 /** Created by ayman on 03/07/16. */

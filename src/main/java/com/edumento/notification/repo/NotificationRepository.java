@@ -15,7 +15,7 @@ import com.edumento.notification.domian.Notification;
 @Repository
 public interface NotificationRepository extends MongoRepository<Notification, String> {
   Stream<Notification> findByUserIdAndReceivedFalseAndDeletedFalseOrderByCreationDateDesc(Long userid);
-  
+
   Page<Notification> findByUserIdAndDeletedFalseAndNotificationCategoryEqualsOrderByCreationDateDesc(
       Long userid, Pageable pageable, int i);
 

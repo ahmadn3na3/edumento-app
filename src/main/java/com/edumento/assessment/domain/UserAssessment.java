@@ -1,14 +1,16 @@
 package com.edumento.assessment.domain;
 
-import com.edumento.assessment.model.WorkSheetAnswerModel;
-import com.edumento.core.constants.AssessmentStatus;
-import com.edumento.core.domain.AbstractEntity;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
+
+import com.edumento.assessment.model.WorkSheetAnswerModel;
+import com.edumento.core.constants.AssessmentStatus;
+import com.edumento.core.domain.AbstractEntity;
 
 /** Created by ayman on 04/07/16. */
 @Document(collection = "mint.assessment")
@@ -139,12 +141,18 @@ public class UserAssessment extends AbstractEntity {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+		return true;
+	}
+    if (o == null || getClass() != o.getClass()) {
+		return false;
+	}
 
     UserAssessment that = (UserAssessment) o;
 
-    if (!userId.equals(that.userId)) return false;
+    if (!userId.equals(that.userId)) {
+		return false;
+	}
     return assessmentId.equals(that.assessmentId);
   }
 

@@ -31,8 +31,8 @@ import com.edumento.category.domain.CategoryGradesAndChapter;
 import com.edumento.category.model.CategoryModel;
 import com.edumento.category.model.CreateCategoryModel;
 import com.edumento.category.model.LoadCategoryModel;
-import com.edumento.category.repos.mongodb.CategoryGradesAndChapterRepository;
 import com.edumento.category.repos.CategoryRepository;
+import com.edumento.category.repos.mongodb.CategoryGradesAndChapterRepository;
 import com.edumento.core.configuration.auditing.Auditable;
 import com.edumento.core.configuration.notifications.Message;
 import com.edumento.core.constants.Code;
@@ -146,12 +146,7 @@ public class CategoryService {
 
 				if (categoryRepository
 						.findOneByNameAndOrganizationAndDeletedFalse(createCategoryModel.getName(), organization)
-						.isPresent()) {
-					log.warn("category named {} Exist", createCategoryModel.getName());
-					throw new ExistException("error.category.exist");
-				}
-
-				if (categoryRepository.findOneByNameAndFoundationAndOrganizationIsNullAndDeletedFalse(
+						.isPresent() || categoryRepository.findOneByNameAndFoundationAndOrganizationIsNullAndDeletedFalse(
 						createCategoryModel.getName(), foundation).isPresent()) {
 					log.warn("category named {} Exist", createCategoryModel.getName());
 					throw new ExistException("error.category.exist");

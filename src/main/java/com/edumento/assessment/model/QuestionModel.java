@@ -1,11 +1,11 @@
 package com.edumento.assessment.model;
 
+import java.time.ZonedDateTime;
+
 import com.edumento.assessment.domain.AssessmentQuestion;
 import com.edumento.assessment.domain.AssessmentQuestionChoice;
 import com.edumento.core.model.SimpleModel;
 import com.edumento.core.util.DateConverter;
-
-import java.time.ZonedDateTime;
 
 
 /** Created by ayman on 13/06/16. */

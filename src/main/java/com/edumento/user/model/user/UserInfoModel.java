@@ -4,6 +4,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
+
 import com.edumento.core.constants.Gender;
 import com.edumento.core.constants.SpaceRole;
 import com.edumento.user.domain.User;
@@ -261,15 +262,18 @@ public class UserInfoModel {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 
 		UserInfoModel that = (UserInfoModel) o;
 
-		if (!getId().equals(that.getId()))
+		if (!getId().equals(that.getId())) {
 			return false;
+		}
 		return getLogin().equals(that.getLogin());
 	}
 

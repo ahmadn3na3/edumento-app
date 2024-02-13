@@ -9,17 +9,17 @@ public class ChallengeesGrade extends SimpleModel {
 	private Float totalGrade = 0.0f;
 	private boolean creator;
 	private AssessmentStatus status;
-	
+
 	/** created by A.Alsayed on 5-2-2019
-	 * for getting user challenges API 
+	 * for getting user challenges API
 	**/
 	private String school;
 	private String thumbnail;
-	
+
 	public ChallengeesGrade() {
-		
+
 	}
-	
+
 	public ChallengeesGrade(Long id,String name, Float totalGrade) {
 		super(id,name);
 		this.totalGrade = totalGrade;

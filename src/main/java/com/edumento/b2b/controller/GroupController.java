@@ -1,14 +1,7 @@
 package com.edumento.b2b.controller;
 
-import com.edumento.b2b.model.group.GroupCreateModel;
-import com.edumento.b2b.services.GroupService;
-import com.edumento.core.constants.SortDirection;
-import com.edumento.core.constants.SortField;
-import com.edumento.core.controller.abstractcontroller.AbstractController;
-import com.edumento.core.model.PageRequestModel;
-import com.edumento.core.model.ResponseModel;
-import com.edumento.core.model.ToggleStatusModel;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.validation.annotation.Validated;
@@ -18,6 +11,15 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.edumento.b2b.model.group.GroupCreateModel;
+import com.edumento.b2b.services.GroupService;
+import com.edumento.core.constants.SortDirection;
+import com.edumento.core.constants.SortField;
+import com.edumento.core.controller.abstractcontroller.AbstractController;
+import com.edumento.core.model.PageRequestModel;
+import com.edumento.core.model.ResponseModel;
+import com.edumento.core.model.ToggleStatusModel;
 
 /** Created by ahmad on 3/7/16. */
 @RestController

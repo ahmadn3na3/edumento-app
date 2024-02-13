@@ -1,7 +1,6 @@
 package com.edumento.user.model.modules;
 
 import com.edumento.user.constant.UserType;
-import com.edumento.user.domain.Module;
 
 public class PermissionCreateModel {
 	private String name;

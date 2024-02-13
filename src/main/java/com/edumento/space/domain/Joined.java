@@ -1,12 +1,15 @@
 package com.edumento.space.domain;
 
 import java.util.Date;
+
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+
 import com.edumento.core.constants.JoinedStatus;
 import com.edumento.core.constants.SpaceRole;
 import com.edumento.core.domain.AbstractEntity;
 import com.edumento.user.domain.User;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
@@ -185,8 +188,9 @@ public class Joined extends AbstractEntity {
 	}
 
 	public void setDiscussionsCount(Integer discussionsCount) {
-		if (discussionsCount != null)
+		if (discussionsCount != null) {
 			this.discussionsCount = discussionsCount;
+		}
 	}
 
 	public Integer getAnnotationsCount() {
@@ -194,8 +198,9 @@ public class Joined extends AbstractEntity {
 	}
 
 	public void setAnnotationsCount(Integer annotationsCount) {
-		if (annotationsCount != null)
+		if (annotationsCount != null) {
 			this.annotationsCount = annotationsCount;
+		}
 	}
 
 	public Integer getAddContentCount() {
@@ -203,8 +208,9 @@ public class Joined extends AbstractEntity {
 	}
 
 	public void setAddContentCount(Integer addContentCount) {
-		if (addContentCount != null)
+		if (addContentCount != null) {
 			this.addContentCount = addContentCount;
+		}
 	}
 
 	public Integer getSpaceViewsCount() {
@@ -212,47 +218,54 @@ public class Joined extends AbstractEntity {
 	}
 
 	public void setSpaceViewsCount(Integer spaceViewsCount) {
-		if (spaceViewsCount != null)
+		if (spaceViewsCount != null) {
 			this.spaceViewsCount = spaceViewsCount;
+		}
 	}
 
 	public Integer getAssessmentCount() {
-		if (assessmentCount == null)
+		if (assessmentCount == null) {
 			return 0;
+		}
 		return assessmentCount;
 	}
 
 	public void setAssessmentCount(Integer assessmentCount) {
-		if (assessmentCount == null)
+		if (assessmentCount == null) {
 			this.assessmentCount = 0;
-		else
+		} else {
 			this.assessmentCount = assessmentCount;
+		}
 	}
 
 	public Integer getDiscussionCommentsCount() {
-		if (discussionCommentsCount == null)
+		if (discussionCommentsCount == null) {
 			return 0;
+		}
 		return discussionCommentsCount;
 	}
 
 	public void setDiscussionCommentsCount(Integer discussionCommentsCount) {
-		if (discussionCommentsCount == null)
+		if (discussionCommentsCount == null) {
 			this.discussionCommentsCount = 0;
-		else
+		} else {
 			this.discussionCommentsCount = discussionCommentsCount;
+		}
 	}
 
 	public Float getSpaceScorePoints() {
-		if (spaceScorePoints == null)
+		if (spaceScorePoints == null) {
 			return 0.0f;
+		}
 		return spaceScorePoints;
 	}
 
 	public void setSpaceScorePoints(Float spaceScorePoints) {
-		if (spaceScorePoints == null)
+		if (spaceScorePoints == null) {
 			this.spaceScorePoints = 0.0f;
-		else
+		} else {
 			this.spaceScorePoints = spaceScorePoints;
+		}
 	}
 
 	@Override

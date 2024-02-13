@@ -3,6 +3,7 @@ package com.edumento.core.model.messages.audit;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
+
 import com.edumento.core.constants.notification.EntityAction;
 
 /** Created by ahmadsalah on 7/3/17. */

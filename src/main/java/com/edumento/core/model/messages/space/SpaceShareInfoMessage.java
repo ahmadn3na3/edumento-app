@@ -2,6 +2,7 @@ package com.edumento.core.model.messages.space;
 
 import java.util.HashSet;
 import java.util.Set;
+
 import com.edumento.core.model.messages.From;
 
 public class SpaceShareInfoMessage extends SpaceInfoMessage {

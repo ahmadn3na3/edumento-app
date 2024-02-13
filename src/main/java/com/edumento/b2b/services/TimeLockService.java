@@ -19,7 +19,6 @@ import com.edumento.b2b.domain.Organization;
 import com.edumento.b2b.domain.TimeLock;
 import com.edumento.b2b.domain.TimeLockException;
 import com.edumento.b2b.mappers.OrganizationMapper;
-import com.edumento.b2b.model.organization.SimpleOrganizationModel;
 import com.edumento.b2b.model.timelock.DayModel;
 import com.edumento.b2b.model.timelock.TimeLockCreateModel;
 import com.edumento.b2b.model.timelock.TimeLockExceptionCreationModel;
@@ -73,11 +72,8 @@ public class TimeLockService {
 		}
 
 		if (user.getType() == UserType.ADMIN || user.getType() == UserType.FOUNDATION_ADMIN) {
-			if (user.getType() == UserType.FOUNDATION_ADMIN
-					&& !user.getFoundation().getId().equals(organization.getFoundation().getId())) {
-				return false;
-			}
-			if (user.getType() == UserType.ADMIN && !user.getOrganization().equals(organization)) {
+			if ((user.getType() == UserType.FOUNDATION_ADMIN
+					&& !user.getFoundation().getId().equals(organization.getFoundation().getId())) || (user.getType() == UserType.ADMIN && !user.getOrganization().equals(organization))) {
 				return false;
 			}
 		}

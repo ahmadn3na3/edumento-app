@@ -60,7 +60,7 @@ public class NotificationService {
 		}
 		return ResponseModel.done(notificationMessages);
 	}
-	
+
 	@Transactional
 	public ResponseModel getMyNotificationsCount() {
 		return ResponseModel.done(notificationRepository.
@@ -81,7 +81,7 @@ public class NotificationService {
 	}
 
 	@Transactional
-	public ResponseModel seen(String[] id) {
+	public ResponseModel seen(String... id) {
 		return ResponseModel.done(notificationRepository
 				.findByIdInAndUserIdAndDeletedFalseOrderByCreationDateDesc(Arrays.asList(id), SecurityUtils.getCurrentUser().getId())
 				.map(notification -> {

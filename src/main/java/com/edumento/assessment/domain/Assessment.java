@@ -1,20 +1,39 @@
 package com.edumento.assessment.domain;
 
 
-import com.edumento.content.domain.Content;
-import com.edumento.core.constants.AssessmentStatus;
-import com.edumento.core.constants.AssessmentType;
-import com.edumento.core.domain.AbstractEntity;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.edumento.space.domain.Space;
-import com.edumento.user.domain.User;
-import jakarta.persistence.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+
+import com.edumento.content.domain.Content;
+import com.edumento.core.constants.AssessmentStatus;
+import com.edumento.core.constants.AssessmentType;
+import com.edumento.core.domain.AbstractEntity;
+import com.edumento.space.domain.Space;
+import com.edumento.user.domain.User;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 /** Created by ayman on 13/06/16. */
 @Entity
@@ -50,7 +69,7 @@ public class Assessment extends AbstractEntity {
   @ManyToOne
   @JoinColumn(name = "owner", foreignKey = @ForeignKey(name = "FK_OWNER_USER"))
   private User owner;
-  
+
   /** Created by A.Alsayed on 04/01/19. */
   // new field will be used for the challenge task:
   // ==============================================
@@ -75,7 +94,7 @@ public class Assessment extends AbstractEntity {
     }
   )
   private Set<User> challengees = new HashSet<>();
-  
+
   private Integer totalPoints = 0;
 
   @Column private Boolean publish = Boolean.FALSE;
@@ -240,8 +259,8 @@ public class Assessment extends AbstractEntity {
 
   public void setPassingGrade(Float passingGrade) {
     this.passingGrade = passingGrade;
-  }  
-  
+  }
+
   public Set<User> getChallengees() {
 	return challengees;
   }

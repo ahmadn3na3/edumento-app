@@ -1,6 +1,7 @@
 package com.edumento.core.model.messages.discussion;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import com.edumento.core.constants.DiscussionType;
 import com.edumento.core.model.messages.From;
 
@@ -28,7 +29,7 @@ public class DiscussionMessage {
 		this.from = from;
 		this.type = type;
 	}
-	
+
 	public DiscussionMessage(String id, String title, Long spaceId, String spaceName, String categoryName, From from,
 			String resourceUrl, String body, DiscussionType type) {
 		this.id = id;
@@ -97,7 +98,7 @@ public class DiscussionMessage {
 	public void setType(DiscussionType type) {
 		this.type = type;
 	}
-	
+
 	public String getResourceUrl() {
 		return resourceUrl;
 	}

@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.edumento.b2b.mappers.RoleMapper;
-import com.edumento.user.repo.specifications.RoleSpecifications;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.domain.Specification;
@@ -19,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.edumento.b2b.domain.Foundation;
 import com.edumento.b2b.domain.Organization;
 import com.edumento.b2b.domain.Role;
+import com.edumento.b2b.mappers.RoleMapper;
 import com.edumento.b2b.model.role.AssignRoleModel;
 import com.edumento.b2b.model.role.RoleByModel;
 import com.edumento.b2b.model.role.RoleCreateModel;
@@ -43,6 +42,7 @@ import com.edumento.user.constant.UserType;
 import com.edumento.user.domain.User;
 import com.edumento.user.model.user.UserInfoModel;
 import com.edumento.user.repo.UserRepository;
+import com.edumento.user.repo.specifications.RoleSpecifications;
 
 /** Created by ahmad on 3/28/16. */
 @Service

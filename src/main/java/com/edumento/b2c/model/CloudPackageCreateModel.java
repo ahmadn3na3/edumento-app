@@ -2,6 +2,7 @@ package com.edumento.b2c.model;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import com.edumento.core.constants.PackageType;
 
 /** Created by ahmad on 4/19/17. */

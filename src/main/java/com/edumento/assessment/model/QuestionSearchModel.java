@@ -1,7 +1,8 @@
 package com.edumento.assessment.model;
 
-import com.edumento.core.constants.QuestionType;
 import java.util.Arrays;
+
+import com.edumento.core.constants.QuestionType;
 
 /** Created by ayman on 14/07/16. */
 public class QuestionSearchModel {
@@ -74,8 +75,8 @@ public class QuestionSearchModel {
   public void setSpaceId(Long spaceId) {
     this.spaceId = spaceId;
   }
-  
-  
+
+
 
   public String[] getGrades() {
 	return grades;

@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -19,6 +20,7 @@ import com.edumento.content.domain.Content;
 import com.edumento.core.domain.AbstractEntity;
 import com.edumento.space.domain.Space;
 import com.edumento.user.constant.UserType;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -562,10 +564,7 @@ public class User extends AbstractEntity {
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
+		if ((obj == null) || (getClass() != obj.getClass())) {
 			return false;
 		}
 		User other = (User) obj;
@@ -579,6 +578,6 @@ public class User extends AbstractEntity {
 		return true;
 	}
 
-	
+
 
 }

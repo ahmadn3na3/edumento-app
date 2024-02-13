@@ -6,14 +6,14 @@ public class UserSpaceRankingModel {
 	private String spaceImage;
 	private int spaceRanking;
 	private int totalUsersInSpace;
-	
+
 	public UserSpaceRankingModel(String spaceName, String spaceImage, int spaceRanking, int totalUsersInSpace) {
 		this.spaceName = spaceName;
 		this.spaceImage = spaceImage;
 		this.spaceRanking = spaceRanking;
 		this.totalUsersInSpace = totalUsersInSpace;
 	}
-	
+
 	public String getSpaceName() {
 		return spaceName;
 	}
@@ -42,6 +42,6 @@ public class UserSpaceRankingModel {
 	public void setSpaceImage(String spaceImage) {
 		this.spaceImage = spaceImage;
 	}
-	
-	
+
+
 }

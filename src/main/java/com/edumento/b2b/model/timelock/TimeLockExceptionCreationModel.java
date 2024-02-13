@@ -1,6 +1,7 @@
 package com.edumento.b2b.model.timelock;
 
 import java.time.ZonedDateTime;
+
 import com.edumento.core.constants.LockStatus;
 
 public class TimeLockExceptionCreationModel extends TimeModel {

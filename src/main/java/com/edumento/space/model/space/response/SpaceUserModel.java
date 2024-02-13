@@ -83,15 +83,18 @@ public class SpaceUserModel extends ContentUserModel {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o)
-      return true;
-    if (o == null || getClass() != o.getClass())
-      return false;
+    if (this == o) {
+		return true;
+	}
+    if (o == null || getClass() != o.getClass()) {
+		return false;
+	}
 
     SpaceUserModel that = (SpaceUserModel) o;
 
-    if (!getId().equals(that.getId()))
-      return false;
+    if (!getId().equals(that.getId())) {
+		return false;
+	}
     return getUserName().equals(that.getUserName());
   }
 

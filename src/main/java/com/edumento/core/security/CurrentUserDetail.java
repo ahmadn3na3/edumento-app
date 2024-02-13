@@ -1,8 +1,10 @@
 package com.edumento.core.security;
 
 import java.util.Collection;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+
 import com.edumento.user.constant.UserType;
 
 /** Created by ahmad on 12/1/16. */

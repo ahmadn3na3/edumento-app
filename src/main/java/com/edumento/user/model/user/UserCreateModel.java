@@ -1,8 +1,10 @@
 package com.edumento.user.model.user;
 
 import java.time.ZonedDateTime;
+
 import com.edumento.core.constants.Gender;
 import com.edumento.user.constant.UserType;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

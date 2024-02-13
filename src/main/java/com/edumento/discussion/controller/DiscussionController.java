@@ -1,14 +1,5 @@
 package com.edumento.discussion.controller;
 
-import com.edumento.core.constants.DiscussionType;
-import com.edumento.core.controller.abstractcontroller.AbstractController;
-import com.edumento.core.model.DateModel;
-import com.edumento.core.model.PageRequestModel;
-import com.edumento.core.model.ResponseModel;
-import com.edumento.core.util.DateConverter;
-import com.edumento.discussion.model.discussion.CommentCreateModel;
-import com.edumento.discussion.model.discussion.DiscussionCreateModel;
-import com.edumento.discussion.services.DiscussionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.validation.annotation.Validated;
@@ -19,6 +10,16 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.edumento.core.constants.DiscussionType;
+import com.edumento.core.controller.abstractcontroller.AbstractController;
+import com.edumento.core.model.DateModel;
+import com.edumento.core.model.PageRequestModel;
+import com.edumento.core.model.ResponseModel;
+import com.edumento.core.util.DateConverter;
+import com.edumento.discussion.model.discussion.CommentCreateModel;
+import com.edumento.discussion.model.discussion.DiscussionCreateModel;
+import com.edumento.discussion.services.DiscussionService;
 
 
 /** Created by ayman on 25/08/16. */

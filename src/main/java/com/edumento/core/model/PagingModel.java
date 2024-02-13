@@ -1,6 +1,7 @@
 package com.edumento.core.model;
 
 import java.time.ZonedDateTime;
+
 import com.edumento.core.constants.SortDirection;
 import com.edumento.core.constants.SortField;
 
@@ -40,8 +41,11 @@ public class PagingModel {
   }
 
   public void setPage(Integer page) {
-    if (page > 0) this.page = page - 1;
-    else this.page = 0;
+    if (page > 0) {
+		this.page = page - 1;
+	} else {
+		this.page = 0;
+	}
   }
 
   public Integer getPageSize() {

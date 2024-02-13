@@ -14,7 +14,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -22,7 +21,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,7 +29,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -104,8 +101,6 @@ import com.edumento.space.domain.Space;
 import com.edumento.space.repos.JoinedRepository;
 import com.edumento.space.repos.SpaceRepository;
 import com.edumento.user.domain.User;
-import com.edumento.user.model.user.UserInfoModel;
-import com.edumento.user.repo.UserRepository;
 import com.edumento.user.services.AccountService;
 import com.edumento.user.services.InnerUserService;
 
@@ -534,7 +529,7 @@ public class AssessmentService {
       /*
        * 3. transfer data to Challenge Summary Model
        */
-      List<ChallengeSummaryModel> challengeSummaryModels = new ArrayList<ChallengeSummaryModel>();
+      List<ChallengeSummaryModel> challengeSummaryModels = new ArrayList<>();
       allAssessmentsPage.forEach(
           assessment -> {
             ChallengeSummaryModel challengeSummaryModel = mapChallengeAssessment(assessment);
@@ -562,7 +557,7 @@ public class AssessmentService {
        * challenge assessment is not deleted.
        */
       log.info("calling assessmentRepository.findOneByIdAndDeletedFalseAndAssessmentType ........");
-      List<ChallengeesGrade> opponents = new ArrayList<ChallengeesGrade>();
+      List<ChallengeesGrade> opponents = new ArrayList<>();
 
       Optional<Assessment> assessment = assessmentRepository.findOneByIdAndDeletedFalseAndAssessmentType(
           challengeId, AssessmentType.CHALLENGE);
@@ -1080,8 +1075,9 @@ public class AssessmentService {
     if (userAssessmentsList != null && !userAssessmentsList.isEmpty()) {
       for (UserAssessment userAssessment : userAssessmentsList) {
         if (userAssessment.getAssessmentStatus() != AssessmentStatus.EVALUATED
-            && userAssessment.getUserId().longValue() != userId.longValue())
-          return false;
+            && userAssessment.getUserId().longValue() != userId.longValue()) {
+			return false;
+		}
       }
     }
     return true;
@@ -1358,7 +1354,7 @@ public class AssessmentService {
         .findOneByIdAndDeletedFalse(id)
         .map(
             assessment -> {
-              if (assessment.getPublish().equals(Boolean.FALSE)) {
+              if (!assessment.getPublish()) {
                 if ((assessment.getAssessmentType() == AssessmentType.QUIZ
                     || assessment.getAssessmentType() == AssessmentType.ASSIGNMENT)
                     && assessmentQuestionRepository

@@ -6,7 +6,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 import com.edumento.content.domain.ContentUser;
-import com.edumento.core.repos.AbstractMongoRepository;
 
 /** Created by ahmad on 7/20/16. */
 @Repository

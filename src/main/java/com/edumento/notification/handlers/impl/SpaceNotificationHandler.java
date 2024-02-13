@@ -96,8 +96,9 @@ public class SpaceNotificationHandler extends AbstractHandler {
 							spaceJoinMessage.getCategoryNameAR()));
 			if (user.getNotification() && !user.isDeleted()) {
 				amqNotifier.send(notificationMessage);
-				if (user.getMailNotification())
+				if (user.getMailNotification()) {
 					mailService.sendNotificationMail(notificationMessage, userInfoMessage, true, false);
+				}
 			}
 		}
 	}
@@ -123,8 +124,9 @@ public class SpaceNotificationHandler extends AbstractHandler {
 			logger.debug(user.toString());
 			if (user.getNotification() && !user.isDeleted()) {
 				amqNotifier.send(notificationMessage);
-				if (user.getMailNotification())
+				if (user.getMailNotification()) {
 					logger.debug("has notification flag" + user.getMailNotification().toString());
+				}
 				mailService.sendNotificationMail(notificationMessage, userInfoMessage, true, false);
 			}
 		}
@@ -152,8 +154,9 @@ public class SpaceNotificationHandler extends AbstractHandler {
 								spaceInfoMessage.getCategoryNameAR()));
 				if (user.getNotification() && !user.isDeleted()) {
 					amqNotifier.send(notificationMessage);
-					if (user.getMailNotification())
+					if (user.getMailNotification()) {
 						mailService.sendNotificationMail(notificationMessage, userInfoMessage, true, false);
+					}
 				}
 			});
 		}
@@ -179,8 +182,9 @@ public class SpaceNotificationHandler extends AbstractHandler {
 
 				if (joined.getNotification() && joined.getUser().getNotification() && !joined.getUser().isDeleted()) {
 					amqNotifier.send(notificationMessage);
-					if (enableEditSpaceEmail && joined.getUser().getMailNotification())
+					if (enableEditSpaceEmail && joined.getUser().getMailNotification()) {
 						logger.debug("has notification flag" + joined.getUser().getMailNotification().toString());
+					}
 					mailService.sendNotificationMail(notificationMessage, userInfoMessage, true, true);
 				}
 			});
@@ -204,8 +208,9 @@ public class SpaceNotificationHandler extends AbstractHandler {
 									spaceInfoMessage.getCategoryNameAR()));
 					if (user.getNotification() && !user.isDeleted()) {
 						amqNotifier.send(notificationMessage1);
-						if (user.getMailNotification())
+						if (user.getMailNotification()) {
 							mailService.sendNotificationMail(notificationMessage1, userInfoMessage, true, false);
+						}
 					}
 				});
 			}
@@ -233,8 +238,9 @@ public class SpaceNotificationHandler extends AbstractHandler {
 				if (joined.getNotification() && joined.getUser().getNotification() && !joined.getUser().isDeleted()) {
 					amqNotifier.send(notificationMessage);
 					logger.debug("has notification flag" + joined.getUser().getMailNotification().toString());
-					if (enableRateSpaceEmail && joined.getUser().getMailNotification())
+					if (enableRateSpaceEmail && joined.getUser().getMailNotification()) {
 						mailService.sendNotificationMail(notificationMessage, userInfoMessage, true, true);
+					}
 				}
 			});
 		}
@@ -253,8 +259,9 @@ public class SpaceNotificationHandler extends AbstractHandler {
 							spaceShareInfoMessage.getCategoryNameAR()));
 			if (user.getNotification()) {
 				amqNotifier.send(notificationMessage1);
-				if (user.getMailNotification())
+				if (user.getMailNotification()) {
 					mailService.sendNotificationMail(notificationMessage1, infoMessage, true, false);
+				}
 			}
 		});
 	}

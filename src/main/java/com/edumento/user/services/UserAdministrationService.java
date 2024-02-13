@@ -1,5 +1,7 @@
 package com.edumento.user.services;
 
+import static org.springframework.data.jpa.domain.Specification.where;
+
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Collections;
@@ -19,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import static org.springframework.data.jpa.domain.Specification.*;
 
 import com.edumento.b2b.domain.Foundation;
 import com.edumento.b2b.domain.Groups;
@@ -685,7 +686,7 @@ public class UserAdministrationService {
 			throw new InvalidException("error.foundation.org.limit");
 		} else if (ZonedDateTime.now(ZoneOffset.UTC)
 				.isAfter(ZonedDateTime.ofInstant(foundation.getEndDate().toInstant(), ZoneOffset.UTC))
-				|| Boolean.TRUE.equals(!foundation.getActive())) {
+				|| !foundation.getActive()) {
 			if (Boolean.TRUE.equals(foundation.getActive())) {
 				foundation.setActive(false);
 				foundationRepository.save(foundation);

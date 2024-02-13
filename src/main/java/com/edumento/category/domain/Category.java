@@ -2,11 +2,14 @@ package com.edumento.category.domain;
 
 import java.util.HashSet;
 import java.util.Set;
+
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+
 import com.edumento.b2b.domain.Foundation;
 import com.edumento.b2b.domain.Organization;
 import com.edumento.core.domain.AbstractEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ForeignKey;
@@ -149,15 +152,9 @@ public class Category extends AbstractEntity {
 
     Category category = (Category) o;
 
-    if (id != null ? !id.equals(category.id) : category.id != null) {
-      return false;
-    }
-    if (!name.equals(category.name)) {
-      return false;
-    }
-    if (organization != null
+    if ((id != null ? !id.equals(category.id) : category.id != null) || !name.equals(category.name) || (organization != null
         ? !organization.equals(category.organization)
-        : category.organization != null) {
+        : category.organization != null)) {
       return false;
     }
     return foundation != null

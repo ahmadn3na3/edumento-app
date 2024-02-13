@@ -2,8 +2,6 @@ package com.edumento.notification.handlers.impl;
 
 import static com.edumento.core.constants.notification.Actions.FOLLOW;
 
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,9 +56,10 @@ public class UserHandler extends AbstractHandler {
 				baseNotificationMessage, createMessage(message), null);
 		userRepository.findById(userFollowMessage.getUserInfoMessage().getId()).ifPresent(user -> {
 			if (user.getNotification()) {
-				if (user.getMailNotification())
+				if (user.getMailNotification()) {
 					mailService.sendNotificationMail(notificationMessage, userFollowMessage.getUserInfoMessage(), true,
 							true);
+				}
 			}
 		});
 	}

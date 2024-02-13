@@ -2,10 +2,13 @@ package com.edumento.b2b.domain;
 
 import java.util.HashSet;
 import java.util.Set;
+
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+
 import com.edumento.core.domain.AbstractEntity;
 import com.edumento.user.domain.User;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -137,12 +140,18 @@ public class Groups extends AbstractEntity {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+		return true;
+	}
+    if (o == null || getClass() != o.getClass()) {
+		return false;
+	}
 
     Groups groups = (Groups) o;
 
-    if (getId() != null ? !getId().equals(groups.getId()) : groups.getId() != null) return false;
+    if (getId() != null ? !getId().equals(groups.getId()) : groups.getId() != null) {
+		return false;
+	}
     return getName().equals(groups.getName());
   }
 

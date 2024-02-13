@@ -1,6 +1,7 @@
 package com.edumento.category.model;
 
 import java.util.LinkedList;
+
 import jakarta.validation.constraints.NotNull;
 
 /** Created by ahmad on 3/13/16. */

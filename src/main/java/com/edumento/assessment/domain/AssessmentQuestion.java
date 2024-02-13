@@ -1,14 +1,29 @@
 package com.edumento.assessment.domain;
 
 
+import java.util.HashSet;
+import java.util.Set;
+
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
+
 import com.edumento.core.constants.QuestionType;
 import com.edumento.core.constants.ResourceType;
 import com.edumento.core.domain.AbstractEntity;
-import jakarta.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 
 /** Created by ayman on 29/06/16. */
 @Entity
@@ -138,12 +153,18 @@ public class AssessmentQuestion extends AbstractEntity {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+		return true;
+	}
+    if (o == null || getClass() != o.getClass()) {
+		return false;
+	}
 
     AssessmentQuestion that = (AssessmentQuestion) o;
 
-    if (getId() != null ? !getId().equals(that.getId()) : that.getId() != null) return false;
+    if (getId() != null ? !getId().equals(that.getId()) : that.getId() != null) {
+		return false;
+	}
     return getAssessment().equals(that.getAssessment());
   }
 

@@ -1,10 +1,12 @@
 package com.edumento.category.domain;
 
 import java.util.LinkedList;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+
 import com.edumento.category.model.Chapter;
 import com.edumento.category.model.Grade;
 import com.edumento.core.domain.AbstractEntity;

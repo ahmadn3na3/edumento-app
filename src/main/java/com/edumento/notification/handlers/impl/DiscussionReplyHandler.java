@@ -79,7 +79,7 @@ public class DiscussionReplyHandler extends AbstractHandler {
                             createMessage(EntityAction.INQUERY_COMMENT_CREATE),
                             null,
                             discussionMessage.getSpaceName());
-                
+
                 }else {
                 	notificationMessage = amqNotifier.saveMessage(
                             userInfoMessage,

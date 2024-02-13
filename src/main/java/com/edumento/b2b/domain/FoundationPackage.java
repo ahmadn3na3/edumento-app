@@ -3,10 +3,13 @@ package com.edumento.b2b.domain;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+
 import com.edumento.core.domain.Package;
 import com.edumento.user.domain.Module;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

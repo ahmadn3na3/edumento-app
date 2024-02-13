@@ -1,6 +1,7 @@
 package com.edumento.core.model.messages.assessment;
 
 import java.util.Date;
+
 import com.edumento.core.constants.AssessmentStatus;
 import com.edumento.core.constants.AssessmentType;
 import com.edumento.core.model.messages.From;
@@ -40,7 +41,7 @@ public class AssessmentSubmitMessage extends AssessementsInfoMessage {
         startDateTime,
         dueDateTime,
         spaceName,
-        categoryName, 
+        categoryName,
         null
         );
     this.assessmentStatus = assessmentStatus;

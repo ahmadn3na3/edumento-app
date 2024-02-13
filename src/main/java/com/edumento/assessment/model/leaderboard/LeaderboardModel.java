@@ -6,7 +6,7 @@ public class LeaderboardModel {
 	private String username;
 	private int userlevel;
 	private Float globalScorePoints = 0.0f;
-	
+
 	public LeaderboardModel(String username, int userLevel, Float globalScorePoints) {
 		this.username = username;
 		this.userlevel = userLevel;

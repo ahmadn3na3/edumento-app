@@ -1,13 +1,15 @@
 package com.edumento.discussion.domain;
 
-import com.edumento.core.constants.CommentType;
-import com.edumento.core.domain.AbstractEntity;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.edumento.core.constants.CommentType;
+import com.edumento.core.domain.AbstractEntity;
 
 /** Created by ayman on 25/08/16. */
 @Document
@@ -126,13 +128,18 @@ public class Comment extends AbstractEntity {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+		return true;
+	}
+    if (o == null || getClass() != o.getClass()) {
+		return false;
+	}
 
     Comment comment = (Comment) o;
 
-    if (getId() != null ? !getId().equals(comment.getId()) : comment.getId() != null) return false;
-    if (!getUserId().equals(comment.getUserId())) return false;
+    if ((getId() != null ? !getId().equals(comment.getId()) : comment.getId() != null) || !getUserId().equals(comment.getUserId())) {
+		return false;
+	}
     return getParentId().equals(comment.getParentId());
   }
 

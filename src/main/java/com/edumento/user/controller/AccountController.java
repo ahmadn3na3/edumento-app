@@ -80,7 +80,7 @@ public class AccountController {
 			HttpServletRequest request) {
 		return accountService.createUser(userDTO);
 	}
-	
+
 //	@ApiOperation(value = "Register new B2B account with ", notes = "this method is used to register for a new B2B account", response = ResponseModel.class)
 	@PostMapping(path = "/b2bregisterWithEncodePassword")
 	public ResponseModel registerB2bAccountWithEncodePassword(@Valid @RequestBody FoundationRegesiterAccountWithEncodePasswordModel userDTO,
@@ -184,17 +184,17 @@ public class AccountController {
 //		return accountService.changeGrade(fromId, toId);
 //
 //	}
-	
+
 	/** created by A.Alsayed 16-01-2019 */
 	/** this method is used for returning sum of user spaces score and user level */
 //	@RequestMapping(path = "/leaderboard/getUserLevelAndPoints", method = RequestMethod.GET)
 ////	@ApiOperation(value = "Get user level", notes = "this method is used to Get sum of user spaces score and user level ")
 //	public ResponseModel getUserLevelAndPoints() {
 //		return null;
-//		
+//
 ////		return accountService.getUserLevelAndPoints();
 //	}
-	
+
 	/** created by A.Alsayed 21-01-2019 */
 	/** this method is used for returning User's global ranking */
 //	@RequestMapping(path = "/leaderboard/getUserGlobalRanking", method = RequestMethod.GET)
@@ -203,7 +203,7 @@ public class AccountController {
 //		return null;
 ////		return accountService.getUserGlobalRanking();
 //	}
-	
+
 	/** created by A.Alsayed 21-01-2019 */
 	/** this method is used for returning User's rank per each space */
 //	@RequestMapping(path = "/leaderboard/getUserSpaceRanking", method = RequestMethod.GET)
@@ -212,7 +212,7 @@ public class AccountController {
 //		return null;
 ////		return accountService.getUserSpaceRanking();
 //	}
-	
+
 	/** Created by A.Alsayed on 14/03/2019. */
 	/** this method is used for Getting Top Users Ranking */
 //	@RequestMapping(path = "/leaderboard/getTopUsersRanking", method = RequestMethod.GET)
@@ -221,7 +221,7 @@ public class AccountController {
 //		return null;
 ////		return accountService.getTopUsersRanking();
 //	}
-	
+
 //	@ApiOperation(value = "encode Password", notes = "this method is used to encode password if want to send encoded password", response = ResponseModel.class)
 	@RequestMapping(path = "/encodePassword", method = RequestMethod.POST)
 	public ResponseModel encodePassword(@RequestBody String password) {

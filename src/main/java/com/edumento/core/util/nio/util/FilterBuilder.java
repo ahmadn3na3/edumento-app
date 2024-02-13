@@ -13,7 +13,7 @@ public class FilterBuilder {
 
   public static DirectoryStream.Filter<Path> buildGlobFilter(String pattern) {
     final PathMatcher pathMatcher = getPathMatcher("glob:" + pattern);
-    return new DirectoryStream.Filter<Path>() {
+    return new DirectoryStream.Filter<>() {
       @Override
       public boolean accept(Path entry) throws IOException {
         return pathMatcher.matches(entry);
@@ -23,7 +23,7 @@ public class FilterBuilder {
 
   public static DirectoryStream.Filter<Path> buildRegexFilter(String pattern) {
     final PathMatcher pathMatcher = getPathMatcher("regex:" + pattern);
-    return new DirectoryStream.Filter<Path>() {
+    return new DirectoryStream.Filter<>() {
       @Override
       public boolean accept(Path entry) throws IOException {
         return pathMatcher.matches(entry);

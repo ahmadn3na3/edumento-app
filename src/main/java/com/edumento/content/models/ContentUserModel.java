@@ -93,10 +93,7 @@ public class ContentUserModel {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
-      return false;
-    }
-    if (!(obj instanceof ContentUserModel)) {
+    if ((obj == null) || !(obj instanceof ContentUserModel)) {
       return false;
     }
     ContentUserModel other = (ContentUserModel) obj;

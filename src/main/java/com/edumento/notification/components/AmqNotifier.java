@@ -10,8 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
-import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
@@ -44,8 +42,7 @@ public class AmqNotifier {
 	private int timeToLive;
 
 	@Autowired
-	public AmqNotifier(JmsTemplate jmsTemplate, NotificationRepository notificationRepository,
-			MappingJackson2MessageConverter mappingJackson2MessageConverter, MessageSource messageSource) {
+	public AmqNotifier( MessageSource messageSource) {
 //		this.jmsTemplate = jmsTemplate;
 //		this.jmsTemplate.setMessageConverter(mappingJackson2MessageConverter);
 //		this.jmsTemplate.setDeliveryMode(deliveryMode);

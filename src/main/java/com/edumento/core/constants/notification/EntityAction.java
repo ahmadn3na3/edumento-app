@@ -1,6 +1,7 @@
 package com.edumento.core.constants.notification;
 
 import java.util.Collection;
+
 import com.edumento.core.model.messages.UserFollowMessage;
 import com.edumento.core.model.messages.user.UserInfoMessage;
 

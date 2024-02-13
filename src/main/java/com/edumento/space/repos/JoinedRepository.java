@@ -3,6 +3,7 @@ package com.edumento.space.repos;
 import java.util.Date;
 import java.util.Optional;
 import java.util.stream.Stream;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,8 +11,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
 import com.edumento.core.constants.SpaceRole;
-import com.edumento.core.repos.AbstractRepository;
 import com.edumento.space.domain.Joined;
 import com.edumento.space.domain.Space;
 import com.edumento.user.domain.User;
@@ -58,9 +59,9 @@ public interface JoinedRepository extends JpaRepository<Joined, Long> {
   void updateLastAccessed(Space space, User user);
 
   Stream<Joined> findBySpaceIdAndDeletedFalse(Long spaceId);
-  
+
   Stream<Joined> findBySpaceIdAndGroupNameAndDeletedFalse(Long spaceId, String groupName);
-  
+
   /** Created by A.Alsayed on 21/01/2019. */
   /** This method is used to get count of all users for a single space **/
   Integer countBySpaceIdAndDeletedFalse(Long spaceId);
@@ -105,7 +106,7 @@ public interface JoinedRepository extends JpaRepository<Joined, Long> {
     nativeQuery = true
   )
   Integer joinedStatics(Long spaceId);
-  
+
   /** Created by A.Alsayed on 21/01/2019. */
   /** this method is used for returning User's space rank using userId and Space ID */
   @Query(value = "select results.rank from "

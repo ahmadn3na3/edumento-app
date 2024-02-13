@@ -1,9 +1,10 @@
 package com.edumento.discussion.model.discussion;
 
-import com.edumento.core.constants.DiscussionType;
+import java.time.ZonedDateTime;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import java.time.ZonedDateTime;
+import com.edumento.core.constants.DiscussionType;
 
 
 

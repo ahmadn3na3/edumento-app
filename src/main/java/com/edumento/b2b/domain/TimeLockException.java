@@ -1,10 +1,13 @@
 package com.edumento.b2b.domain;
 
 import java.util.Date;
+
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+
 import com.edumento.core.constants.LockStatus;
 import com.edumento.core.domain.AbstractEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -116,23 +119,20 @@ public class TimeLockException extends AbstractEntity {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o)
-      return true;
-    if (o == null || getClass() != o.getClass())
-      return false;
+    if (this == o) {
+		return true;
+	}
+    if (o == null || getClass() != o.getClass()) {
+		return false;
+	}
 
     TimeLockException that = (TimeLockException) o;
 
-    if (getTimeLock() != null ? !getTimeLock().equals(that.getTimeLock())
-        : that.getTimeLock() != null)
-      return false;
-    if (getFromDate() != null ? !getFromDate().equals(that.getFromDate())
-        : that.getFromDate() != null)
-      return false;
-    if (getToDate() != null ? !getToDate().equals(that.getToDate()) : that.getToDate() != null)
-      return false;
-    if (!getFromTime().equals(that.getFromTime()))
-      return false;
+    if ((getTimeLock() != null ? !getTimeLock().equals(that.getTimeLock())
+        : that.getTimeLock() != null) || (getFromDate() != null ? !getFromDate().equals(that.getFromDate())
+        : that.getFromDate() != null) || (getToDate() != null ? !getToDate().equals(that.getToDate()) : that.getToDate() != null) || !getFromTime().equals(that.getFromTime())) {
+		return false;
+	}
     return getToTime().equals(that.getToTime());
   }
 

@@ -1,8 +1,8 @@
 package com.edumento.discussion.model.discussion;
 
-import com.edumento.discussion.model.comment.CommentViewModel;
-
 import java.util.List;
+
+import com.edumento.discussion.model.comment.CommentViewModel;
 
 /** Created by ayman on 28/08/16. */
 public class DiscussionDetailedModel extends DiscussionSummaryModel {

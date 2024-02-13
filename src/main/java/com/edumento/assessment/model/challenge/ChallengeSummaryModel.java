@@ -1,16 +1,16 @@
 package com.edumento.assessment.model.challenge;
 
-import com.edumento.core.constants.AssessmentStatus;
-
 import java.util.Date;
 import java.util.List;
+
+import com.edumento.core.constants.AssessmentStatus;
 
 
 /** Created by A.Alsayed on 05/01/19. */
 public class ChallengeSummaryModel {
 
 	// assessment Id
-	
+
 	private Long id;
 
 	// Title of the Challenge (Practice Name)

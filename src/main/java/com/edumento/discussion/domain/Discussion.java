@@ -1,13 +1,15 @@
 package com.edumento.discussion.domain;
 
-import com.edumento.core.constants.DiscussionType;
-import com.edumento.core.domain.AbstractEntity;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.edumento.core.constants.DiscussionType;
+import com.edumento.core.domain.AbstractEntity;
 
 /** Created by ayman on 25/08/16. */
 @Document()
@@ -119,21 +121,18 @@ public class Discussion extends AbstractEntity {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 
 		Discussion that = (Discussion) o;
 
-		if (getId() != null ? !getId().equals(that.getId()) : that.getId() != null)
+		if ((getId() != null ? !getId().equals(that.getId()) : that.getId() != null) || !getSpaceId().equals(that.getSpaceId()) || !getOwnerId().equals(that.getOwnerId()) || !getTitle().equals(that.getTitle())) {
 			return false;
-		if (!getSpaceId().equals(that.getSpaceId()))
-			return false;
-		if (!getOwnerId().equals(that.getOwnerId()))
-			return false;
-		if (!getTitle().equals(that.getTitle()))
-			return false;
+		}
 		return getBody().equals(that.getBody());
 	}
 

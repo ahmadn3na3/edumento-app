@@ -1,5 +1,19 @@
 package com.edumento.discussion.services;
 
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.edumento.core.configuration.auditing.Auditable;
 import com.edumento.core.configuration.notifications.Message;
 import com.edumento.core.constants.CommentType;
@@ -19,7 +33,11 @@ import com.edumento.discussion.domain.Comment;
 import com.edumento.discussion.domain.Discussion;
 import com.edumento.discussion.mappers.CommentMapper;
 import com.edumento.discussion.model.comment.CommentViewModel;
-import com.edumento.discussion.model.discussion.*;
+import com.edumento.discussion.model.discussion.CommentCreateModel;
+import com.edumento.discussion.model.discussion.DiscussionCreateModel;
+import com.edumento.discussion.model.discussion.DiscussionDetailedModel;
+import com.edumento.discussion.model.discussion.DiscussionSummaryModel;
+import com.edumento.discussion.model.discussion.DiscussionUpdatesResponseModel;
 import com.edumento.discussion.repos.CommentRepository;
 import com.edumento.discussion.repos.DiscussionRepository;
 import com.edumento.space.domain.Joined;
@@ -27,18 +45,6 @@ import com.edumento.space.repos.JoinedRepository;
 import com.edumento.space.repos.SpaceRepository;
 import com.edumento.user.constant.UserType;
 import com.edumento.user.repo.UserRepository;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /** Created by ayman on 25/08/16. */
 @Service
@@ -152,7 +158,9 @@ public class DiscussionService {
                   discussionRepository.save(discussion);
                 }
                 return ResponseModel.done(discussion.getId());
-              } else throw new NotPermittedException();
+              } else {
+				throw new NotPermittedException();
+			}
             })
         .orElseThrow(NotFoundException::new);
   }

@@ -1,12 +1,13 @@
 package com.edumento.assessment.model;
 
+import java.time.ZonedDateTime;
+import java.util.List;
+
 import com.edumento.assessment.domain.Assessment;
 import com.edumento.assessment.domain.UserAssessment;
 import com.edumento.content.models.ContentUserModel;
 import com.edumento.core.constants.AssessmentStatus;
 import com.edumento.core.util.DateConverter;
-import java.time.ZonedDateTime;
-import java.util.List;
 
 /** Created by ayman on 3/11/2016 */
 public class AssessmentListModel extends AssessmentCreateModel {
@@ -27,7 +28,7 @@ public class AssessmentListModel extends AssessmentCreateModel {
   private Integer rank;
   private Long numberOfQuestions;
   private Boolean limitedByTime;
-  
+
   private Long owner;
 
   private Boolean isOwner = false;

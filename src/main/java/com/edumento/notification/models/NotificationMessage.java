@@ -10,7 +10,7 @@ public class NotificationMessage extends BaseNotificationMessage {
   private Long userId;
   private String message;
   private String body;
-  
+
 
   public NotificationMessage() {}
 
@@ -73,19 +73,34 @@ public class NotificationMessage extends BaseNotificationMessage {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (!super.equals(obj)) return false;
-    if (getClass() != obj.getClass()) return false;
+    if (this == obj) {
+		return true;
+	}
+    if (!super.equals(obj) || (getClass() != obj.getClass())) {
+		return false;
+	}
     NotificationMessage other = (NotificationMessage) obj;
     if (id == null) {
-      if (other.id != null) return false;
-    } else if (!id.equals(other.id)) return false;
+      if (other.id != null) {
+		return false;
+	}
+    } else if (!id.equals(other.id)) {
+		return false;
+	}
     if (message == null) {
-      if (other.message != null) return false;
-    } else if (!message.equals(other.message)) return false;
+      if (other.message != null) {
+		return false;
+	}
+    } else if (!message.equals(other.message)) {
+		return false;
+	}
     if (userId == null) {
-      if (other.userId != null) return false;
-    } else if (!userId.equals(other.userId)) return false;
+      if (other.userId != null) {
+		return false;
+	}
+    } else if (!userId.equals(other.userId)) {
+		return false;
+	}
     return true;
   }
 

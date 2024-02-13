@@ -1,6 +1,7 @@
 package com.edumento.b2b.model.role;
 
 import java.time.ZonedDateTime;
+
 import com.edumento.b2b.model.organization.SimpleOrganizationModel;
 import com.edumento.core.model.SimpleModel;
 import com.edumento.user.constant.UserType;
