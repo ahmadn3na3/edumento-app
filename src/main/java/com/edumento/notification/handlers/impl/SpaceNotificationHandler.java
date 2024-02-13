@@ -41,10 +41,10 @@ public class SpaceNotificationHandler extends AbstractHandler {
 
 	private final Utilities utilities;
 
-	@Value("${enable-edit-space-email}")
+	@Value("${enable-edit-space-email:false}")
 	private boolean enableEditSpaceEmail;
 
-	@Value("${enable-rate-space-email}")
+	@Value("${enable-rate-space-email:false}")
 	private boolean enableRateSpaceEmail;
 
 	@Autowired

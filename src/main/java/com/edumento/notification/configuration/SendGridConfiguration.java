@@ -8,7 +8,7 @@ import com.sendgrid.SendGrid;
 @Configuration
 public class SendGridConfiguration {
 
-  @Value("${mint.sendGrid.apikey}")
+  @Value("${mint.sendGrid.apikey:000000000}")
   private String sendGridApiKey;
 
   @Bean

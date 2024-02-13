@@ -27,29 +27,29 @@ import com.edumento.user.domain.User;
 public class AmqNotifier {
 
 	private static final Logger logger = LoggerFactory.getLogger(AmqNotifier.class);
-	private JmsTemplate jmsTemplate;
+	//private JmsTemplate jmsTemplate;
 	private NotificationRepository notificationRepository;
 	private MessageSource messageSource;
 
-	@Value("${mint.pushnotification.enable}")
+	@Value("${mint.pushnotification.enable:false}")
 	private boolean enablePushNotification;
 
-	@Value("${mint.pushnotification.message-expire}")
+	@Value("${mint.pushnotification.message-expire:0}")
 	private long messageExpire;
 
-	@Value("${mint.pushnotification.delivery-mode}")
+	@Value("${mint.pushnotification.delivery-mode:0}")
 	private int deliveryMode;
 
-	@Value("${mint.pushnotification.time-to-live}")
+	@Value("${mint.pushnotification.time-to-live:0}")
 	private int timeToLive;
 
 	@Autowired
 	public AmqNotifier(JmsTemplate jmsTemplate, NotificationRepository notificationRepository,
 			MappingJackson2MessageConverter mappingJackson2MessageConverter, MessageSource messageSource) {
-		this.jmsTemplate = jmsTemplate;
-		this.jmsTemplate.setMessageConverter(mappingJackson2MessageConverter);
-		this.jmsTemplate.setDeliveryMode(deliveryMode);
-		this.jmsTemplate.setMessageTimestampEnabled(true);
+//		this.jmsTemplate = jmsTemplate;
+//		this.jmsTemplate.setMessageConverter(mappingJackson2MessageConverter);
+//		this.jmsTemplate.setDeliveryMode(deliveryMode);
+//		this.jmsTemplate.setMessageTimestampEnabled(true);
 		this.notificationRepository = notificationRepository;
 		this.messageSource = messageSource;
 	}
@@ -116,10 +116,10 @@ public class AmqNotifier {
 	@Async
 	public void send(NotificationMessage notificationMessage) {
 		if (enablePushNotification) {
-			jmsTemplate.convertAndSend(notificationMessage, message1 -> {
-				message1.setLongProperty("userId", notificationMessage.getUserId());
-				return message1;
-			});
+//			jmsTemplate.convertAndSend(notificationMessage, message1 -> {
+//				message1.setLongProperty("userId", notificationMessage.getUserId());
+//				return message1;
+//			});
 		}
 		logger.info("Message Sent : {}", notificationMessage.toString());
 	}

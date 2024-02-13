@@ -33,7 +33,7 @@ public class ContentHandler extends AbstractHandler {
 
 	private final Utilities utilities;
 
-	@Value("${enable-edit-content-email}")
+	@Value("${enable-edit-content-email:false}")
 	private boolean enableEditContentEmail;
 
 	@Autowired

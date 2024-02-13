@@ -38,42 +38,38 @@ public class MailService {
 
 	private final Logger log = LoggerFactory.getLogger(MailService.class);
 
-	private final JavaMailSenderImpl javaMailSender;
-
 	private final MessageSource messageSource;
 
 	private final SpringTemplateEngine templateEngine;
 
 	private final SendGrid sendGrid;
 
-	@Value("${mint.enableMailNotification}")
+	@Value("${mint.enableMailNotification:false}")
 	private boolean enableMailNotification;
 
 	@Value("${mint.template:'mails'}")
 	private String templateLocation;
 
-	@Value("${mint.weburl}")
+	@Value("${mint.weburl:http://localhost:8080/}")
 	private String weburl;
-	
-	@Value("${email-env-name}")
+
+	@Value("${email-env-name:edumento}")
 	private String emailEnvName;
-	
-	@Value("${normal-notifications-email}")
+
+	@Value("${normal-notifications-email:test@edumento.net}")
 	private String normalNotificationsEmail;
-	
-	@Value("${announcment-email}")
+
+	@Value("${announcment-email:test@edumento.net}")
 	private String announcmentEmail;
-	
-	@Value("${forget-passeword-email}")
+
+	@Value("${forget-passeword-email:test@edumento.net}")
 	private String forgetPasswordEmail;
-	
-	@Value("${resgisteration-email}")
+
+	@Value("${resgisteration-email:test@edumento.net}")
 	private String resgisterationEmail;
 
 	@Autowired
-	public MailService(JavaMailSenderImpl javaMailSender, MessageSource messageSource,
-			SpringTemplateEngine templateEngine, SendGrid sendGrid) {
-		this.javaMailSender = javaMailSender;
+	public MailService(MessageSource messageSource, SpringTemplateEngine templateEngine, SendGrid sendGrid) {
 		this.messageSource = messageSource;
 		this.templateEngine = templateEngine;
 		this.sendGrid = sendGrid;
@@ -115,7 +111,8 @@ public class MailService {
 		} else {
 			content = templateEngine.process(templateLocation + "/activate_mail_en", context);
 		}
-		String subject = messageSource.getMessage(emailEnvName + " " + "email.creation.title", null, emailEnvName + " user creation", locale);
+		String subject = messageSource.getMessage(emailEnvName + " " + "email.creation.title", null,
+				emailEnvName + " user creation", locale);
 		sendEmail(resgisterationEmail, user.getEmail(), subject, content, false, true);
 	}
 
@@ -133,7 +130,8 @@ public class MailService {
 		} else {
 			content = templateEngine.process(templateLocation + "/creation_mail_en", context);
 		}
-		String subject = messageSource.getMessage(emailEnvName + " " + "email.activation.title", null, emailEnvName + " Activation Mail", locale);
+		String subject = messageSource.getMessage(emailEnvName + " " + "email.activation.title", null,
+				emailEnvName + " Activation Mail", locale);
 		log.info("Mail Content Is {}", content);
 		sendEmail(resgisterationEmail, user.getEmail(), subject, content, false, true);
 	}
@@ -152,7 +150,8 @@ public class MailService {
 			content = templateEngine.process(templateLocation + "/reset_mail_en", context);
 		}
 
-		String subject = messageSource.getMessage(emailEnvName + " " + "email.reset.title", null, emailEnvName + " Reset Passeword Mail", locale);
+		String subject = messageSource.getMessage(emailEnvName + " " + "email.reset.title", null,
+				emailEnvName + " Reset Passeword Mail", locale);
 		sendEmail(forgetPasswordEmail, user.getEmail(), subject, content, false, true);
 	}
 
@@ -188,7 +187,7 @@ public class MailService {
 		String subject = messageSource.getMessage("email.notification.title", null, "notification mail", locale);
 		sendEmail(normalNotificationsEmail, user.getEmail(), subject, content, false, true);
 	}
-	
+
 	@Async
 	public void sendChallengeMail(NotificationMessage notificationMessage, UserInfoMessage user, boolean withImage,
 			boolean useTargeImage) {
@@ -221,7 +220,7 @@ public class MailService {
 		String subject = messageSource.getMessage("email.notification.title", null, "notification mail", locale);
 		sendEmail(normalNotificationsEmail, user.getEmail(), subject, content, false, true);
 	}
-	
+
 	@Async
 	public void sendAnnouncementMail(NotificationMessage notificationMessage, UserInfoMessage user, boolean withImage,
 			boolean useTargeImage) {
@@ -257,5 +256,5 @@ public class MailService {
 	public void setEmailEnvName(String emailEnvName) {
 		this.emailEnvName = emailEnvName;
 	}
-	
+
 }
