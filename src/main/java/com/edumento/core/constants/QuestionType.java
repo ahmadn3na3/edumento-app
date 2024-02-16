@@ -12,7 +12,7 @@ public enum QuestionType {
   SINGLE_CHOICE(QuestionCategory.OBJECTIVE),
   IMAGE_CHOICE(QuestionCategory.OBJECTIVE);
 
-  private QuestionCategory category;
+  private final QuestionCategory category;
 
   QuestionType(QuestionCategory qtype) {
     this.category = qtype;

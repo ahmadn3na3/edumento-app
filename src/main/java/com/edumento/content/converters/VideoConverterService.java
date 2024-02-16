@@ -206,7 +206,7 @@ public class VideoConverterService {
 
     final String AES_ALGORITHM = "AES";
     final String AES_TRANSFORMATION = "AES/CTR/NoPadding";
-    final byte buffer[] = new byte[1024 * 1024];
+    final byte[] buffer = new byte[1024 * 1024];
     Cipher mCipher;
     SecretKeySpec mSecretKeySpec;
     IvParameterSpec mIvParameterSpec;

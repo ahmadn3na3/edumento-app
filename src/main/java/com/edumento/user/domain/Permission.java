@@ -18,6 +18,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+import java.util.Objects;
+
 /** Created by ahmad on 3/2/17. */
 @Entity
 @Table(name = "module_permissions")
@@ -115,7 +117,7 @@ public class Permission extends AbstractEntity {
 
     Permission that = (Permission) o;
 
-    return name != null ? name.equals(that.name) : that.name == null;
+    return Objects.equals(name, that.name);
   }
 
   @Override

@@ -106,8 +106,8 @@ public class AuthenticateController {
             .subject(authentication.getName())
             .claim(JWTAuthConfig.AUTHORITIES_KEY, authorities)
             .claim("id", userdetails.getId())
-            .claim("companyId",  Optional.ofNullable(userdetails.getOrganizationId()).orElse(-1l))
-            .claim("foundationid", Optional.ofNullable(userdetails.getFoundationId()).orElse(-1l))
+            .claim("companyId",  Optional.ofNullable(userdetails.getOrganizationId()).orElse(-1L))
+            .claim("foundationid", Optional.ofNullable(userdetails.getFoundationId()).orElse(-1L))
             .claim("type", userdetails.getType())
             .build();
 

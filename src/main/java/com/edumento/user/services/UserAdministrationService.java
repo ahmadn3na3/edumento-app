@@ -75,11 +75,11 @@ public class UserAdministrationService {
 	private final JoinedRepository joinedRepository;
 	private final SpaceService spaceService;
 
-	private UserRepository userRepository;
+	private final UserRepository userRepository;
 
-	private FoundationRepository foundationRepository;
+	private final FoundationRepository foundationRepository;
 
-	private PasswordEncoder passwordEncoder;
+	private final PasswordEncoder passwordEncoder;
 
 	public UserAdministrationService(UserRepository userRepository, PasswordEncoder passwordEncoder,
 			FoundationRepository foundationRepository, RoleService roleService, GroupService groupService,
@@ -261,9 +261,10 @@ public class UserAdministrationService {
 						boolean exist = false;
 						for (Long aLong : userUpdateModel.getGroups()) {
 							for (Groups group : u.getGroups()) {
-								if (aLong.equals(group.getId())) {
-									exist = true;
-								}
+                                if (aLong.equals(group.getId())) {
+                                    exist = true;
+                                    break;
+                                }
 							}
 							if (!exist) {
 								groupService.assignUserToGroup(Collections.singletonList(u.getId()), aLong);

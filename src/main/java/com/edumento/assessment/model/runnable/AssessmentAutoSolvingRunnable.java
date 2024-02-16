@@ -24,9 +24,9 @@ public class AssessmentAutoSolvingRunnable implements Runnable {
 
 	private final AssessmentService assessmentService;
 	//FIXME: set as finals
-	private long assessmentId;
-	private long userId;
-	private long limitDuration;
+	private final long assessmentId;
+	private final long userId;
+	private final long limitDuration;
 
 	public AssessmentAutoSolvingRunnable(long assessmentId, long userId, long limitDuration,
 			UserAssessmentRepository userAssessmentRepository, AssessmentService assessmentService) {

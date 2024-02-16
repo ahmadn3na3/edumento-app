@@ -8,7 +8,7 @@ public enum SortField {
   FULL_NAME("fullName"),
   USER_NAME("userName");
 
-  private String fieldName;
+  private final String fieldName;
 
   SortField(String fieldName) {
     this.fieldName = fieldName;

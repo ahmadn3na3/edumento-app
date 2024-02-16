@@ -48,7 +48,7 @@ public class MintH5PInteractiveContentConverter {
 			// delete old zip file and then compress again after add config files
 			Files.delete(pathZIP);
 			// compress again
-			log.info("compress again" + pathZIP.toString());
+			log.info("compress again" + pathZIP);
 			fileUtil.zipDirectory(uploadParentPathFromTask.toFile(), pathZIP.toFile());
 
 			log.info("end commit");

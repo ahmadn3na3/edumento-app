@@ -24,7 +24,7 @@ public enum SpaceRole {
   CO_OWNER,
   OWNER;
 
-  private Map<String, Byte> permissions = new HashMap<>();
+  private final Map<String, Byte> permissions = new HashMap<>();
 
   SpaceRole() {
     switch (this.name()) {

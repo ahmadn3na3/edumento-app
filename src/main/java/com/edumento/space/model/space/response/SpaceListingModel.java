@@ -321,21 +321,21 @@ public class SpaceListingModel {
 
   @Override
   public String toString() {
-    return new StringBuilder().append("SpaceListingModel{").append("id=").append(id)
-        .append(", color='").append(color).append('\'').append(", image='").append(image)
-        .append('\'').append(", thumbnail='").append(thumbnail).append('\'').append(", name='")
-        .append(name).append('\'').append(", description='").append(description).append('\'')
-        .append(", categoryModel=").append(categoryModel).append(", creator=").append(creator)
-        .append(", isPrivate=").append(isPrivate).append(", rating=").append(rating)
-        .append(", newContent=").append(newContent).append(", newAssessment=").append(newAssessment)
-        .append(", newComments=").append(newComments).append(", favorite=").append(favorite)
-        .append(", owner=").append(owner).append(", communitySize=").append(communitySize)
-        .append(", contentSize=").append(contentSize).append(", joinRequestsAllowed=")
-        .append(joinRequestsAllowed).append(", autoWifiSyncAllowed=").append(autoWifiSyncAllowed)
-        .append(", showCommunity=").append(showCommunity).append(", allowRecommendation=")
-        .append(allowRecommendation).append(", tags=").append(tags).append(", creationDate=")
-        .append(creationDate).append(", lastModified=").append(lastModified)
-        .append(", lastAccessed=").append(lastAccessed).append(", community=").append(community)
-        .append(", permissions=").append(permissions).append('}').toString();
+    return "SpaceListingModel{" + "id=" + id +
+            ", color='" + color + '\'' + ", image='" + image +
+            '\'' + ", thumbnail='" + thumbnail + '\'' + ", name='" +
+            name + '\'' + ", description='" + description + '\'' +
+            ", categoryModel=" + categoryModel + ", creator=" + creator +
+            ", isPrivate=" + isPrivate + ", rating=" + rating +
+            ", newContent=" + newContent + ", newAssessment=" + newAssessment +
+            ", newComments=" + newComments + ", favorite=" + favorite +
+            ", owner=" + owner + ", communitySize=" + communitySize +
+            ", contentSize=" + contentSize + ", joinRequestsAllowed=" +
+            joinRequestsAllowed + ", autoWifiSyncAllowed=" + autoWifiSyncAllowed +
+            ", showCommunity=" + showCommunity + ", allowRecommendation=" +
+            allowRecommendation + ", tags=" + tags + ", creationDate=" +
+            creationDate + ", lastModified=" + lastModified +
+            ", lastAccessed=" + lastAccessed + ", community=" + community +
+            ", permissions=" + permissions + '}';
   }
 }

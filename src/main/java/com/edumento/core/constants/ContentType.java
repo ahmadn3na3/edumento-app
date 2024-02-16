@@ -20,8 +20,8 @@ public enum ContentType {
 
   private final Set<String> extentions = new HashSet<>();
 
-  private ContentType(String... extenions) {
-    if (extenions != null && extenions.length != 0) {
+  ContentType(String... extenions) {
+    if (extenions != null) {
       for (String string : extenions) {
         getExtentions().add(string);
       }
