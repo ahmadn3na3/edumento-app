@@ -77,9 +77,7 @@ public class TimeLockService {
 					&& !user.getFoundation().getId().equals(organization.getFoundation().getId())) {
 				return false;
 			}
-			if (user.getType() == UserType.ADMIN && !user.getOrganization().equals(organization)) {
-				return false;
-			}
+            return user.getType() != UserType.ADMIN || user.getOrganization().equals(organization);
 		}
 		return true;
 	}
@@ -480,7 +478,7 @@ public class TimeLockService {
 					.map(Long::new).collect(Collectors.toSet()));
 		}
 		timeLockModel.setTimeLockExceptionCount(
-				new Long(timeLock.getTimeLockExceptions().stream().filter(e -> !e.isDeleted()).count()).intValue());
+                Long.valueOf(timeLock.getTimeLockExceptions().stream().filter(e -> !e.isDeleted()).count()).intValue());
 		timeLockModel.setUnlockPassword(timeLock.getUnlockPassword());
 		return timeLockModel;
 	}

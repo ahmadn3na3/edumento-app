@@ -6,6 +6,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 
+import java.util.Objects;
+
 @MappedSuperclass
 public abstract class Package extends AbstractEntity {
   @Id
@@ -84,7 +86,7 @@ public abstract class Package extends AbstractEntity {
 
     Package aPackage = (Package) o;
 
-    if (id != null ? !id.equals(aPackage.id) : aPackage.id != null)
+    if (!Objects.equals(id, aPackage.id))
       return false;
     return name.equals(aPackage.name);
   }

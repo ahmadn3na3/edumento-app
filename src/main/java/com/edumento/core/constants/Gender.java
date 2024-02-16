@@ -4,7 +4,7 @@ package com.edumento.core.constants;
 public enum Gender {
   MALE(true),
   FEMALE(false);
-  private Boolean value;
+  private final Boolean value;
 
   Gender(boolean value) {
     this.value = value;

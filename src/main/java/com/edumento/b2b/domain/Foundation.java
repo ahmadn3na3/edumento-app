@@ -2,6 +2,7 @@ package com.edumento.b2b.domain;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 
 import org.hibernate.annotations.DynamicInsert;
@@ -250,7 +251,7 @@ public class Foundation extends AbstractEntity {
     if (o == null || getClass() != o.getClass()) return false;
     Foundation that = (Foundation) o;
 
-    if (id != null ? !id.equals(that.id) : that.id != null) return false;
+    if (!Objects.equals(id, that.id)) return false;
     if (!name.equals(that.name)) return false;
     return code.equals(that.code);
   }

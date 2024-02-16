@@ -1,5 +1,6 @@
 package com.edumento.content.domain;
 
+import java.util.Objects;
 import java.util.UUID;
 
 import org.hibernate.annotations.DynamicInsert;
@@ -262,16 +263,16 @@ public class Content extends AbstractEntity {
     if (!id.equals(content.id)) {
       return false;
     }
-    if (name != null ? !name.equals(content.name) : content.name != null) {
+    if (!Objects.equals(name, content.name)) {
       return false;
     }
     if (!shelfName.equals(content.shelfName)) {
       return false;
     }
-    if (owner != null ? !owner.equals(content.owner) : content.owner != null) {
+    if (!Objects.equals(owner, content.owner)) {
       return false;
     }
-    return space != null ? space.equals(content.space) : content.space == null;
+    return Objects.equals(space, content.space);
   }
 
   @Override

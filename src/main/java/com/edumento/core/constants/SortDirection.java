@@ -5,7 +5,7 @@ import org.springframework.data.domain.Sort;
 public enum SortDirection {
 	ASCENDING(Sort.Direction.ASC), DESCENDING(Sort.Direction.DESC);
 
-	private Sort.Direction value;
+	private final Sort.Direction value;
 
 	SortDirection(Sort.Direction value) {
 		this.value = value;

@@ -15,8 +15,8 @@ public enum ReportReason {
   IDENTITY("mint.report.reason.identity", ReportType.USER);
   //  OTHER("mint.report.reason.other", ReportType.SPACE);
 
-  private String message;
-  private ReportType type;
+  private final String message;
+  private final ReportType type;
 
   ReportReason(String message, ReportType type) {
     this.message = message;

@@ -130,7 +130,7 @@ public class DirUtils {
     for (Path path : paths) {
       Objects.requireNonNull(path);
       if (!Files.isDirectory(path)) {
-        throw new IllegalArgumentException(String.format("%s is not a directory", path.toString()));
+        throw new IllegalArgumentException(String.format("%s is not a directory", path));
       }
     }
   }

@@ -53,7 +53,7 @@ public class UserInfoModel {
 			this.fullName = user.getFullName();
 			this.userType = user.getType().name();
 			this.email = user.getEmail();
-			this.activated = user.getStatus() == null ? false : user.getStatus();
+			this.activated = user.getStatus() != null && user.getStatus();
 			this.lang = user.getLangKey();
 			this.resetKey = user.getResetKey();
 			this.activationKey = user.getActivationKey();

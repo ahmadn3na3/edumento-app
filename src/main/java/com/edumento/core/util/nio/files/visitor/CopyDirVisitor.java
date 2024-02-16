@@ -11,9 +11,9 @@ import java.nio.file.attribute.BasicFileAttributes;
 /** Created by IntelliJ IDEA. User: bbejeck Date: 1/23/12 Time: 10:29 PM */
 public class CopyDirVisitor extends SimpleFileVisitor<Path> {
 
-  private Path fromPath;
-  private Path toPath;
-  private StandardCopyOption copyOption;
+  private final Path fromPath;
+  private final Path toPath;
+  private final StandardCopyOption copyOption;
 
   public CopyDirVisitor(Path fromPath, Path toPath, StandardCopyOption copyOption) {
     this.fromPath = fromPath;

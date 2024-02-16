@@ -19,9 +19,8 @@ public final class SecurityUtils {
     Authentication authentication = securityContext.getAuthentication();
     String userName = null;
     if (authentication != null) {
-      if (authentication.getPrincipal() instanceof UserDetails) {
-        UserDetails springSecurityUser = (UserDetails) authentication.getPrincipal();
-        userName = springSecurityUser.getUsername();
+      if (authentication.getPrincipal() instanceof UserDetails springSecurityUser) {
+          userName = springSecurityUser.getUsername();
       } else if (authentication.getPrincipal() instanceof String) {
         userName = (String) authentication.getPrincipal();
       }
@@ -79,9 +78,8 @@ public final class SecurityUtils {
       if (!authentication.getAuthorities().isEmpty()) {
         return authentication.getAuthorities().contains(new SimpleGrantedAuthority(authority));
       }
-      if (authentication.getPrincipal() instanceof UserDetails) {
-        UserDetails springSecurityUser = (UserDetails) authentication.getPrincipal();
-        return springSecurityUser.getAuthorities().contains(new SimpleGrantedAuthority(authority));
+      if (authentication.getPrincipal() instanceof UserDetails springSecurityUser) {
+          return springSecurityUser.getAuthorities().contains(new SimpleGrantedAuthority(authority));
       }
     }
     return false;

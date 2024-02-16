@@ -11,9 +11,9 @@ public enum Services {
   INDEX("INDEX", "rk.index", "indexqueue"),
   CHAT("CHAT", "rk.chat", "chatqueue");
 
-  private String service;
-  private String routingKey;
-  private String queue;
+  private final String service;
+  private final String routingKey;
+  private final String queue;
 
   Services(String service, String routingKey, String queue) {
     this.service = service;

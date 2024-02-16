@@ -62,10 +62,7 @@ public class MintImagetoPDfConverter {
 
 		String output = file.getName().substring(0, file.getName().lastIndexOf(".")) + ".pdf";
 
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("convert ").append(file.getAbsolutePath()).append(" " + file.getParent() + "/" + output);
-
-		Process process = Runtime.getRuntime().exec(stringBuilder.toString());
+        Process process = Runtime.getRuntime().exec("convert " + file.getAbsolutePath() + " " + file.getParent() + "/" + output);
 		process.waitFor();
 		log.info("Convertion done");
 	}

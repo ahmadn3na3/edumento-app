@@ -217,11 +217,10 @@ public class TimeLock extends AbstractEntity {
     if (obj == null) {
       return false;
     }
-    if (!(obj instanceof TimeLock)) {
+    if (!(obj instanceof TimeLock other)) {
       return false;
     }
-    TimeLock other = (TimeLock) obj;
-    if (id == null) {
+      if (id == null) {
       if (other.id != null) {
         return false;
       }
@@ -236,12 +235,7 @@ public class TimeLock extends AbstractEntity {
       return false;
     }
     if (organization == null) {
-      if (other.organization != null) {
-        return false;
-      }
-    } else if (!organization.equals(other.organization)) {
-      return false;
-    }
-    return true;
+        return other.organization == null;
+    } else return organization.equals(other.organization);
   }
 }

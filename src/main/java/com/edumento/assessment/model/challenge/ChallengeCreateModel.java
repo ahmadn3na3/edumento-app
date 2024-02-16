@@ -18,8 +18,8 @@ public class ChallengeCreateModel {
   }
 
   public Long getLimitDuration() {
-    if (this.limitDuration == null || this.limitDuration == 0l) {
-      return 600000l;
+    if (this.limitDuration == null || this.limitDuration == 0L) {
+      return 600000L;
     }
     return limitDuration;
   }

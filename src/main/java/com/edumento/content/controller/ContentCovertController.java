@@ -24,7 +24,7 @@ public class ContentCovertController {
   @Autowired
   ContentBackGroundService contentBackGroundService;
 
-  private Map<ContentType, CompletableFuture<List<Path>>> futureMap = new ConcurrentHashMap<>();
+  private final Map<ContentType, CompletableFuture<List<Path>>> futureMap = new ConcurrentHashMap<>();
 
   @GetMapping(path = "/{type}")
 

@@ -96,17 +96,11 @@ public class ContentUserModel {
     if (obj == null) {
       return false;
     }
-    if (!(obj instanceof ContentUserModel)) {
+    if (!(obj instanceof ContentUserModel other)) {
       return false;
     }
-    ContentUserModel other = (ContentUserModel) obj;
-    if (id == null) {
-      if (other.id != null) {
-        return false;
-      }
-    } else if (!id.equals(other.id)) {
-      return false;
-    }
-    return true;
+      if (id == null) {
+        return other.id == null;
+    } else return id.equals(other.id);
   }
 }

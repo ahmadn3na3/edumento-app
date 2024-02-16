@@ -7,6 +7,7 @@ import com.edumento.core.constants.AssessmentStatus;
 import com.edumento.core.util.DateConverter;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Objects;
 
 /** Created by ayman on 3/11/2016 */
 public class AssessmentListModel extends AssessmentCreateModel {
@@ -299,7 +300,7 @@ public class AssessmentListModel extends AssessmentCreateModel {
 
     AssessmentListModel that = (AssessmentListModel) o;
 
-    return id != null ? id.equals(that.id) : that.id == null;
+    return Objects.equals(id, that.id);
   }
 
   @Override
