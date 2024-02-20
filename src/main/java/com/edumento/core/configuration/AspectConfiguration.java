@@ -13,19 +13,19 @@ import com.edumento.core.configuration.notifications.MessageAspect;
 @Configuration
 @EnableAspectJAutoProxy
 public class AspectConfiguration {
-  @Bean
-  @ConditionalOnProperty(name = "mint.enableAuditing", havingValue = "true")
-  public AuditingAspect auditingAspect() {
-    return new AuditingAspect();
-  }
+	@Bean
+	@ConditionalOnProperty(name = "mint.enableAuditing", havingValue = "true")
+	public AuditingAspect auditingAspect() {
+		return new AuditingAspect();
+	}
 
-  @Bean
-  public LoggingAspect loggingAspect() {
-    return new LoggingAspect();
-  }
+	@Bean
+	public LoggingAspect loggingAspect() {
+		return new LoggingAspect();
+	}
 
-  @Bean
-  public MessageAspect messageAspect() {
-    return new MessageAspect();
-  }
+	@Bean
+	public MessageAspect messageAspect() {
+		return new MessageAspect();
+	}
 }

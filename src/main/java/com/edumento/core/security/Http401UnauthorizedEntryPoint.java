@@ -22,27 +22,25 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class Http401UnauthorizedEntryPoint implements AuthenticationEntryPoint {
 
-  private final Logger log = LoggerFactory.getLogger(Http401UnauthorizedEntryPoint.class);
+	private final Logger log = LoggerFactory.getLogger(Http401UnauthorizedEntryPoint.class);
 
-  /** Always returns a 401 error code to the client. */
-  @Override
-  public void commence(
-      HttpServletRequest request, HttpServletResponse response, AuthenticationException arg2)
-      throws IOException, ServletException {
+	/** Always returns a 401 error code to the client. */
+	@Override
+	public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException arg2)
+			throws IOException, ServletException {
 
-    log.debug("Pre-authenticated entry point called. Rejecting access");
-    log.error("AuthenticationException :: ", arg2);
-    ObjectMapper objectMapper = new ObjectMapper();
-    response.setStatus(HttpStatus.UNAUTHORIZED.value());
-    if (arg2 instanceof InsufficientAuthenticationException) {
-      // if (arg2.getCause() instanceof InvalidTokenException) {
-        log.error("InvalidToken :: ", arg2);
-        objectMapper.writeValue(
-            response.getOutputStream(), ResponseModel.error(Code.INVALID_TOKEN, "Invalid Token"));
-        return;
-      // }
-    }
-    objectMapper.writeValue(
-        response.getOutputStream(), ResponseModel.error(Code.UNKNOWN, arg2.getMessage()));
-  }
+		log.debug("Pre-authenticated entry point called. Rejecting access");
+		log.error("AuthenticationException :: ", arg2);
+		var objectMapper = new ObjectMapper();
+		response.setStatus(HttpStatus.UNAUTHORIZED.value());
+		if (arg2 instanceof InsufficientAuthenticationException) {
+			// if (arg2.getCause() instanceof InvalidTokenException) {
+			log.error("InvalidToken :: ", arg2);
+			objectMapper.writeValue(response.getOutputStream(),
+					ResponseModel.error(Code.INVALID_TOKEN, "Invalid Token"));
+			return;
+			// }
+		}
+		objectMapper.writeValue(response.getOutputStream(), ResponseModel.error(Code.UNKNOWN, arg2.getMessage()));
+	}
 }

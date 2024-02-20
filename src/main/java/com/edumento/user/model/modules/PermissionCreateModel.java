@@ -13,7 +13,6 @@ public class PermissionCreateModel {
 	}
 
 	public PermissionCreateModel(String name, String keyCode, Integer code) {
-		super();
 		this.name = name;
 		this.keyCode = keyCode;
 		this.code = code;
@@ -60,7 +59,7 @@ public class PermissionCreateModel {
 			return false;
 		}
 
-		PermissionCreateModel that = (PermissionCreateModel) o;
+		var that = (PermissionCreateModel) o;
 
 		return name.equals(that.name);
 	}

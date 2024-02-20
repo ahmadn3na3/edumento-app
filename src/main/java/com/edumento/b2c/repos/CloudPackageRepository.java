@@ -7,5 +7,5 @@ import com.edumento.core.constants.PackageType;
 
 /** Created by ahmad on 4/19/17. */
 public interface CloudPackageRepository extends JpaRepository<CloudPackage, Long> {
-  CloudPackage findByPackageTypeAndNameAndDeletedFalse(PackageType packageType, String name);
+	CloudPackage findByPackageTypeAndNameAndDeletedFalse(PackageType packageType, String name);
 }

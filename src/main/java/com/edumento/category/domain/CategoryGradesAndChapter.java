@@ -13,60 +13,61 @@ import com.edumento.core.domain.AbstractEntity;
 
 @Document(collection = "CategoryGradesAndChapter")
 public class CategoryGradesAndChapter extends AbstractEntity {
-  @Id
-  private String id;
+	@Id
+	private String id;
 
-  @Field
-  @Indexed(name = "categoryId")
-  private Long categoryId;
+	@Field
+	@Indexed(name = "categoryId")
+	private Long categoryId;
 
-  private LinkedList<Grade> grades = new LinkedList<>();
-  private LinkedList<Chapter> chapters = new LinkedList<>();
-  private Long userId;
+	private LinkedList<Grade> grades = new LinkedList<>();
+	private LinkedList<Chapter> chapters = new LinkedList<>();
+	private Long userId;
 
-  public CategoryGradesAndChapter() {}
+	public CategoryGradesAndChapter() {
+	}
 
-  public CategoryGradesAndChapter(Long categoryId) {
-    this.categoryId = categoryId;
-  }
+	public CategoryGradesAndChapter(Long categoryId) {
+		this.categoryId = categoryId;
+	}
 
-  public String getId() {
-    return id;
-  }
+	public String getId() {
+		return id;
+	}
 
-  public void setId(String id) {
-    this.id = id;
-  }
+	public void setId(String id) {
+		this.id = id;
+	}
 
-  public LinkedList<Grade> getGrades() {
-    return grades;
-  }
+	public LinkedList<Grade> getGrades() {
+		return grades;
+	}
 
-  public void setGrades(LinkedList<Grade> grades) {
-    this.grades = grades;
-  }
+	public void setGrades(LinkedList<Grade> grades) {
+		this.grades = grades;
+	}
 
-  public LinkedList<Chapter> getChapters() {
-    return chapters;
-  }
+	public LinkedList<Chapter> getChapters() {
+		return chapters;
+	}
 
-  public void setChapters(LinkedList<Chapter> chapters) {
-    this.chapters = chapters;
-  }
+	public void setChapters(LinkedList<Chapter> chapters) {
+		this.chapters = chapters;
+	}
 
-  public Long getCategoryId() {
-    return categoryId;
-  }
+	public Long getCategoryId() {
+		return categoryId;
+	}
 
-  public void setCategoryId(Long categoryId) {
-    this.categoryId = categoryId;
-  }
+	public void setCategoryId(Long categoryId) {
+		this.categoryId = categoryId;
+	}
 
-  public Long getUserId() {
-    return userId;
-  }
+	public Long getUserId() {
+		return userId;
+	}
 
-  public void setUserId(Long userId) {
-    this.userId = userId;
-  }
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
 }

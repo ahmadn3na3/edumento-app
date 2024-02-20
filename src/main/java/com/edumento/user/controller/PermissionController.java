@@ -16,34 +16,35 @@ import jakarta.servlet.http.HttpServletRequest;
 /** Created by ahmad on 5/15/16. */
 @RestController
 public class PermissionController {
-  private final Logger log = LoggerFactory.getLogger(PermissionController.class);
+	private final Logger log = LoggerFactory.getLogger(PermissionController.class);
 
-  private final ModuleService moduleService;
+	private final ModuleService moduleService;
 
+	public PermissionController(ModuleService moduleService) {
+		this.moduleService = moduleService;
+	}
 
-  public PermissionController(ModuleService moduleService) {
-    this.moduleService = moduleService;
-  }
+	@RequestMapping(path = "/api/module", method = RequestMethod.GET)
+	// @ApiOperation(value = "Get Modules", notes = "this method is used to list all
+	// modules")
+	public ResponseModel get(@RequestHeader(required = false) Integer page,
+			@RequestHeader(required = false) Integer size, HttpServletRequest request) {
+		return moduleService.getModules();
+	}
 
-  @RequestMapping(path = "/api/module", method = RequestMethod.GET)
-  // @ApiOperation(value = "Get Modules", notes = "this method is used to list all modules")
-  public ResponseModel get(@RequestHeader(required = false) Integer page,
-      @RequestHeader(required = false) Integer size, HttpServletRequest request) {
-    return moduleService.getModules();
-  }
+	@RequestMapping(path = "/api/module/{id}", method = RequestMethod.GET)
+	// @ApiOperation(value = "Get Module", notes = "this method is used to get
+	// module by id")
+	public ResponseModel get(@PathVariable Long id) {
+		return moduleService.getModule(id);
+	}
 
-  @RequestMapping(path = "/api/module/{id}", method = RequestMethod.GET)
-  // @ApiOperation(value = "Get Module", notes = "this method is used to get module by id")
-  public ResponseModel get(@PathVariable Long id) {
-    return moduleService.getModule(id);
-  }
-
-  @RequestMapping("/api/permission")
-  // @ApiOperation(
-  // value = "Get Permissions",
-  // notes = "this method is used to list all user permissions"
-  // )
-  public ResponseModel getAll(HttpServletRequest request) {
-    return moduleService.getPermissions();
-  }
+	@RequestMapping("/api/permission")
+	// @ApiOperation(
+	// value = "Get Permissions",
+	// notes = "this method is used to list all user permissions"
+	// )
+	public ResponseModel getAll(HttpServletRequest request) {
+		return moduleService.getPermissions();
+	}
 }

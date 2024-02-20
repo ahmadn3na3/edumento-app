@@ -128,9 +128,11 @@ public class Discussion extends AbstractEntity {
 			return false;
 		}
 
-		Discussion that = (Discussion) o;
+		var that = (Discussion) o;
 
-		if ((getId() != null ? !getId().equals(that.getId()) : that.getId() != null) || !getSpaceId().equals(that.getSpaceId()) || !getOwnerId().equals(that.getOwnerId()) || !getTitle().equals(that.getTitle())) {
+		if ((getId() != null ? !getId().equals(that.getId()) : that.getId() != null)
+				|| !getSpaceId().equals(that.getSpaceId()) || !getOwnerId().equals(that.getOwnerId())
+				|| !getTitle().equals(that.getTitle())) {
 			return false;
 		}
 		return getBody().equals(that.getBody());
@@ -138,19 +140,18 @@ public class Discussion extends AbstractEntity {
 
 	@Override
 	public int hashCode() {
-		int result = getId() != null ? getId().hashCode() : 0;
+		var result = getId() != null ? getId().hashCode() : 0;
 		result = 31 * result + getSpaceId().hashCode();
 		result = 31 * result + getOwnerId().hashCode();
 		result = 31 * result + getTitle().hashCode();
-		result = 31 * result + getBody().hashCode();
-		return result;
+		return 31 * result + getBody().hashCode();
 	}
 
 	/**
 	 * @return the type
 	 */
 	public DiscussionType getType() {
-		if (this.type == null) {
+		if (type == null) {
 			return DiscussionType.DISCUSSION;
 		}
 		return type;

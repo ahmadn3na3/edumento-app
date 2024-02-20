@@ -2,6 +2,7 @@ package com.edumento.user.controller;
 
 import java.util.Date;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.edumento.category.domain.Category;
 import com.edumento.category.repos.CategoryRepository;
 import com.edumento.core.model.ResponseModel;
 import com.edumento.user.model.account.ChangePasswordModel;
@@ -56,16 +58,17 @@ public class AccountController {
 
 	/** POST /register -> register the user. */
 	@PostMapping(path = "/register")
-	//@ApiOperation(value = "Register new account", notes = "this method is used to register for a new account", response = ResponseModel.class)
+	// @ApiOperation(value = "Register new account", notes = "this method is used to
+	// register for a new account", response = ResponseModel.class)
 	public ResponseModel registerAccount(@Valid @RequestBody RegesiterAccountModel userDTO,
 			HttpServletRequest request) {
-		String baseUrl = request.getScheme() + // "http"
+		var baseUrl = request.getScheme() + // "http"
 				"://" + // "://"
 				request.getServerName() + // "myhost"
 				":" + // ":"
 				request.getServerPort() + // "80"
 				request.getContextPath();
-		String lang = request.getHeader("lang") != null ? request.getHeader("lang") : "en"; // "/myContextPath"
+		var lang = request.getHeader("lang") != null ? request.getHeader("lang") : "en"; // "/myContextPath"
 		// or "" if
 		// deployed
 		// in root
@@ -83,8 +86,8 @@ public class AccountController {
 
 //	@ApiOperation(value = "Register new B2B account with ", notes = "this method is used to register for a new B2B account", response = ResponseModel.class)
 	@PostMapping(path = "/b2bregisterWithEncodePassword")
-	public ResponseModel registerB2bAccountWithEncodePassword(@Valid @RequestBody FoundationRegesiterAccountWithEncodePasswordModel userDTO,
-			HttpServletRequest request) {
+	public ResponseModel registerB2bAccountWithEncodePassword(
+			@Valid @RequestBody FoundationRegesiterAccountWithEncodePasswordModel userDTO, HttpServletRequest request) {
 		return accountService.createUser(userDTO);
 	}
 
@@ -151,7 +154,12 @@ public class AccountController {
 	public ResponseModel getInterests(
 			@RequestHeader(name = "lang", required = false, defaultValue = "en") String lang) {
 		Set<String> categories = categoryRepository.findByOrganizationIsNullAndFoundationIsNullAndDeletedFalse()
-				.map(category -> lang.equals("ar") ? category.getNameAr() : category.getName())
+				.map(new Function<Category, String>() {
+					@Override
+					public String apply(Category category) {
+						return "ar".equals(lang) ? category.getNameAr() : category.getName();
+					}
+				})
 				.collect(Collectors.toSet());
 		return ResponseModel.done(categories);
 	}
@@ -168,7 +176,7 @@ public class AccountController {
 	@GetMapping(value = "/time", produces = MediaType.APPLICATION_JSON_VALUE)
 //	@ApiOperation(value = "Get Time", notes = "this method is used to return server time to caller")
 	public ResponseModel getTime() {
-		ResponseModel responseModel = ResponseModel.done(new Date());
+		var responseModel = ResponseModel.done(new Date());
 		responseModel.setMessage("mint version = " + version);
 		return responseModel;
 	}

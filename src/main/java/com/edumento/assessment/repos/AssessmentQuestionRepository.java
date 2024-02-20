@@ -11,9 +11,9 @@ import com.edumento.assessment.domain.AssessmentQuestion;
 
 /** Created by ayman on 29/06/16. */
 @Repository
-public interface AssessmentQuestionRepository extends JpaRepository<AssessmentQuestion, Long>,
-    JpaSpecificationExecutor<AssessmentQuestion> {
-  List<AssessmentQuestion> findByAssessmentAndDeletedFalse(Assessment assessment);
+public interface AssessmentQuestionRepository
+		extends JpaRepository<AssessmentQuestion, Long>, JpaSpecificationExecutor<AssessmentQuestion> {
+	List<AssessmentQuestion> findByAssessmentAndDeletedFalse(Assessment assessment);
 
-  Long countByAssessmentIdAndDeletedFalse(Long assessmentId);
+	Long countByAssessmentIdAndDeletedFalse(Long assessmentId);
 }

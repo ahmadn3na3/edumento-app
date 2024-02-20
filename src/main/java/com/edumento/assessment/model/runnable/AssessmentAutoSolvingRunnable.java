@@ -1,5 +1,13 @@
 package com.edumento.assessment.model.runnable;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Consumer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.edumento.assessment.domain.QuestionAnswer;
 import com.edumento.assessment.domain.UserAssessment;
 import com.edumento.assessment.model.QuestionAnswerModel;
@@ -7,12 +15,6 @@ import com.edumento.assessment.model.UserAssessmentModel;
 import com.edumento.assessment.repos.UserAssessmentRepository;
 import com.edumento.assessment.services.AssessmentService;
 import com.edumento.core.constants.AssessmentStatus;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class AssessmentAutoSolvingRunnable implements Runnable {
 
@@ -21,7 +23,7 @@ public class AssessmentAutoSolvingRunnable implements Runnable {
 	private final UserAssessmentRepository userAssessmentRepository;
 
 	private final AssessmentService assessmentService;
-	//FIXME: set as finals
+	// FIXME: set as finals
 	private long assessmentId;
 	private long userId;
 	private long limitDuration;
@@ -36,15 +38,15 @@ public class AssessmentAutoSolvingRunnable implements Runnable {
 	}
 
 	@Override
-	//FIXME: Do not use string concat in logger
-	//FIXME: Use DEBUG/TRACE Level in detail
-	
+	// FIXME: Do not use string concat in logger
+	// FIXME: Use DEBUG/TRACE Level in detail
+
 	public void run() {
 		log.info("AssessmentAutoSolvingRunnable ::: Running Thread......");
-		log.debug("AssessmentAutoSolvingRunnable ::: userId = {}" , userId);
-		log.debug("AssessmentAutoSolvingRunnable ::: assessmentId= {}" , assessmentId);
+		log.debug("AssessmentAutoSolvingRunnable ::: userId = {}", userId);
+		log.debug("AssessmentAutoSolvingRunnable ::: assessmentId= {}", assessmentId);
 		log.debug("AssessmentAutoSolvingRunnable ::: limitDuration = {}", limitDuration);
-		Optional<UserAssessment> userAssessment = userAssessmentRepository
+		var userAssessment = userAssessmentRepository
 				.findOneByUserIdAndAssessmentIdAndDeletedFalse(userId, assessmentId);
 		if (userAssessment.isPresent()) {
 			if (!Arrays.asList(AssessmentStatus.FINISHED, AssessmentStatus.NOT_EVALUATED, AssessmentStatus.EVALUATED)
@@ -57,7 +59,7 @@ public class AssessmentAutoSolvingRunnable implements Runnable {
 	/** created by A.Alsayed 03-03-2019 */
 	private void autoSolvingAssessment(long assessmentId, long userId, long limitDuration) {
 		log.info("AssessmentAutoSolvingRunnable ::: Running autoSolvingAssessment......");
-		UserAssessmentModel userAssessmentModel = new UserAssessmentModel();
+		var userAssessmentModel = new UserAssessmentModel();
 
 		userAssessmentModel.setAssessmentId(assessmentId);
 		userAssessmentModel.setUserId(userId);
@@ -66,10 +68,13 @@ public class AssessmentAutoSolvingRunnable implements Runnable {
 		// getting submitted questions until time duration:
 		// ================================================
 		userAssessmentRepository.findOneByUserIdAndAssessmentIdAndDeletedFalse(userId, assessmentId)
-				.ifPresent(userAssessment -> {
-					userAssessmentModel.setAssessmentStatus(userAssessment.getAssessmentStatus());
-					userAssessmentModel
-							.setQuestionAnswerModels(questionListMapping(userAssessment.getQuestionAnswerList()));
+				.ifPresent(new Consumer<UserAssessment>() {
+					@Override
+					public void accept(UserAssessment userAssessment) {
+						userAssessmentModel.setAssessmentStatus(userAssessment.getAssessmentStatus());
+						userAssessmentModel
+								.setQuestionAnswerModels(questionListMapping(userAssessment.getQuestionAnswerList()));
+					}
 				});
 
 		// calling the submit function:
@@ -78,12 +83,12 @@ public class AssessmentAutoSolvingRunnable implements Runnable {
 	}
 
 	/** created by A.Alsayed 03-03-2019 */
-	//TODO: Use lamba experision
+	// TODO: Use lamba experision
 	private List<QuestionAnswerModel> questionListMapping(List<QuestionAnswer> questionAnswerList) {
 		if (questionAnswerList != null && questionAnswerList.size() > 0) {
-			List<QuestionAnswerModel> questionAnswerModels = new ArrayList<QuestionAnswerModel>();
+			List<QuestionAnswerModel> questionAnswerModels = new ArrayList<>();
 			for (QuestionAnswer questionAnswer : questionAnswerList) {
-				QuestionAnswerModel questionAnswerModel = new QuestionAnswerModel();
+				var questionAnswerModel = new QuestionAnswerModel();
 
 				questionAnswerModel.setGrade(questionAnswer.getGrade());
 				questionAnswerModel.setId(questionAnswer.getId());

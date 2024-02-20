@@ -11,5 +11,5 @@ import com.edumento.content.domain.ContentUser;
 @Repository
 public interface ContentUserRepository extends MongoRepository<ContentUser, String> {
 
-  Optional<ContentUser> findByUserIdAndContentId(Long userId, Long contentId);
+	Optional<ContentUser> findByUserIdAndContentId(Long userId, Long contentId);
 }

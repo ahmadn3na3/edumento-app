@@ -49,26 +49,26 @@ public class UserInfoModel {
 
 	public UserInfoModel(User user) {
 		if (user != null) {
-			this.id = user.getId();
-			this.login = user.getUserName();
-			this.fullName = user.getFullName();
-			this.userType = user.getType().name();
-			this.email = user.getEmail();
-			this.activated = user.getStatus() != null && user.getStatus();
-			this.lang = user.getLangKey();
-			this.resetKey = user.getResetKey();
-			this.activationKey = user.getActivationKey();
-			this.gender = user.getGender() == null ? Gender.MALE : user.getGender() ? Gender.MALE : Gender.FEMALE;
-			this.mobile = user.getMobile();
-			this.profession = user.getProfession();
-			this.country = user.getCountry();
-			this.image = user.getThumbnail();
-			this.userStatus = user.getUserStatus();
-			this.interests = user.getInterests();
-			this.birthDate = ZonedDateTime.ofInstant(user.getBirthDate().toInstant(), ZoneOffset.UTC);
-			this.notification = user.getNotification();
-			this.emailNotification = user.getMailNotification();
-			this.setAutoJoin(user.getAutoJoin());
+			id = user.getId();
+			login = user.getUserName();
+			fullName = user.getFullName();
+			userType = user.getType().name();
+			email = user.getEmail();
+			activated = user.getStatus() != null && user.getStatus();
+			lang = user.getLangKey();
+			resetKey = user.getResetKey();
+			activationKey = user.getActivationKey();
+			gender = user.getGender() == null ? Gender.MALE : user.getGender() ? Gender.MALE : Gender.FEMALE;
+			mobile = user.getMobile();
+			profession = user.getProfession();
+			country = user.getCountry();
+			image = user.getThumbnail();
+			userStatus = user.getUserStatus();
+			interests = user.getInterests();
+			birthDate = ZonedDateTime.ofInstant(user.getBirthDate().toInstant(), ZoneOffset.UTC);
+			notification = user.getNotification();
+			emailNotification = user.getMailNotification();
+			setAutoJoin(user.getAutoJoin());
 		}
 	}
 
@@ -240,7 +240,7 @@ public class UserInfoModel {
 	}
 
 	public void setEmailNotification(Boolean mailNotification) {
-		this.emailNotification = mailNotification;
+		emailNotification = mailNotification;
 	}
 
 	public Boolean getAutoJoin() {
@@ -269,7 +269,7 @@ public class UserInfoModel {
 			return false;
 		}
 
-		UserInfoModel that = (UserInfoModel) o;
+		var that = (UserInfoModel) o;
 
 		if (!getId().equals(that.getId())) {
 			return false;
@@ -279,8 +279,7 @@ public class UserInfoModel {
 
 	@Override
 	public int hashCode() {
-		int result = getId().hashCode();
-		result = 31 * result + getLogin().hashCode();
-		return result;
+		var result = getId().hashCode();
+		return 31 * result + getLogin().hashCode();
 	}
 }

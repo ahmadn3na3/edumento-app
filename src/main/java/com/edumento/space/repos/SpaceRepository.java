@@ -21,46 +21,44 @@ import com.edumento.space.domain.Space;
 @Repository
 public interface SpaceRepository extends JpaRepository<Space, Long> {
 
-    Integer countByNameAndUserIdAndCategoryAndDeletedFalse(String name, Long userId,
-            Category category);
+	Integer countByNameAndUserIdAndCategoryAndDeletedFalse(String name, Long userId, Category category);
 
-    Integer countByNameAndUserIdAndDeletedFalse(String name, Long userId);
+	Integer countByNameAndUserIdAndDeletedFalse(String name, Long userId);
 
-    @Query("Select s from Space s Where ((s.name like CONCAT('%',?1,'%')) "
-            + "or (s.description like CONCAT('%',?1,'%')) "
-            + "or (s.objective like CONCAT('%',?1,'%'))) "
-            + "and s.isPrivate=false and s.deleted=false "
-            + "and s.category.organization is null and s.category.foundation is null ")
-    Page<Space> searchForSpace(String name, Pageable pagingModel);
+	@Query("""
+			Select s from Space s Where ((s.name like CONCAT('%',?1,'%'))\s\
+			or (s.description like CONCAT('%',?1,'%'))\s\
+			or (s.objective like CONCAT('%',?1,'%')))\s\
+			and s.isPrivate=false and s.deleted=false\s\
+			and s.category.organization is null and s.category.foundation is null\s""")
+	Page<Space> searchForSpace(String name, Pageable pagingModel);
 
-    Stream<Space> findByIsPrivateFalseAndObjectiveContains(String tag);
+	Stream<Space> findByIsPrivateFalseAndObjectiveContains(String tag);
 
-    Stream<Space> findByUserIdAndDeletedFalseAndCreationDateAfter(Long userId, Date Date);
+	Stream<Space> findByUserIdAndDeletedFalseAndCreationDateAfter(Long userId, Date Date);
 
-    Stream<Space> findByCategoryOrganizationInAndDeletedFalse(List<Organization> organization);
+	Stream<Space> findByCategoryOrganizationInAndDeletedFalse(List<Organization> organization);
 
-    Page<Space> findByCategoryOrganizationInAndDeletedFalse(List<Organization> organization,
-            Pageable pageable);
+	Page<Space> findByCategoryOrganizationInAndDeletedFalse(List<Organization> organization, Pageable pageable);
 
-    Stream<Space> findByCategoryFoundationAndDeletedFalse(Foundation foundation);
+	Stream<Space> findByCategoryFoundationAndDeletedFalse(Foundation foundation);
 
-    Page<Space> findByCategoryOrganizationIsNullAndCategoryFoundationIsNullAndDeletedFalse(
-            Pageable pageable);
+	Page<Space> findByCategoryOrganizationIsNullAndCategoryFoundationIsNullAndDeletedFalse(Pageable pageable);
 
-    Optional<Space> findOneByIdAndDeletedFalse(Long id);
+	Optional<Space> findOneByIdAndDeletedFalse(Long id);
 
-    Optional<Space> findOneByIdAndDeletedTrue(Long id);
+	Optional<Space> findOneByIdAndDeletedTrue(Long id);
 
-    @Query("update Space s set  s.lastModifiedDate = current_timestamp() where s = ?1")
-    @Modifying
-    void updateSpaceModificationDate(Space space);
+	@Query("update Space s set  s.lastModifiedDate = current_timestamp() where s = ?1")
+	@Modifying
+	void updateSpaceModificationDate(Space space);
 
-    Stream<Space> findByCategoryAndDeletedFalse(Category category);
+	Stream<Space> findByCategoryAndDeletedFalse(Category category);
 
-    Integer countByCategoryAndDeletedFalse(Category category);
+	Integer countByCategoryAndDeletedFalse(Category category);
 
-    @Query(value = "select count(s) from Space s where s.user.id=?1")
-    Integer countByOwnerId(Long userId);
+	@Query(value = "select count(s) from Space s where s.user.id=?1")
+	Integer countByOwnerId(Long userId);
 
-    Stream<Space> findByDeletedFalse();
+	Stream<Space> findByDeletedFalse();
 }

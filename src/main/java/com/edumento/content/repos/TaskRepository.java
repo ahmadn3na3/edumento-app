@@ -13,10 +13,9 @@ import com.edumento.core.constants.TaskType;
 /** Created by ahmad on 6/22/16. */
 @Repository
 public interface TaskRepository extends MongoRepository<Task, String> {
-  Task findOneByIdAndType(String id, TaskType taskType);
+	Task findOneByIdAndType(String id, TaskType taskType);
 
-  Task findOneByUserNameAndContentIdAndType(String userName, Long contentId, TaskType taskType);
+	Task findOneByUserNameAndContentIdAndType(String userName, Long contentId, TaskType taskType);
 
-  Stream<Task> findByTypeAndStatusAndExpiryDateAfter(
-      TaskType taskType, TaskStatus status, Date date);
+	Stream<Task> findByTypeAndStatusAndExpiryDateAfter(TaskType taskType, TaskStatus status, Date date);
 }

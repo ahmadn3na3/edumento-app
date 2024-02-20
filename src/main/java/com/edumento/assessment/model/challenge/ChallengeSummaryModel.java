@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.edumento.core.constants.AssessmentStatus;
 
-
 /** Created by A.Alsayed on 05/01/19. */
 public class ChallengeSummaryModel {
 

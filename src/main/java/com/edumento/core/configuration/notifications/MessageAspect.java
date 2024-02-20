@@ -1,6 +1,7 @@
 package com.edumento.core.configuration.notifications;
 
 import java.util.Arrays;
+import java.util.function.Consumer;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.edumento.core.constants.Services;
 import com.edumento.core.constants.notification.Exchnages;
 import com.edumento.core.model.ResponseModel;
 import com.edumento.core.model.messages.BaseMessage;
@@ -21,46 +23,50 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Aspect
 public class MessageAspect {
 
-  private final Logger logger = LoggerFactory.getLogger(MessageAspect.class);
+	private final Logger logger = LoggerFactory.getLogger(MessageAspect.class);
 
-  @Autowired
-  Notifier notifier;
+	@Autowired
+	Notifier notifier;
 
-  @Autowired
-  ObjectMapper objectMapper;
+	@Autowired
+	ObjectMapper objectMapper;
 
-  @Value("${mint.enableNotificaion:false}")
-  private boolean enableNotificaion;
+	@Value("${mint.enableNotificaion:false}")
+	private boolean enableNotificaion;
 
-  @AfterReturning(pointcut = "@annotation(message)", returning = "responseModel")
-  public void notify(JoinPoint jp, Message message, ResponseModel responseModel)
-      throws JsonProcessingException {
-    logger.debug("Message Aspect:{}", message.toString());
-    Object id = null;
-    String dataModel = null;
+	@AfterReturning(pointcut = "@annotation(message)", returning = "responseModel")
+	public void notify(JoinPoint jp, Message message, ResponseModel responseModel) throws JsonProcessingException {
+		logger.debug("Message Aspect:{}", message.toString());
+		Object id = null;
+		String dataModel = null;
 
-    if (!enableNotificaion) {
-      logger.debug("notification not enabled");
-      return;
-    }
-    logger.debug("start send message");
-    if (responseModel.getMessageData() != null) {
-      logger.debug("writing data model ");
-      dataModel = objectMapper.writeValueAsString(responseModel.getMessageData());
-    }
-    if (message.entityAction().getIdClass().isInstance(responseModel.getMessageData())) {
-      id = responseModel.getMessageData();
-    } else if (message.entityAction().getIdClass().isInstance(jp.getArgs()[message.indexOfId()])) {
-      id = jp.getArgs()[message.indexOfId()];
-    }
-    logger.debug("id:" + id);
+		if (!enableNotificaion) {
+			logger.debug("notification not enabled");
+			return;
+		}
+		logger.debug("start send message");
+		if (responseModel.getMessageData() != null) {
+			logger.debug("writing data model ");
+			dataModel = objectMapper.writeValueAsString(responseModel.getMessageData());
+		}
+		if (message.entityAction().getIdClass().isInstance(responseModel.getMessageData())) {
+			id = responseModel.getMessageData();
+		} else if (message.entityAction().getIdClass().isInstance(jp.getArgs()[message.indexOfId()])) {
+			id = jp.getArgs()[message.indexOfId()];
+		}
+		logger.debug("id:" + id);
 
-    if ((id != null || dataModel != null) && (responseModel.getCode() == 10)) {
-      logger.debug("sending message");
-      BaseMessage baseMessage = new BaseMessage(
-          message.entityAction(), id, SecurityUtils.getCurrentUserLogin(), dataModel);
-      Arrays.asList(message.services())
-          .forEach(s -> notifier.send(Exchnages.MESSAGE_BUS, s.getRoutingKey(), baseMessage));
-    }
-  }
+		if ((id != null || dataModel != null) && responseModel.getCode() == 10) {
+			logger.debug("sending message");
+			var baseMessage = new BaseMessage(message.entityAction(), id, SecurityUtils.getCurrentUserLogin(),
+					dataModel);
+			Arrays.asList(message.services())
+					.forEach(new Consumer<Services>() {
+			@Override
+			public void accept(Services s) {
+				notifier.send(Exchnages.MESSAGE_BUS, s.getRoutingKey(), baseMessage);
+			}
+		});
+		}
+	}
 }

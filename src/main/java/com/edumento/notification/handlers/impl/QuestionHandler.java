@@ -12,12 +12,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Component
 public class QuestionHandler extends AbstractHandler {
 
-  public QuestionHandler(
-      UserRepository userRepository,
-      AmqNotifier amqNotifier,
-      MailService mailService,
-      ObjectMapper objectMapper) {
-    super(userRepository, amqNotifier, mailService, objectMapper);
-    // TODO Auto-generated constructor stub
-  }
+	public QuestionHandler(UserRepository userRepository, AmqNotifier amqNotifier, MailService mailService,
+			ObjectMapper objectMapper) {
+		super(userRepository, amqNotifier, mailService, objectMapper);
+		// TODO Auto-generated constructor stub
+	}
 }

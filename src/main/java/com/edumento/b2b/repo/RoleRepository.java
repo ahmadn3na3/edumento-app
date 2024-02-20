@@ -14,23 +14,21 @@ import com.edumento.b2b.domain.Role;
 
 /** Created by ahmad on 3/23/16. */
 @Repository
-public interface RoleRepository
-    extends JpaRepository<Role, Long>, JpaSpecificationExecutor<Role> {
+public interface RoleRepository extends JpaRepository<Role, Long>, JpaSpecificationExecutor<Role> {
 
-  Optional<Role> findOneByIdAndDeletedFalse(Long id);
+	Optional<Role> findOneByIdAndDeletedFalse(Long id);
 
-  Optional<List<Role>> findByUsersIdAndDeletedFalse(Long id);
+	Optional<List<Role>> findByUsersIdAndDeletedFalse(Long id);
 
-  Stream<Role> findByOrganizationAndDeletedFalse(Organization organization);
+	Stream<Role> findByOrganizationAndDeletedFalse(Organization organization);
 
-  Stream<Role> findByFoundationAndDeletedFalse(Foundation foundation);
+	Stream<Role> findByFoundationAndDeletedFalse(Foundation foundation);
 
-  Optional<Role> findOneByOrganizationInAndIdAndDeletedFalse(Iterable<Organization> organization,
-      Long id);
+	Optional<Role> findOneByOrganizationInAndIdAndDeletedFalse(Iterable<Organization> organization, Long id);
 
-  Optional<Role> findOneByFoundationAndIdAndDeletedFalse(Foundation foundation, Long id);
+	Optional<Role> findOneByFoundationAndIdAndDeletedFalse(Foundation foundation, Long id);
 
-  Optional<Role> findOneByNameAndOrganizationAndDeletedFalse(String s, Organization organization);
+	Optional<Role> findOneByNameAndOrganizationAndDeletedFalse(String s, Organization organization);
 
-  Optional<Role> findOneByNameAndFoundationAndDeletedFalse(String s, Foundation organization);
+	Optional<Role> findOneByNameAndFoundationAndDeletedFalse(String s, Foundation organization);
 }

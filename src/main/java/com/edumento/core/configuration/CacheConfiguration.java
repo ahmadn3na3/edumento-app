@@ -14,19 +14,19 @@ import jakarta.annotation.PreDestroy;
 @EnableCaching
 public class CacheConfiguration {
 
-  private final Logger log = LoggerFactory.getLogger(CacheConfiguration.class);
+	private final Logger log = LoggerFactory.getLogger(CacheConfiguration.class);
 
-  private CacheManager cacheManager;
+	private CacheManager cacheManager;
 
-  @PreDestroy
-  public void destroy() {
-    log.info("Closing Cache Manager");
-  }
+	@PreDestroy
+	public void destroy() {
+		log.info("Closing Cache Manager");
+	}
 
-  @Bean
-  public CacheManager cacheManager() {
-    log.debug("No cache");
-    cacheManager = new NoOpCacheManager();
-    return cacheManager;
-  }
+	@Bean
+	public CacheManager cacheManager() {
+		log.debug("No cache");
+		cacheManager = new NoOpCacheManager();
+		return cacheManager;
+	}
 }

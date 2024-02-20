@@ -1,7 +1,8 @@
 package com.edumento.notification.util;
 
-
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,12 +27,22 @@ public class Utilities {
 
 	public List<Joined> getCommunityUserList(Long spaceId, Long filter) {
 		return joinedRepository.findBySpaceIdAndDeletedFalse(spaceId)
-				.filter(joined -> !joined.getUser().getId().equals(filter)).collect(Collectors.toList());
+				.filter(new Predicate<Joined>() {
+					@Override
+					public boolean test(Joined joined) {
+						return !joined.getUser().getId().equals(filter);
+					}
+				}).collect(Collectors.toList());
 	}
 
 	public List<Joined> getDeletedCommunityUserList(Long spaceId, Long filter) {
 		return joinedRepository.findBySpaceIdAndDeletedTrue(spaceId)
-				.filter(joined -> !joined.getUser().getId().equals(filter)).collect(Collectors.toList());
+				.filter(new Predicate<Joined>() {
+					@Override
+					public boolean test(Joined joined) {
+						return !joined.getUser().getId().equals(filter);
+					}
+				}).collect(Collectors.toList());
 	}
 
 	public List<User> getFollowerList(Long userId) {
@@ -40,8 +51,18 @@ public class Utilities {
 	}
 
 	public User getSpaceOwner(Long spaceId) {
-		return joinedRepository.getSpaceCommunity(spaceId).filter(joined -> joined.getSpaceRole() == SpaceRole.OWNER)
-				.findFirst().map(Joined::getUser).orElseGet(() -> null);
+		return joinedRepository.getSpaceCommunity(spaceId).filter(new Predicate<Joined>() {
+			@Override
+			public boolean test(Joined joined) {
+				return joined.getSpaceRole() == SpaceRole.OWNER;
+			}
+		})
+				.findFirst().map(Joined::getUser).orElseGet(new Supplier<User>() {
+					@Override
+					public User get() {
+						return null;
+					}
+				});
 	}
 
 	public Joined getJoinedUser(Long spaceId, Long userId) {

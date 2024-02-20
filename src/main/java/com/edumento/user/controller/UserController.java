@@ -96,7 +96,7 @@ public class UserController extends AbstractController<Object, Long> {
 	public ResponseModel createUser(@RequestBody @Validated UserOrganizationCreateModel createModel,
 			HttpServletRequest request) {
 
-		String baseUrl = request.getScheme() + // "http"
+		var baseUrl = request.getScheme() + // "http"
 				"://" + // "://"
 				request.getServerName() + // "myhost"
 				":" + // ":"

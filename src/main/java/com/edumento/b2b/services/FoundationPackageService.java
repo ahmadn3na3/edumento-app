@@ -1,6 +1,8 @@
 package com.edumento.b2b.services;
 
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,154 +28,155 @@ import com.edumento.user.repo.ModuleRepository;
 /** Created by ahmad on 4/18/17. */
 @Service
 public class FoundationPackageService {
-  private final FoundationPackageRepository foundationPackageRepository;
-  private final ModuleRepository moduleRepository;
-  private final FoundationRepository foundationRepository;
+	private final FoundationPackageRepository foundationPackageRepository;
+	private final ModuleRepository moduleRepository;
+	private final FoundationRepository foundationRepository;
 
-  @Autowired
-  public FoundationPackageService(FoundationPackageRepository foundationPackageRepository,
-      ModuleRepository moduleRepository, FoundationRepository foundationRepository) {
-    this.foundationPackageRepository = foundationPackageRepository;
-    this.moduleRepository = moduleRepository;
-    this.foundationRepository = foundationRepository;
-  }
+	@Autowired
+	public FoundationPackageService(FoundationPackageRepository foundationPackageRepository,
+			ModuleRepository moduleRepository, FoundationRepository foundationRepository) {
+		this.foundationPackageRepository = foundationPackageRepository;
+		this.moduleRepository = moduleRepository;
+		this.foundationRepository = foundationRepository;
+	}
 
-  @Transactional
-  @PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
-  public ResponseModel createFoundationPackage(
-      FoundationPackageCreateModel foundationPackageCreateModel) {
+	@Transactional
+	@PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
+	public ResponseModel createFoundationPackage(FoundationPackageCreateModel foundationPackageCreateModel) {
 
-    FoundationPackage foundationPackage = foundationPackageRepository
-        .findByNameAndDeletedFalse(foundationPackageCreateModel.getName());
-    if (foundationPackage != null) {
-      throw new ExistException("foundationpackage");
-    }
-    foundationPackage = new FoundationPackage();
-    foundationPackage.setName(foundationPackageCreateModel.getName());
-    foundationPackage.setPackageTimeLimit(foundationPackageCreateModel.getPackageTimeLimit());
-    foundationPackage.setStorage(foundationPackageCreateModel.getStorage());
-    foundationPackage.setBroadcastMessages(foundationPackageCreateModel.getBroadcastMessages());
-    foundationPackage.setIntegrationWithSIS(foundationPackageCreateModel.getIntegrationWithSIS());
-    foundationPackage.setNumberOfUsers(foundationPackageCreateModel.getNumberOfUsers());
-    foundationPackage
-        .setNumberOfOrganizations(foundationPackageCreateModel.getNumberOfOrganizations());
+		var foundationPackage = foundationPackageRepository
+				.findByNameAndDeletedFalse(foundationPackageCreateModel.getName());
+		if (foundationPackage != null) {
+			throw new ExistException("foundationpackage");
+		}
+		foundationPackage = new FoundationPackage();
+		foundationPackage.setName(foundationPackageCreateModel.getName());
+		foundationPackage.setPackageTimeLimit(foundationPackageCreateModel.getPackageTimeLimit());
+		foundationPackage.setStorage(foundationPackageCreateModel.getStorage());
+		foundationPackage.setBroadcastMessages(foundationPackageCreateModel.getBroadcastMessages());
+		foundationPackage.setIntegrationWithSIS(foundationPackageCreateModel.getIntegrationWithSIS());
+		foundationPackage.setNumberOfUsers(foundationPackageCreateModel.getNumberOfUsers());
+		foundationPackage.setNumberOfOrganizations(foundationPackageCreateModel.getNumberOfOrganizations());
 
-    if (!foundationPackageCreateModel.getModules().isEmpty()) {
-      var modules = moduleRepository.findAllById(foundationPackageCreateModel.getModules()).stream()
-          .collect(Collectors.toList());
-      foundationPackage.getModules().addAll(modules);
-    }
+		if (!foundationPackageCreateModel.getModules().isEmpty()) {
+			var modules = moduleRepository.findAllById(foundationPackageCreateModel.getModules()).stream()
+					.collect(Collectors.toList());
+			foundationPackage.getModules().addAll(modules);
+		}
 
-    foundationPackageRepository.save(foundationPackage);
+		foundationPackageRepository.save(foundationPackage);
 
-    return ResponseModel.done(foundationPackage.getId());
-  }
+		return ResponseModel.done(foundationPackage.getId());
+	}
 
-  @Transactional
-  @PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
-  public ResponseModel updateFoundationPackage(Long id,
-      FoundationPackageCreateModel foundationPackageCreateModel) {
+	@Transactional
+	@PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
+	public ResponseModel updateFoundationPackage(Long id, FoundationPackageCreateModel foundationPackageCreateModel) {
 
-    FoundationPackage foundationPackage =
-        foundationPackageRepository.findById(id).orElseThrow(NotFoundException::new);
-    if (!foundationPackageCreateModel.getName().equals(foundationPackage.getName())) {
-      FoundationPackage tempFoundationPackage = foundationPackageRepository
-          .findByNameAndDeletedFalse(foundationPackageCreateModel.getName());
-      if (tempFoundationPackage != null && !id.equals(tempFoundationPackage.getId())) {
-        throw new ExistException("foundationpackage");
-      }
-    }
+		var foundationPackage = foundationPackageRepository.findById(id)
+				.orElseThrow(NotFoundException::new);
+		if (!foundationPackageCreateModel.getName().equals(foundationPackage.getName())) {
+			var tempFoundationPackage = foundationPackageRepository
+					.findByNameAndDeletedFalse(foundationPackageCreateModel.getName());
+			if (tempFoundationPackage != null && !id.equals(tempFoundationPackage.getId())) {
+				throw new ExistException("foundationpackage");
+			}
+		}
 
-    foundationPackage.setName(foundationPackageCreateModel.getName());
-    foundationPackage.setPackageTimeLimit(foundationPackageCreateModel.getPackageTimeLimit());
-    foundationPackage.setStorage(foundationPackageCreateModel.getStorage());
-    foundationPackage.setBroadcastMessages(foundationPackageCreateModel.getBroadcastMessages());
-    foundationPackage.setIntegrationWithSIS(foundationPackageCreateModel.getIntegrationWithSIS());
-    foundationPackage.setNumberOfUsers(foundationPackageCreateModel.getNumberOfUsers());
-    foundationPackage
-        .setNumberOfOrganizations(foundationPackageCreateModel.getNumberOfOrganizations());
-    if (!foundationPackageCreateModel.getModules().isEmpty()) {
-      if (!foundationPackage.getModules().isEmpty()) {
-        foundationPackage.getModules().clear();
-        foundationPackageRepository.save(foundationPackage);
-      }
+		foundationPackage.setName(foundationPackageCreateModel.getName());
+		foundationPackage.setPackageTimeLimit(foundationPackageCreateModel.getPackageTimeLimit());
+		foundationPackage.setStorage(foundationPackageCreateModel.getStorage());
+		foundationPackage.setBroadcastMessages(foundationPackageCreateModel.getBroadcastMessages());
+		foundationPackage.setIntegrationWithSIS(foundationPackageCreateModel.getIntegrationWithSIS());
+		foundationPackage.setNumberOfUsers(foundationPackageCreateModel.getNumberOfUsers());
+		foundationPackage.setNumberOfOrganizations(foundationPackageCreateModel.getNumberOfOrganizations());
+		if (!foundationPackageCreateModel.getModules().isEmpty()) {
+			if (!foundationPackage.getModules().isEmpty()) {
+				foundationPackage.getModules().clear();
+				foundationPackageRepository.save(foundationPackage);
+			}
 
-      var modules =
-          moduleRepository.findAllById(foundationPackageCreateModel.getModules()).stream().toList();
-      foundationPackage.getModules().addAll(modules);
-    }
+			var modules = moduleRepository.findAllById(foundationPackageCreateModel.getModules()).stream().toList();
+			foundationPackage.getModules().addAll(modules);
+		}
 
-    foundationPackageRepository.save(foundationPackage);
-    return ResponseModel.done();
-  }
+		foundationPackageRepository.save(foundationPackage);
+		return ResponseModel.done();
+	}
 
-  @Transactional
-  @PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
-  public ResponseModel deleteFoundationPackage(Long id) {
+	@Transactional
+	@PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
+	public ResponseModel deleteFoundationPackage(Long id) {
 
-    FoundationPackage foundationPackage =
-        foundationPackageRepository.findById(id).orElseThrow(NotFoundException::new);
+		var foundationPackage = foundationPackageRepository.findById(id)
+				.orElseThrow(NotFoundException::new);
 
+		if (foundationPackage.getFoundation().stream().filter(new Predicate<Foundation>() {
+		@Override
+		public boolean test(Foundation foundation) {
+			return !foundation.isDeleted();
+		}
+	}).count() > 0) {
+			throw new InvalidException("error.foundationpackage.foundation");
+		}
+		foundationPackageRepository.deleteById(id);
+		return ResponseModel.done();
+	}
 
-    if (foundationPackage.getFoundation().stream().filter(foundation -> !foundation.isDeleted())
-        .count() > 0) {
-      throw new InvalidException("error.foundationpackage.foundation");
-    }
-    foundationPackageRepository.deleteById(id);
-    return ResponseModel.done();
-  }
+	@Transactional(readOnly = true)
+	@PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
+	public PageResponseModel getAll(PageRequest pageRequest) {
+		Page<FoundationPackageModel> foundationPackagePage = foundationPackageRepository.findAll(pageRequest)
+				.map(FoundationPackageModel::new);
+		return PageResponseModel.done(foundationPackagePage.getContent(), foundationPackagePage.getTotalPages(),
+				foundationPackagePage.getNumber(), Long.valueOf(foundationPackagePage.getTotalElements()).intValue());
+	}
 
-  @Transactional(readOnly = true)
-  @PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
-  public PageResponseModel getAll(PageRequest pageRequest) {
-    Page<FoundationPackageModel> foundationPackagePage =
-        foundationPackageRepository.findAll(pageRequest).map(FoundationPackageModel::new);
-    return PageResponseModel.done(foundationPackagePage.getContent(),
-        foundationPackagePage.getTotalPages(), foundationPackagePage.getNumber(),
-        Long.valueOf(foundationPackagePage.getTotalElements()).intValue());
-  }
+	@Transactional(readOnly = true)
+	@PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
+	public ResponseModel get(Long id) {
+		var foundationPackage = foundationPackageRepository.findById(id)
+				.orElseThrow(NotFoundException::new);
+		return ResponseModel.done(new FoundationPackageModel(foundationPackage));
+	}
 
-  @Transactional(readOnly = true)
-  @PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
-  public ResponseModel get(Long id) {
-    FoundationPackage foundationPackage =
-        foundationPackageRepository.findById(id).orElseThrow(NotFoundException::new);
-    return ResponseModel.done(new FoundationPackageModel(foundationPackage));
-  }
+	@Transactional
+	@PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
+	public ResponseModel assign(Long id, List<Long> foundationIds) {
+		var foundationPackage = foundationPackageRepository.findById(id)
+				.orElseThrow(NotFoundException::new);
 
-  @Transactional
-  @PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
-  public ResponseModel assign(Long id, List<Long> foundationIds) {
-    FoundationPackage foundationPackage =
-        foundationPackageRepository.findById(id).orElseThrow(NotFoundException::new);
+		if (foundationIds.isEmpty()) {
+			throw new InvalidException("error.foundtionpackage.assign.empty");
+		}
+		var foundations = foundationRepository.findAllById(foundationIds).stream().toList();
+		if (foundations.isEmpty()) {
+			throw new NotFoundException("foundation");
+		}
+		foundationPackage.getFoundation().addAll(foundations);
+		foundationPackageRepository.save(foundationPackage);
+		return ResponseModel.done();
+	}
 
-    if (foundationIds.isEmpty()) {
-      throw new InvalidException("error.foundtionpackage.assign.empty");
-    }
-    List<Foundation> foundations =
-        foundationRepository.findAllById(foundationIds).stream().toList();
-    if (foundations.isEmpty()) {
-      throw new NotFoundException("foundation");
-    }
-    foundationPackage.getFoundation().addAll(foundations);
-    foundationPackageRepository.save(foundationPackage);
-    return ResponseModel.done();
-  }
-
-  @Transactional
-  @PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
-  public ResponseModel unassign(Long id, List<Long> foundationIds) {
-    FoundationPackage foundationPackage = foundationPackageRepository.findById(id)
-        .orElseThrow(() -> new NotFoundException("foundationpackage"));
-    if (foundationIds.isEmpty()) {
-      throw new InvalidException("error.foundtionpackage.assign.empty");
-    }
-    List<Foundation> foundations = foundationRepository.findAllById(foundationIds);
-    if (foundations.isEmpty()) {
-      throw new NotFoundException("foundation");
-    }
-    foundationPackage.getFoundation().removeAll(foundations);
-    foundationPackageRepository.save(foundationPackage);
-    return ResponseModel.done();
-  }
+	@Transactional
+	@PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
+	public ResponseModel unassign(Long id, List<Long> foundationIds) {
+		var foundationPackage = foundationPackageRepository.findById(id)
+				.orElseThrow(new Supplier<NotFoundException>() {
+			@Override
+			public NotFoundException get() {
+				return new NotFoundException("foundationpackage");
+			}
+		});
+		if (foundationIds.isEmpty()) {
+			throw new InvalidException("error.foundtionpackage.assign.empty");
+		}
+		var foundations = foundationRepository.findAllById(foundationIds);
+		if (foundations.isEmpty()) {
+			throw new NotFoundException("foundation");
+		}
+		foundationPackage.getFoundation().removeAll(foundations);
+		foundationPackageRepository.save(foundationPackage);
+		return ResponseModel.done();
+	}
 }

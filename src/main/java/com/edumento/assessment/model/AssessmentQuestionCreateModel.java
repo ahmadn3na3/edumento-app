@@ -8,107 +8,103 @@ import com.edumento.core.constants.ResourceType;
 
 import jakarta.validation.constraints.NotNull;
 
-
 /** Created by ayman on 29/06/16. */
 public class AssessmentQuestionCreateModel {
 
-  private Long Id;
+	private Long Id;
 
-  @NotNull(message = "error.question.body.null")
-  private String body;
+	@NotNull(message = "error.question.body.null")
+	private String body;
 
-  private QuestionType questionType;
+	private QuestionType questionType;
 
-  private String correctAnswer;
+	private String correctAnswer;
 
-  private String bodyResourceUrl;
+	private String bodyResourceUrl;
 
-  private ResourceType resourceType;
+	private ResourceType resourceType;
 
-  private List<ChoicesModel> choicesList = new ArrayList<>();
+	private List<ChoicesModel> choicesList = new ArrayList<>();
 
-  private Integer questionWeight = 0;
+	private Integer questionWeight = 0;
 
-  public AssessmentQuestionCreateModel() {}
+	public AssessmentQuestionCreateModel() {
+	}
 
-  public AssessmentQuestionCreateModel(MongoQuestionModel questionModel) {
-    this.body = questionModel.getBody();
-    this.questionType = questionModel.getQuestionType();
-    this.correctAnswer = questionModel.getCorrectAnswer();
-    this.bodyResourceUrl = questionModel.getBodyResourceUrl();
-    this.choicesList = questionModel.getChoicesList();
-  }
+	public AssessmentQuestionCreateModel(MongoQuestionModel questionModel) {
+		body = questionModel.getBody();
+		questionType = questionModel.getQuestionType();
+		correctAnswer = questionModel.getCorrectAnswer();
+		bodyResourceUrl = questionModel.getBodyResourceUrl();
+		choicesList = questionModel.getChoicesList();
+	}
 
-  public Integer getQuestionWeight() {
-    return questionWeight;
-  }
+	public Integer getQuestionWeight() {
+		return questionWeight;
+	}
 
-  public void setQuestionWeight(Integer questionWeight) {
-    this.questionWeight = questionWeight;
-  }
+	public void setQuestionWeight(Integer questionWeight) {
+		this.questionWeight = questionWeight;
+	}
 
-  public String getBody() {
-    return body;
-  }
+	public String getBody() {
+		return body;
+	}
 
-  public void setBody(String body) {
-    this.body = body;
-  }
+	public void setBody(String body) {
+		this.body = body;
+	}
 
-  public QuestionType getQuestionType() {
-    return questionType;
-  }
+	public QuestionType getQuestionType() {
+		return questionType;
+	}
 
-  public void setQuestionType(QuestionType questionType) {
-    this.questionType = questionType;
-  }
+	public void setQuestionType(QuestionType questionType) {
+		this.questionType = questionType;
+	}
 
-  public String getCorrectAnswer() {
-    return correctAnswer;
-  }
+	public String getCorrectAnswer() {
+		return correctAnswer;
+	}
 
-  public void setCorrectAnswer(String correctAnswer) {
-    this.correctAnswer = correctAnswer;
-  }
+	public void setCorrectAnswer(String correctAnswer) {
+		this.correctAnswer = correctAnswer;
+	}
 
-  public String getBodyResourceUrl() {
-    return bodyResourceUrl;
-  }
+	public String getBodyResourceUrl() {
+		return bodyResourceUrl;
+	}
 
-  public void setBodyResourceUrl(String bodyResourceUrl) {
-    this.bodyResourceUrl = bodyResourceUrl;
-  }
+	public void setBodyResourceUrl(String bodyResourceUrl) {
+		this.bodyResourceUrl = bodyResourceUrl;
+	}
 
-  public List<ChoicesModel> getChoicesList() {
-    return choicesList;
-  }
+	public List<ChoicesModel> getChoicesList() {
+		return choicesList;
+	}
 
-  public void setChoicesList(List<ChoicesModel> choicesList) {
-    this.choicesList = choicesList;
-  }
+	public void setChoicesList(List<ChoicesModel> choicesList) {
+		this.choicesList = choicesList;
+	}
 
-  public Long getId() {
-    return Id;
-  }
+	public Long getId() {
+		return Id;
+	}
 
-  public void setId(Long id) {
-    Id = id;
-  }
+	public void setId(Long id) {
+		Id = id;
+	}
 
-  public ResourceType getResourceType() {
-    return resourceType;
-  }
+	public ResourceType getResourceType() {
+		return resourceType;
+	}
 
-  public void setResourceType(ResourceType resourceType) {
-    this.resourceType = resourceType;
-  }
+	public void setResourceType(ResourceType resourceType) {
+		this.resourceType = resourceType;
+	}
 
-  @Override
-  public String toString() {
-    return "AssessmentQuestionCreateModel{"
-        + "questionWeight="
-        + questionWeight
-        + "} "
-        + super.toString();
-  }
+	@Override
+	public String toString() {
+		return "AssessmentQuestionCreateModel{" + "questionWeight=" + questionWeight + "} " + super.toString();
+	}
 }

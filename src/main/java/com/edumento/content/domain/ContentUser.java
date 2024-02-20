@@ -16,94 +16,94 @@ import com.edumento.core.model.TimeSpentModel;
 @CompoundIndex(name = "user_conent_idx", def = "{userName : 1, contentId : 1}", unique = true)
 @Document(collection = "content_user")
 public class ContentUser extends AbstractEntity {
-  @Id
-  private String id;
-  @Field
-  private String userName;
-  @Field
-  private Long userId;
-  @Field
-  private Long contentId;
-  @Field
-  private Boolean favorite = Boolean.FALSE;
-  @Field
-  private Date favoriteDate;
-  @Field
-  private Date lastAccessDate;
-  @Field
-  private Integer views = 0;
+	@Id
+	private String id;
+	@Field
+	private String userName;
+	@Field
+	private Long userId;
+	@Field
+	private Long contentId;
+	@Field
+	private Boolean favorite = Boolean.FALSE;
+	@Field
+	private Date favoriteDate;
+	@Field
+	private Date lastAccessDate;
+	@Field
+	private Integer views = 0;
 
-  private List<TimeSpentModel> timeSpent = new ArrayList<>();
+	private List<TimeSpentModel> timeSpent = new ArrayList<>();
 
-  public String getId() {
-    return id;
-  }
+	public String getId() {
+		return id;
+	}
 
-  public void setId(String id) {
-    this.id = id;
-  }
+	public void setId(String id) {
+		this.id = id;
+	}
 
-  public String getUserName() {
-    return userName;
-  }
+	public String getUserName() {
+		return userName;
+	}
 
-  public void setUserName(String userName) {
-    this.userName = userName;
-  }
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
 
-  public Long getContentId() {
-    return contentId;
-  }
+	public Long getContentId() {
+		return contentId;
+	}
 
-  public void setContentId(Long contentId) {
-    this.contentId = contentId;
-  }
+	public void setContentId(Long contentId) {
+		this.contentId = contentId;
+	}
 
-  public Boolean getFavorite() {
-    return favorite;
-  }
+	public Boolean getFavorite() {
+		return favorite;
+	}
 
-  public void setFavorite(Boolean favorite) {
-    this.favorite = favorite;
-  }
+	public void setFavorite(Boolean favorite) {
+		this.favorite = favorite;
+	}
 
-  public Date getFavoriteDate() {
-    return favoriteDate;
-  }
+	public Date getFavoriteDate() {
+		return favoriteDate;
+	}
 
-  public void setFavoriteDate(Date favoriteDate) {
-    this.favoriteDate = favoriteDate;
-  }
+	public void setFavoriteDate(Date favoriteDate) {
+		this.favoriteDate = favoriteDate;
+	}
 
-  public Date getLastAccessDate() {
-    return lastAccessDate;
-  }
+	public Date getLastAccessDate() {
+		return lastAccessDate;
+	}
 
-  public void setLastAccessDate(Date lastAccessDate) {
-    this.lastAccessDate = lastAccessDate;
-  }
+	public void setLastAccessDate(Date lastAccessDate) {
+		this.lastAccessDate = lastAccessDate;
+	}
 
-  public List<TimeSpentModel> getTimeSpent() {
-    return timeSpent;
-  }
+	public List<TimeSpentModel> getTimeSpent() {
+		return timeSpent;
+	}
 
-  public void setTimeSpent(List<TimeSpentModel> timeSpent) {
-    this.timeSpent = timeSpent;
-  }
+	public void setTimeSpent(List<TimeSpentModel> timeSpent) {
+		this.timeSpent = timeSpent;
+	}
 
-  public Long getUserId() {
-    return userId;
-  }
+	public Long getUserId() {
+		return userId;
+	}
 
-  public void setUserId(Long userId) {
-    this.userId = userId;
-  }
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
 
-  public Integer getViews() {
-    return views;
-  }
+	public Integer getViews() {
+		return views;
+	}
 
-  public void setViews(Integer views) {
-    this.views = views;
-  }
+	public void setViews(Integer views) {
+		this.views = views;
+	}
 }

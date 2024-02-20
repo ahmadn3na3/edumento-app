@@ -21,52 +21,51 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestController
 @RequestMapping("/api/community")
 public class CommunityController {
-  @Autowired SpaceService spaceService;
-  @Autowired CommunityService communityService;
+	@Autowired
+	SpaceService spaceService;
+	@Autowired
+	CommunityService communityService;
 
-  @RequestMapping(path = "/toggle_share", method = RequestMethod.POST)
+	@RequestMapping(path = "/toggle_share", method = RequestMethod.POST)
 //  @ApiOperation(
 //    value = "Toggel share",
 //    notes = "this method is used to share and unshare space with users"
 //  )
-  public ResponseModel toggleShare(@RequestBody @Validated SpaceShareModel shareModel) {
-    if (shareModel.isUnShare()) {
-      return spaceService.unShareSpaceToUsers(shareModel.getSpaceId(), shareModel);
-    }
-    return spaceService.shareSpaceToUsers(shareModel.getSpaceId(), shareModel);
-  }
+	public ResponseModel toggleShare(@RequestBody @Validated SpaceShareModel shareModel) {
+		if (shareModel.isUnShare()) {
+			return spaceService.unShareSpaceToUsers(shareModel.getSpaceId(), shareModel);
+		}
+		return spaceService.shareSpaceToUsers(shareModel.getSpaceId(), shareModel);
+	}
 
-  @RequestMapping(path = "/toggle_block/{id}", method = RequestMethod.POST)
+	@RequestMapping(path = "/toggle_block/{id}", method = RequestMethod.POST)
 //  @ApiOperation(value = "Toggle Block", notes = "this method is used to block and unblock user")
-  public ResponseModel toggleBlock(@PathVariable Long id, HttpServletRequest request) {
-    return communityService.toggleBlock(id);
-  }
+	public ResponseModel toggleBlock(@PathVariable Long id, HttpServletRequest request) {
+		return communityService.toggleBlock(id);
+	}
 
-  @RequestMapping(path = "/toggle_follow/{id}", method = RequestMethod.POST)
+	@RequestMapping(path = "/toggle_follow/{id}", method = RequestMethod.POST)
 //  @ApiOperation(value = "Toggle follow", notes = "this method is used to follow and unfollow user")
-  public ResponseModel toggleFollow(@PathVariable Long id) {
-    return communityService.toggleFollow(id);
-  }
+	public ResponseModel toggleFollow(@PathVariable Long id) {
+		return communityService.toggleFollow(id);
+	}
 
-  // TODO:Paging to be discussed
-  @RequestMapping(path = "/space/{id}", method = RequestMethod.GET)
+	// TODO:Paging to be discussed
+	@RequestMapping(path = "/space/{id}", method = RequestMethod.GET)
 //  @ApiOperation(
 //    value = "get space community",
 //    response = SpaceCommunityModel.class,
 //    notes = "this method is used to list space community"
 //  )
-  public ResponseModel getSpaceCommunity(
-      @PathVariable Long id, @RequestHeader(required = false) boolean addCurrent) {
-    return communityService.getSpaceCommunity(id, addCurrent);
-  }
+	public ResponseModel getSpaceCommunity(@PathVariable Long id, @RequestHeader(required = false) boolean addCurrent) {
+		return communityService.getSpaceCommunity(id, addCurrent);
+	}
 
-  @RequestMapping(path = "/{id}", method = RequestMethod.POST)
+	@RequestMapping(path = "/{id}", method = RequestMethod.POST)
 //  @ApiOperation(value = "Search Community", notes = "this method is used to list users to share")
-  public ResponseModel searchCommunity(
-      @PathVariable Long id,
-      @RequestBody SimpleModel search,
-      @RequestHeader(required = false, defaultValue = "0") Integer page,
-      @RequestHeader(required = false, defaultValue = "20") Integer size) {
-    return communityService.listUserToShare(id, search.getName(), page, size);
-  }
+	public ResponseModel searchCommunity(@PathVariable Long id, @RequestBody SimpleModel search,
+			@RequestHeader(required = false, defaultValue = "0") Integer page,
+			@RequestHeader(required = false, defaultValue = "20") Integer size) {
+		return communityService.listUserToShare(id, search.getName(), page, size);
+	}
 }

@@ -10,5 +10,5 @@ import com.edumento.user.domain.UserResources;
 /** Created by ahmad on 3/1/17. */
 @Repository
 public interface UserResourcesRepository extends AbstractMongoRepository<UserResources, String> {
-  Stream<UserResources> findByUserId(Long UserId);
+	Stream<UserResources> findByUserId(Long UserId);
 }

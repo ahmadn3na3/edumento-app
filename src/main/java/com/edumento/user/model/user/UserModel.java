@@ -3,11 +3,16 @@ package com.edumento.user.model.user;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import com.edumento.b2b.domain.Groups;
+import com.edumento.b2b.domain.Role;
 import com.edumento.b2b.model.organization.SimpleOrganizationModel;
 import com.edumento.b2b.model.timelock.TimeModel;
 import com.edumento.core.model.SimpleModel;
+import com.edumento.space.domain.Space;
 import com.edumento.user.domain.User;
 
 /** Created by ahmad on 2/17/16. */
@@ -23,23 +28,34 @@ public class UserModel extends UserInfoModel {
 	public UserModel(User user) {
 		super(user);
 		if (user.getOrganization() != null) {
-			this.organization = new SimpleOrganizationModel(
-					user.getOrganization().getId(),
-					user.getOrganization().getName(),
+			organization = new SimpleOrganizationModel(user.getOrganization().getId(), user.getOrganization().getName(),
 					user.getOrganization().getOrgId());
 		}
 		if (user.getFoundation() != null) {
-			this.foundation = new SimpleModel(user.getFoundation().getId(), user.getFoundation().getName());
+			foundation = new SimpleModel(user.getFoundation().getId(), user.getFoundation().getName());
 		}
 
-		this.roles = user.getRoles().stream().map(role -> new SimpleModel(role.getId(), role.getName()))
+		roles = user.getRoles().stream().map(new Function<Role, SimpleModel>() {
+			@Override
+			public SimpleModel apply(Role role) {
+				return new SimpleModel(role.getId(), role.getName());
+			}
+		})
 				.collect(Collectors.toList());
-		this.groups = user.getGroups()
-				.stream()
-				.map(groups -> new SimpleModel(groups.getId(), groups.getName()))
+		groups = user.getGroups().stream().map(new Function<Groups, SimpleModel>() {
+					@Override
+					public SimpleModel apply(Groups groups) {
+						return new SimpleModel(groups.getId(), groups.getName());
+					}
+				})
 				.collect(Collectors.toList());
-		this.spacesCount = user.getSpaces().stream().filter(space -> !space.isDeleted()).count();
-		this.school = user.getSchool();
+		spacesCount = user.getSpaces().stream().filter(new Predicate<Space>() {
+			@Override
+			public boolean test(Space space) {
+				return !space.isDeleted();
+			}
+		}).count();
+		school = user.getSchool();
 	}
 
 	/**
@@ -121,6 +137,5 @@ public class UserModel extends UserInfoModel {
 	public void setDayModels(Map<String, List<TimeModel>> dayModels) {
 		this.dayModels = dayModels;
 	}
-
 
 }

@@ -16,22 +16,21 @@ import com.edumento.core.model.ResponseModel;
 @RequestMapping("/upload")
 public class UploadController {
 
-  @Autowired
-  ResourceUploadService uploadService;
+	@Autowired
+	ResourceUploadService uploadService;
 
-  @RequestMapping(path = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
-  // @ApiOperation(value = "Upload Image", notes = "this method is used to upload
-  // image and thumbnail")
-  public ResponseModel uploadImage(
-      @RequestParam("image") MultipartFile img,
-      @RequestParam(name = "thumbnail", required = false) MultipartFile thumb) {
-    return uploadService.uploadImageAndThumbnail(img, thumb);
-  }
+	@RequestMapping(path = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
+	// @ApiOperation(value = "Upload Image", notes = "this method is used to upload
+	// image and thumbnail")
+	public ResponseModel uploadImage(@RequestParam("image") MultipartFile img,
+			@RequestParam(name = "thumbnail", required = false) MultipartFile thumb) {
+		return uploadService.uploadImageAndThumbnail(img, thumb);
+	}
 
-  @RequestMapping(path = "/audio", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
-  // @ApiOperation(value = "Upload Audio", notes = "this method is used to upload
-  // audio file")
-  public ResponseModel uploadImage(@RequestParam("file") MultipartFile img) {
-    return uploadService.uploadAudioFile(img);
-  }
+	@RequestMapping(path = "/audio", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
+	// @ApiOperation(value = "Upload Audio", notes = "this method is used to upload
+	// audio file")
+	public ResponseModel uploadImage(@RequestParam("file") MultipartFile img) {
+		return uploadService.uploadAudioFile(img);
+	}
 }

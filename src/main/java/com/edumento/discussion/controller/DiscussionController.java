@@ -21,7 +21,6 @@ import com.edumento.discussion.model.discussion.CommentCreateModel;
 import com.edumento.discussion.model.discussion.DiscussionCreateModel;
 import com.edumento.discussion.services.DiscussionService;
 
-
 /** Created by ayman on 25/08/16. */
 @RestController
 @RequestMapping("/api/discussion")
@@ -50,7 +49,7 @@ public class DiscussionController extends AbstractController<DiscussionCreateMod
 			@RequestHeader(required = false) Integer page, @RequestHeader(required = false) Integer size) {
 
 		return discussionService.getAllDiscussions(spaceId, DiscussionType.DISCUSSION,
-				PageRequestModel.getPageRequestModel(page, size,  Sort.by(Sort.Direction.DESC, "creationDate")));
+				PageRequestModel.getPageRequestModel(page, size, Sort.by(Sort.Direction.DESC, "creationDate")));
 	}
 
 	@GetMapping("/listAllInquiry/{spaceId}")
@@ -59,7 +58,7 @@ public class DiscussionController extends AbstractController<DiscussionCreateMod
 			@RequestHeader(required = false) Integer page, @RequestHeader(required = false) Integer size) {
 
 		return discussionService.getAllDiscussions(spaceId, DiscussionType.INQUIRY,
-				PageRequestModel.getPageRequestModel(page, size,  Sort.by(Sort.Direction.DESC, "modificationDate")));
+				PageRequestModel.getPageRequestModel(page, size, Sort.by(Sort.Direction.DESC, "modificationDate")));
 	}
 
 	@RequestMapping(path = "/get/{id}", method = RequestMethod.GET)

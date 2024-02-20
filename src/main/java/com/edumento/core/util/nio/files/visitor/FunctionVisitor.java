@@ -10,14 +10,14 @@ import java.util.function.Function;
 /** Created by IntelliJ IDEA. User: bbejeck Date: 1/28/12 Time: 9:07 PM */
 public class FunctionVisitor extends SimpleFileVisitor<Path> {
 
-  Function<Path, FileVisitResult> pathFunction;
+	Function<Path, FileVisitResult> pathFunction;
 
-  public FunctionVisitor(Function<Path, FileVisitResult> pathFunction) {
-    this.pathFunction = pathFunction;
-  }
+	public FunctionVisitor(Function<Path, FileVisitResult> pathFunction) {
+		this.pathFunction = pathFunction;
+	}
 
-  @Override
-  public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-    return pathFunction.apply(file);
-  }
+	@Override
+	public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+		return pathFunction.apply(file);
+	}
 }

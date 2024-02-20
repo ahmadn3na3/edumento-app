@@ -13,106 +13,107 @@ import jakarta.validation.constraints.NotNull;
 /** Created by ayman on 13/06/16. */
 public class QuestionCreateModel {
 
-  @NotNull(message = "error.question.body.null")
-  private String body;
+	@NotNull(message = "error.question.body.null")
+	private String body;
 
-  private Boolean isPublic = Boolean.TRUE;
+	private Boolean isPublic = Boolean.TRUE;
 
-  @NotNull(message = "error.question.questionType.null")
-  private QuestionType questionType;
+	@NotNull(message = "error.question.questionType.null")
+	private QuestionType questionType;
 
-  private String correctAnswer;
+	private String correctAnswer;
 
-  @NotNull(message = "error.question.category.null")
-  private Long categoryId;
+	@NotNull(message = "error.question.category.null")
+	private Long categoryId;
 
-  @NotNull(message = "error.question.owner.null")
-  private Long ownerId;
+	@NotNull(message = "error.question.owner.null")
+	private Long ownerId;
 
-  private String bodyResourceUrl;
+	private String bodyResourceUrl;
 
-  private ResourceType resourceType;
-  private List<ChoicesModel> choicesList = new ArrayList<>();
+	private ResourceType resourceType;
+	private List<ChoicesModel> choicesList = new ArrayList<>();
 
-  private Set<String> tags = new HashSet<>();
+	private Set<String> tags = new HashSet<>();
 
-  public String getBody() {
-    return body;
-  }
+	public String getBody() {
+		return body;
+	}
 
-  public void setBody(String body) {
-    this.body = body;
-  }
+	public void setBody(String body) {
+		this.body = body;
+	}
 
-  public Boolean getPublic() {
-    return isPublic;
-  }
+	public Boolean getPublic() {
+		return isPublic;
+	}
 
-  public void setPublic(Boolean aPublic) {
-    isPublic = aPublic;
-  }
+	public void setPublic(Boolean aPublic) {
+		isPublic = aPublic;
+	}
 
-  public QuestionType getQuestionType() {
-    return questionType;
-  }
+	public QuestionType getQuestionType() {
+		return questionType;
+	}
 
-  public void setQuestionType(QuestionType questionType) {
-    this.questionType = questionType;
-  }
+	public void setQuestionType(QuestionType questionType) {
+		this.questionType = questionType;
+	}
 
-  public String getCorrectAnswer() {
-    return correctAnswer;
-  }
+	public String getCorrectAnswer() {
+		return correctAnswer;
+	}
 
-  public void setCorrectAnswer(String correctAnswer) {
-    this.correctAnswer = correctAnswer;
-  }
+	public void setCorrectAnswer(String correctAnswer) {
+		this.correctAnswer = correctAnswer;
+	}
 
-  public Long getCategoryId() {
-    return categoryId;
-  }
+	public Long getCategoryId() {
+		return categoryId;
+	}
 
-  public void setCategoryId(Long categoryId) {
-    this.categoryId = categoryId;
-  }
+	public void setCategoryId(Long categoryId) {
+		this.categoryId = categoryId;
+	}
 
-  public Long getOwnerId() {
-    return ownerId;
-  }
+	public Long getOwnerId() {
+		return ownerId;
+	}
 
-  public void setOwnerId(Long ownerId) {
-    this.ownerId = ownerId;
-  }
+	public void setOwnerId(Long ownerId) {
+		this.ownerId = ownerId;
+	}
 
-  public String getBodyResourceUrl() {
-    return bodyResourceUrl;
-  }
+	public String getBodyResourceUrl() {
+		return bodyResourceUrl;
+	}
 
-  public void setBodyResourceUrl(String bodyResourceUrl) {
-    this.bodyResourceUrl = bodyResourceUrl;
-  }
+	public void setBodyResourceUrl(String bodyResourceUrl) {
+		this.bodyResourceUrl = bodyResourceUrl;
+	}
 
-  public List<ChoicesModel> getChoicesList() {
-    return choicesList;
-  }
+	public List<ChoicesModel> getChoicesList() {
+		return choicesList;
+	}
 
-  public void setChoicesList(List<ChoicesModel> choicesList) {
-    this.choicesList = choicesList;
-  }
+	public void setChoicesList(List<ChoicesModel> choicesList) {
+		this.choicesList = choicesList;
+	}
 
-  public Set<String> getTags() {
-    return tags;
-  }
+	public Set<String> getTags() {
+		return tags;
+	}
 
-  public void setTags(Set<String> tags) {
-    this.tags = tags;
-  }
+	public void setTags(Set<String> tags) {
+		this.tags = tags;
+	}
 
-  public ResourceType getResourceType() {
-  return resourceType;}
+	public ResourceType getResourceType() {
+		return resourceType;
+	}
 
-  public void setResourceType(ResourceType resourceType) {
-  this.resourceType = resourceType;}
+	public void setResourceType(ResourceType resourceType) {
+		this.resourceType = resourceType;
+	}
 
 }
-

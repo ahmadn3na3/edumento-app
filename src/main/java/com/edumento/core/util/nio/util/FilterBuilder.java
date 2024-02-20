@@ -9,29 +9,30 @@ import java.nio.file.PathMatcher;
 /** Created by IntelliJ IDEA. User: bbejeck Date: 2/2/12 Time: 11:46 PM */
 public class FilterBuilder {
 
-  private FilterBuilder() {}
+	private FilterBuilder() {
+	}
 
-  public static DirectoryStream.Filter<Path> buildGlobFilter(String pattern) {
-    final PathMatcher pathMatcher = getPathMatcher("glob:" + pattern);
-    return new DirectoryStream.Filter<>() {
-      @Override
-      public boolean accept(Path entry) throws IOException {
-        return pathMatcher.matches(entry);
-      }
-    };
-  }
+	public static DirectoryStream.Filter<Path> buildGlobFilter(String pattern) {
+		final var pathMatcher = getPathMatcher("glob:" + pattern);
+		return new DirectoryStream.Filter<>() {
+			@Override
+			public boolean accept(Path entry) throws IOException {
+				return pathMatcher.matches(entry);
+			}
+		};
+	}
 
-  public static DirectoryStream.Filter<Path> buildRegexFilter(String pattern) {
-    final PathMatcher pathMatcher = getPathMatcher("regex:" + pattern);
-    return new DirectoryStream.Filter<>() {
-      @Override
-      public boolean accept(Path entry) throws IOException {
-        return pathMatcher.matches(entry);
-      }
-    };
-  }
+	public static DirectoryStream.Filter<Path> buildRegexFilter(String pattern) {
+		final var pathMatcher = getPathMatcher("regex:" + pattern);
+		return new DirectoryStream.Filter<>() {
+			@Override
+			public boolean accept(Path entry) throws IOException {
+				return pathMatcher.matches(entry);
+			}
+		};
+	}
 
-  private static PathMatcher getPathMatcher(String pattern) {
-    return FileSystems.getDefault().getPathMatcher(pattern);
-  }
+	private static PathMatcher getPathMatcher(String pattern) {
+		return FileSystems.getDefault().getPathMatcher(pattern);
+	}
 }

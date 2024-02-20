@@ -8,6 +8,7 @@ import com.edumento.b2b.model.role.RoleModel;
 
 @Mapper
 public interface RoleMapper {
- RoleMapper INSTANCE = Mappers.getMapper(RoleMapper.class);
- RoleModel roleToRoleModel(Role role);
+	RoleMapper INSTANCE = Mappers.getMapper(RoleMapper.class);
+
+	RoleModel roleToRoleModel(Role role);
 }

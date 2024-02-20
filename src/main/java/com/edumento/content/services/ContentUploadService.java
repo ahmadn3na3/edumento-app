@@ -4,14 +4,13 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +24,6 @@ import com.edumento.content.converters.MintImagetoPDfConverter;
 import com.edumento.content.converters.MintInteractiveContentConverter;
 import com.edumento.content.converters.VideoConverterService;
 import com.edumento.content.domain.Chunk;
-import com.edumento.content.domain.Content;
 import com.edumento.content.domain.Task;
 import com.edumento.content.models.InitUploadModel;
 import com.edumento.content.models.InitUploadResponseModel;
@@ -88,12 +86,12 @@ public class ContentUploadService {
 	}
 
 	public ResponseModel startUpload(InitUploadModel initUploadModel) {
-		Content contentModel = contentService.getContentInformation(initUploadModel.getContentId());
+		var contentModel = contentService.getContentInformation(initUploadModel.getContentId());
 		if (contentModel == null) {
 			log.warn("content Not found");
 			throw new NotFoundException("content not found");
 		}
-		Task task = new Task(contentModel);
+		var task = new Task(contentModel);
 		task.setType(TaskType.UPLOAD);
 		if (initUploadModel.getChunkSize() <= 0) {
 			task.getChunkList().add(new Chunk(0, 0L, task.getContentLength()));
@@ -102,7 +100,7 @@ public class ContentUploadService {
 		}
 		taskRepository.save(task);
 
-		Path path = fileUtil.createUploadParentPathFromTask(task);
+		var path = fileUtil.createUploadParentPathFromTask(task);
 		fileUtil.deleteFile(path);
 
 		log.info("start upload end");
@@ -110,7 +108,7 @@ public class ContentUploadService {
 		//////////////////////////////////////////////
 
 		contentService.updateContentStatus(contentModel.getId(), ContentStatus.UPLOADING);
-		InitUploadResponseModel initUploadResponseModel = new InitUploadResponseModel();
+		var initUploadResponseModel = new InitUploadResponseModel();
 		initUploadResponseModel.setTaskId(task.getId());
 		initUploadResponseModel.setChunkList(task.getChunkList());
 
@@ -130,7 +128,7 @@ public class ContentUploadService {
 			throw new MintException(Code.INVALID_KEY);
 		}
 
-		Task task = taskRepository.findOneByIdAndType(uploadId, TaskType.UPLOAD);
+		var task = taskRepository.findOneByIdAndType(uploadId, TaskType.UPLOAD);
 		//////////////////////////////////////////////
 		if (task == null || task.getStatus() == TaskStatus.FINISHED || task.getStatus() == TaskStatus.CANCELED) {
 			log.error("Not vaild task {}", uploadId);
@@ -142,9 +140,14 @@ public class ContentUploadService {
 			throw new InvalidException("expired task");
 		}
 
-		Path path = fileUtil.createUploadParentPathFromTask(task);
+		var path = fileUtil.createUploadParentPathFromTask(task);
 
-		if (task.getChunkList().stream().noneMatch(chunk -> chunk.getChunkIndex().equals(chunkId))) {
+		if (task.getChunkList().stream().noneMatch(new Predicate<Chunk>() {
+			@Override
+			public boolean test(Chunk chunk) {
+				return chunk.getChunkIndex().equals(chunkId);
+			}
+		})) {
 			throw new NotFoundException("not found chunk");
 		}
 		try {
@@ -152,16 +155,16 @@ public class ContentUploadService {
 				Files.createDirectory(path);
 			}
 
-			File file = new File(path.toFile(), chunkId.toString());
+			var file = new File(path.toFile(), chunkId.toString());
 			if (file.exists() && !file.isDirectory()) {
 				fileUtil.deleteFile(file.toPath());
 			}
 			Files.createFile(file.toPath());
 
-			BufferedInputStream inputStream = new BufferedInputStream(filePart.getInputStream());
-			BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(file));
-			int read = 0;
-			byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+			var inputStream = new BufferedInputStream(filePart.getInputStream());
+			var outputStream = new BufferedOutputStream(new FileOutputStream(file));
+			var read = 0;
+			var buffer = new byte[DEFAULT_BUFFER_SIZE];
 			while ((read = inputStream.read(buffer)) > 0) {
 				outputStream.write(buffer, 0, read);
 				outputStream.flush();
@@ -185,32 +188,37 @@ public class ContentUploadService {
 	public ResponseModel commit(String uploadId, HttpServletRequest request) {
 		// get content Information by id throw services
 		log.info("start commit");
-		String authorization = request.getHeader("Authorization");
-		Task task = taskRepository.findOneByIdAndType(uploadId, TaskType.UPLOAD);
+		request.getHeader("Authorization");
+		var task = taskRepository.findOneByIdAndType(uploadId, TaskType.UPLOAD);
 		if (task == null) {
 			log.error("task not found");
 			throw new NotFoundException("task");
 		}
 
 		//////////////////////////////////////////////
-		Path path = fileUtil.createFilePathFromTask(task);
+		var path = fileUtil.createFilePathFromTask(task);
 
 		try {
 
 			Files.deleteIfExists(path);
 
-			try (OutputStream finalOutputStream = Files.newOutputStream(path)) {
+			try (var finalOutputStream = Files.newOutputStream(path)) {
 
-				String[] fileNames = path.toFile().getParentFile()
-						.list((dir, name) -> !name.toLowerCase().contains(task.getFileName().toLowerCase()));
+				var fileNames = path.toFile().getParentFile()
+						.list(new FilenameFilter() {
+							@Override
+							public boolean accept(File dir, String name) {
+								return !name.toLowerCase().contains(task.getFileName().toLowerCase());
+							}
+						});
 				if (fileNames.length > 1) {
 					Arrays.sort(fileNames, Comparator.comparing(Long::valueOf));
 				}
 				for (String fileName : fileNames) {
-					File chunk = new File(path.getParent().toFile(), fileName);
-					try (InputStream inputStream = Files.newInputStream(chunk.toPath())) {
-						int read = 0;
-						byte[] bytes = new byte[DEFAULT_BUFFER_SIZE];
+					var chunk = new File(path.getParent().toFile(), fileName);
+					try (var inputStream = Files.newInputStream(chunk.toPath())) {
+						var read = 0;
+						var bytes = new byte[DEFAULT_BUFFER_SIZE];
 						if (inputStream.available() <= DEFAULT_BUFFER_SIZE) {
 							bytes = new byte[inputStream.available()];
 						}
@@ -226,7 +234,7 @@ public class ContentUploadService {
 				log.error("error in commiting file", e);
 			}
 
-			long size = Files.size(path);
+			var size = Files.size(path);
 			if (size != task.getContentLength()) {
 				contentService.deleteContent(task.getContentId());
 				throw new InvalidException("size do not match");
@@ -237,42 +245,42 @@ public class ContentUploadService {
 			task.setStatus(TaskStatus.FINISHED);
 			taskRepository.save(task);
 			switch (task.getContentType()) {
-				case VIDEO:
-					videoConverterService.extractAndConvert(task);
-					break;
-				case INTERACTIVE:
-					interactiveContentConverter.convertInteractiveContentDirectory(task);
-					break;
-				case IMAGE:
-					imagetoPDfConverter.convertImageToPdfAsync(task);
-					break;
-				case TEXT:
-					encryptPDFUtil.encryptPdf(task);
-					break;
-				case H5P:
+			case VIDEO:
+				videoConverterService.extractAndConvert(task);
+				break;
+			case INTERACTIVE:
+				interactiveContentConverter.convertInteractiveContentDirectory(task);
+				break;
+			case IMAGE:
+				imagetoPDfConverter.convertImageToPdfAsync(task);
+				break;
+			case TEXT:
+				encryptPDFUtil.encryptPdf(task);
+				break;
+			case H5P:
+				mintH5PInteractiveContentConverter.convertH5PInteractiveContentDirectory(task);
+				log.info("update Content to be .zip");
+				contentService.updateContentStatus(task.getContentId(), ContentStatus.READY, null, null, "zip",
+						ContentType.INTERACTIVE, null);
+				break;
+			case OTHER:
+				if (task.getExt() != null && "h5p".equals(task.getExt())) {
 					mintH5PInteractiveContentConverter.convertH5PInteractiveContentDirectory(task);
 					log.info("update Content to be .zip");
 					contentService.updateContentStatus(task.getContentId(), ContentStatus.READY, null, null, "zip",
 							ContentType.INTERACTIVE, null);
-					break;
-				case OTHER:
-					if (task.getExt() != null && task.getExt().equals("h5p")) {
-						mintH5PInteractiveContentConverter.convertH5PInteractiveContentDirectory(task);
-						log.info("update Content to be .zip");
-						contentService.updateContentStatus(task.getContentId(), ContentStatus.READY, null, null, "zip",
-								ContentType.INTERACTIVE, null);
-					}
-					break;
-				default:
-					contentService.updateContentStatus(task.getContentId(), ContentStatus.READY);
-					break;
+				}
+				break;
+			default:
+				contentService.updateContentStatus(task.getContentId(), ContentStatus.READY);
+				break;
 			}
 
 		} catch (Exception e) {
 			log.error("error in commiting file", e);
 			throw new MintException(e.getMessage(), e, Code.UNKNOWN, e.getMessage() + ":" + e.getClass().getName());
 		}
-		Content content = contentService.getContentInformation(task.getContentId());
+		var content = contentService.getContentInformation(task.getContentId());
 		return ResponseModel.done(null,
 				new ContentInfoMessage(content.getId(), content.getName(), content.getType(),
 						content.getSpace().getId(), content.getSpace().getName(),
@@ -280,8 +288,8 @@ public class ContentUploadService {
 	}
 
 	public ResponseModel cancel(String id, HttpServletRequest request) {
-		Task task = taskRepository.findOneByIdAndType(id, TaskType.UPLOAD);
-		Path path = fileUtil.createUploadParentPathFromTask(task);
+		var task = taskRepository.findOneByIdAndType(id, TaskType.UPLOAD);
+		var path = fileUtil.createUploadParentPathFromTask(task);
 		if (Files.isDirectory(path)) {
 			try {
 				Files.deleteIfExists(path);

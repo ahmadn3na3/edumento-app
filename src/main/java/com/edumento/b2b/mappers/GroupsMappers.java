@@ -9,9 +9,9 @@ import com.edumento.b2b.model.group.GroupModel;
 
 @Mapper
 public interface GroupsMappers {
-    GroupsMappers INSTANCE = Mappers.getMapper(GroupsMappers.class);
+	GroupsMappers INSTANCE = Mappers.getMapper(GroupsMappers.class);
 
-    @Mapping(target = "canAccess", ignore = true)
-    @Mapping(target = "tags", ignore = true)
-    GroupModel groupsToGroupModel(Groups groups);
+	@Mapping(target = "canAccess", ignore = true)
+	@Mapping(target = "tags", ignore = true)
+	GroupModel groupsToGroupModel(Groups groups);
 }

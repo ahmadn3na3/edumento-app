@@ -10,15 +10,15 @@ import com.edumento.core.constants.notification.EntityAction;
 
 /** Created by ahmad on 5/22/17. */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD, ElementType.TYPE})
+@Target({ ElementType.METHOD, ElementType.TYPE })
 public @interface Message {
-  EntityAction entityAction();
+	EntityAction entityAction();
 
-  Services[] services();
+	Services[] services();
 
-  int indexOfId() default 0;
+	int indexOfId() default 0;
 
-  int indexOfModel() default 1;
+	int indexOfModel() default 1;
 
-  boolean withModel() default false;
+	boolean withModel() default false;
 }

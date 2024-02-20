@@ -15,16 +15,15 @@ import com.edumento.b2b.domain.Organization;
 @Repository
 public interface GroupsRepository extends JpaRepository<Groups, Long>, JpaSpecificationExecutor<Groups> {
 
-  Optional<Groups> findOneByNameAndDeletedFalse(String name);
+	Optional<Groups> findOneByNameAndDeletedFalse(String name);
 
-  Optional<Groups> findOneByIdAndDeletedFalse(Long id);
+	Optional<Groups> findOneByIdAndDeletedFalse(Long id);
 
-  Stream<Groups> findByOrganizationIdAndDeletedFalse(Long id);
+	Stream<Groups> findByOrganizationIdAndDeletedFalse(Long id);
 
-  Stream<Groups> findByFoundationIdAndDeletedFalse(Long id);
+	Stream<Groups> findByFoundationIdAndDeletedFalse(Long id);
 
-  Stream<Groups> findByNameInAndDeletedFalse(List<String> name);
+	Stream<Groups> findByNameInAndDeletedFalse(List<String> name);
 
-  Stream<Groups> findByIdInAndOrganizationInAndDeletedFalse(Iterable<Long> idss,
-      Iterable<Organization> organization);
+	Stream<Groups> findByIdInAndOrganizationInAndDeletedFalse(Iterable<Long> idss, Iterable<Organization> organization);
 }

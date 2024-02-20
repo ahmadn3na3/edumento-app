@@ -22,7 +22,7 @@ public class FoundationRegesiterAccountModel extends UserCreateModel {
 	}
 
 	public void setOrganizationId(Long organiatonId) {
-		this.organizationId = organiatonId;
+		organizationId = organiatonId;
 	}
 
 	public Long getGroupId() {

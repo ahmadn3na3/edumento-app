@@ -10,8 +10,7 @@ import com.edumento.discussion.model.comment.CommentViewModel;
 
 @Mapper
 public interface CommentMapper {
-    CommentMapper INSTANCE = Mappers.getMapper(CommentMapper.class);
+	CommentMapper INSTANCE = Mappers.getMapper(CommentMapper.class);
 
-
-    List<CommentViewModel> mapComments(List<Comment> comments);
+	List<CommentViewModel> mapComments(List<Comment> comments);
 }

@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class SpringSecurityAuditorAware implements AuditorAware<String> {
 
-  @Override
-  public Optional<String> getCurrentAuditor() {
-    String userName = SecurityUtils.getCurrentUserLogin();
-    return Optional.of(userName != null ? userName : "system");
-  }
+	@Override
+	public Optional<String> getCurrentAuditor() {
+		var userName = SecurityUtils.getCurrentUserLogin();
+		return Optional.of(userName != null ? userName : "system");
+	}
 }

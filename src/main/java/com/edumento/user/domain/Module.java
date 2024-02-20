@@ -40,7 +40,8 @@ public class Module extends AbstractEntity {
 	@Column(unique = true)
 	private String keyCode;
 
-	public Module() {}
+	public Module() {
+	}
 
 	public Module(String name, String description, String keyCode) {
 		this.name = name;
@@ -77,7 +78,7 @@ public class Module extends AbstractEntity {
 	}
 
 	public void setKeyCode(String key) {
-		this.keyCode = key;
+		keyCode = key;
 	}
 
 	public Set<Permission> getPermissions() {
@@ -97,7 +98,7 @@ public class Module extends AbstractEntity {
 			return false;
 		}
 
-		Module module = (Module) o;
+		var module = (Module) o;
 
 		if (!name.equals(module.name)) {
 			return false;
@@ -107,9 +108,8 @@ public class Module extends AbstractEntity {
 
 	@Override
 	public int hashCode() {
-		int result = super.hashCode();
+		var result = super.hashCode();
 		result = 31 * result + name.hashCode();
-		result = 31 * result + keyCode.hashCode();
-		return result;
+		return 31 * result + keyCode.hashCode();
 	}
 }

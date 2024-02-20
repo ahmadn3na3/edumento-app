@@ -25,124 +25,124 @@ import jakarta.persistence.TemporalType;
 @DynamicInsert
 @DynamicUpdate
 public class TimeLockException extends AbstractEntity {
-  @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Long id;
 
-  @Column
-  private String name;
+	@Column
+	private String name;
 
-  @ManyToOne
-  @JoinColumn(name = "time_lock", foreignKey = @ForeignKey(name = "FK_TIME_LOCK_EXCEPTION"))
-  private TimeLock timeLock;
+	@ManyToOne
+	@JoinColumn(name = "time_lock", foreignKey = @ForeignKey(name = "FK_TIME_LOCK_EXCEPTION"))
+	private TimeLock timeLock;
 
-  @Column
-  @Enumerated(EnumType.ORDINAL)
-  private LockStatus lockStatus;
+	@Column
+	@Enumerated(EnumType.ORDINAL)
+	private LockStatus lockStatus;
 
-  @Column
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date fromDate;
+	@Column
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date fromDate;
 
-  @Column
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date toDate;
+	@Column
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date toDate;
 
-  @Column
-  private String fromTime;
-  @Column
-  private String toTime;
+	@Column
+	private String fromTime;
+	@Column
+	private String toTime;
 
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public TimeLock getTimeLock() {
-    return timeLock;
-  }
-
-  public void setTimeLock(TimeLock timeLock) {
-    this.timeLock = timeLock;
-  }
-
-  public LockStatus getLockStatus() {
-    return lockStatus;
-  }
-
-  public void setLockStatus(LockStatus lockStatus) {
-    this.lockStatus = lockStatus;
-  }
-
-  public Date getFromDate() {
-    return fromDate;
-  }
-
-  public void setFromDate(Date fromDate) {
-    this.fromDate = fromDate;
-  }
-
-  public Date getToDate() {
-    return toDate;
-  }
-
-  public void setToDate(Date toDate) {
-    this.toDate = toDate;
-  }
-
-  public String getFromTime() {
-    return fromTime;
-  }
-
-  public void setFromTime(String fromTime) {
-    this.fromTime = fromTime;
-  }
-
-  public String getToTime() {
-    return toTime;
-  }
-
-  public void setToTime(String toTime) {
-    this.toTime = toTime;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-		return true;
-	}
-    if (o == null || getClass() != o.getClass()) {
-		return false;
+	public Long getId() {
+		return id;
 	}
 
-    TimeLockException that = (TimeLockException) o;
-
-    if ((getTimeLock() != null ? !getTimeLock().equals(that.getTimeLock())
-        : that.getTimeLock() != null) || (getFromDate() != null ? !getFromDate().equals(that.getFromDate())
-        : that.getFromDate() != null) || (getToDate() != null ? !getToDate().equals(that.getToDate()) : that.getToDate() != null) || !getFromTime().equals(that.getFromTime())) {
-		return false;
+	public void setId(Long id) {
+		this.id = id;
 	}
-    return getToTime().equals(that.getToTime());
-  }
 
-  @Override
-  public int hashCode() {
-    int result = getTimeLock() != null ? getTimeLock().hashCode() : 0;
-    result = 31 * result + (getFromDate() != null ? getFromDate().hashCode() : 0);
-    result = 31 * result + (getToDate() != null ? getToDate().hashCode() : 0);
-    result = 31 * result + getFromTime().hashCode();
-    result = 31 * result + getToTime().hashCode();
-    return result;
-  }
+	public TimeLock getTimeLock() {
+		return timeLock;
+	}
+
+	public void setTimeLock(TimeLock timeLock) {
+		this.timeLock = timeLock;
+	}
+
+	public LockStatus getLockStatus() {
+		return lockStatus;
+	}
+
+	public void setLockStatus(LockStatus lockStatus) {
+		this.lockStatus = lockStatus;
+	}
+
+	public Date getFromDate() {
+		return fromDate;
+	}
+
+	public void setFromDate(Date fromDate) {
+		this.fromDate = fromDate;
+	}
+
+	public Date getToDate() {
+		return toDate;
+	}
+
+	public void setToDate(Date toDate) {
+		this.toDate = toDate;
+	}
+
+	public String getFromTime() {
+		return fromTime;
+	}
+
+	public void setFromTime(String fromTime) {
+		this.fromTime = fromTime;
+	}
+
+	public String getToTime() {
+		return toTime;
+	}
+
+	public void setToTime(String toTime) {
+		this.toTime = toTime;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+
+		var that = (TimeLockException) o;
+
+		if ((getTimeLock() != null ? !getTimeLock().equals(that.getTimeLock()) : that.getTimeLock() != null)
+				|| (getFromDate() != null ? !getFromDate().equals(that.getFromDate()) : that.getFromDate() != null)
+				|| (getToDate() != null ? !getToDate().equals(that.getToDate()) : that.getToDate() != null)
+				|| !getFromTime().equals(that.getFromTime())) {
+			return false;
+		}
+		return getToTime().equals(that.getToTime());
+	}
+
+	@Override
+	public int hashCode() {
+		var result = getTimeLock() != null ? getTimeLock().hashCode() : 0;
+		result = 31 * result + (getFromDate() != null ? getFromDate().hashCode() : 0);
+		result = 31 * result + (getToDate() != null ? getToDate().hashCode() : 0);
+		result = 31 * result + getFromTime().hashCode();
+		return 31 * result + getToTime().hashCode();
+	}
 }

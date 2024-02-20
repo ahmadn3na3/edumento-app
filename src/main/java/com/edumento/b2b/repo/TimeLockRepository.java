@@ -14,12 +14,11 @@ import com.edumento.b2b.domain.TimeLock;
 
 @Repository
 public interface TimeLockRepository extends JpaRepository<TimeLock, Long> {
-  Page<TimeLock> findByFoundationAndDeletedFalse(Foundation foundation, Pageable pageable);
+	Page<TimeLock> findByFoundationAndDeletedFalse(Foundation foundation, Pageable pageable);
 
-  Page<TimeLock> findByOrganizationAndDeletedFalse(Organization organization, Pageable pageable);
+	Page<TimeLock> findByOrganizationAndDeletedFalse(Organization organization, Pageable pageable);
 
-  Stream<TimeLock> findByOrganizationAndDeletedFalse(Organization organization);
+	Stream<TimeLock> findByOrganizationAndDeletedFalse(Organization organization);
 
-  Optional<TimeLock> findOneByNameAndOrganizationAndDeletedFalse(String name,
-      Organization organization);
+	Optional<TimeLock> findOneByNameAndOrganizationAndDeletedFalse(String name, Organization organization);
 }

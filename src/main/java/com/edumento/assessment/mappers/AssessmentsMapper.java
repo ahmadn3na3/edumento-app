@@ -14,17 +14,15 @@ import com.edumento.assessment.model.WorkSheetAnswerModel;
 
 @Mapper
 public interface AssessmentsMapper {
-  AssessmentsMapper INSTANCE = Mappers.getMapper(AssessmentsMapper.class);
+	AssessmentsMapper INSTANCE = Mappers.getMapper(AssessmentsMapper.class);
 
-  void createModelToEntity(
-      AssessmentCreateModel assesmentCreateModel, @MappingTarget Assessment assessment);
+	void createModelToEntity(AssessmentCreateModel assesmentCreateModel, @MappingTarget Assessment assessment);
 
-  void mapAssessmentQuestionModelToDomain(
-      AssessmentQuestionCreateModel assessmentQuestionCreateModel,
-      @MappingTarget AssessmentQuestion assessmentQuestion);
+	void mapAssessmentQuestionModelToDomain(AssessmentQuestionCreateModel assessmentQuestionCreateModel,
+			@MappingTarget AssessmentQuestion assessmentQuestion);
 
-  WorkSheetAnswerModel cloneToNewModel(WorkSheetAnswerModel userWorkSheetAnswerModel);
+	WorkSheetAnswerModel cloneToNewModel(WorkSheetAnswerModel userWorkSheetAnswerModel);
 
-  void mapQuestionAnswerModelToDomain(
-      QuestionAnswerModel questionAnswerModel, @MappingTarget QuestionAnswer questionAnswer);
+	void mapQuestionAnswerModelToDomain(QuestionAnswerModel questionAnswerModel,
+			@MappingTarget QuestionAnswer questionAnswer);
 }

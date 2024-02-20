@@ -15,12 +15,12 @@ public class PageRequestModel extends PageRequest {
 	}
 
 	public static PageRequest getPageRequestModel(Integer page, Integer size, Sort sort) {
-		PageRequest pageRequest = PageRequest.of(0, Integer.MAX_VALUE, Sort.unsorted());
+		var pageRequest = PageRequest.of(0, Integer.MAX_VALUE, Sort.unsorted());
 		if (null != page && null != size && sort != null) {
-			pageRequest = PageRequest.of((page > 0) ? page : 0, size, sort);
+			pageRequest = PageRequest.of(page > 0 ? page : 0, size, sort);
 
 		} else if (null != page && null != size) {
-			pageRequest = PageRequest.of((page > 0) ? page : 0, size);
+			pageRequest = PageRequest.of(page > 0 ? page : 0, size);
 		} else if (null == page && null == size && sort != null) {
 			pageRequest = PageRequest.of(0, Integer.MAX_VALUE, sort);
 		}

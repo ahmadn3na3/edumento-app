@@ -47,6 +47,7 @@ public class AssessmentController extends AbstractController<AssessmentCreateMod
 			HttpServletRequest request) {
 		return assessmentService.generatePractice(practiceGenerateModel, request);
 	}
+
 	@RequestMapping(method = RequestMethod.POST, path = "/challenge")
 //	@ApiOperation(value = "Generate challenge", notes = "this method is used to generate practice from question bank")
 	public ResponseModel generateChanllenge(@RequestBody @Validated ChallengeCreateModel challengeCreateModel,
@@ -65,10 +66,10 @@ public class AssessmentController extends AbstractController<AssessmentCreateMod
 	/** Created by A.Alsayed on 05/01/19. */
 	@RequestMapping(path = "/challenge/{spaceId}", method = RequestMethod.GET)
 //	@ApiOperation(value = "Get user challenges", notes = "this method is used to get user challenges ")
-	public ResponseModel getUserChallenges(@PathVariable Long spaceId, @RequestHeader(required = false) Integer page, @RequestHeader(required = false) Integer size) {
+	public ResponseModel getUserChallenges(@PathVariable Long spaceId, @RequestHeader(required = false) Integer page,
+			@RequestHeader(required = false) Integer size) {
 		return assessmentService.getUserChallenges(spaceId, PageRequestModel.getPageRequestModel(page, size));
 	}
-
 
 	/** Created by A.Alsayed on 05/01/19. */
 	@RequestMapping(path = "/challenge/{challengeId}/start", method = RequestMethod.GET)
@@ -105,7 +106,7 @@ public class AssessmentController extends AbstractController<AssessmentCreateMod
 			@RequestHeader(required = false) Sort.Direction direction) {
 		Sort sort = null;
 		if (field != null && direction != null) {
-			sort =  Sort.by(direction, field.getFieldName());
+			sort = Sort.by(direction, field.getFieldName());
 		}
 		return assessmentService.get(assessmentGetAllModel, PageRequestModel.getPageRequestModel(page, size, sort));
 	}
@@ -134,7 +135,7 @@ public class AssessmentController extends AbstractController<AssessmentCreateMod
 //	@ApiOperation(value = "Submit assessment", notes = "this method is used to submit user answers for an assessment")
 	@RequestMapping(path = "/submit", method = RequestMethod.POST)
 	public ResponseModel submit(@RequestBody @Validated UserAssessmentModel userAssessmentModel,
-			@RequestHeader(name = "lang", required = false,defaultValue="eng") String lang) {
+			@RequestHeader(name = "lang", required = false, defaultValue = "eng") String lang) {
 		return assessmentService.submit(userAssessmentModel, lang);
 	}
 

@@ -18,7 +18,6 @@ import com.edumento.core.model.messages.user.UserInfoMessage;
 import com.edumento.notification.models.NotificationMessage;
 import com.sendgrid.Method;
 import com.sendgrid.Request;
-import com.sendgrid.Response;
 import com.sendgrid.SendGrid;
 import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.Content;
@@ -78,17 +77,17 @@ public class MailService {
 		log.debug("Send e-mail[multipart '{}' and html '{}'] to '{}' with subject '{}' and content={}", isMultipart,
 				isHtml, to, subject, content);
 
-		Email fromEmail = new Email(from);
-		Email toEmail = new Email(to);
-		Content mailContent = new Content(MediaType.TEXT_HTML_VALUE, content);
-		Mail mail = new Mail(fromEmail, subject, toEmail, mailContent);
+		var fromEmail = new Email(from);
+		var toEmail = new Email(to);
+		var mailContent = new Content(MediaType.TEXT_HTML_VALUE, content);
+		var mail = new Mail(fromEmail, subject, toEmail, mailContent);
 
-		Request request = new Request();
+		var request = new Request();
 		try {
 			request.setMethod(Method.POST);
 			request.setEndpoint("mail/send");
 			request.setBody(mail.build());
-			Response response = sendGrid.api(request);
+			var response = sendGrid.api(request);
 			log.debug("mail statusCode {}", response.getStatusCode());
 			log.debug("mail body {}", response.getBody());
 			log.debug("mail header {}", response.getHeaders());
@@ -100,8 +99,8 @@ public class MailService {
 	@Async
 	public void sendActivationEmail(UserInfoMessage user) {
 		log.debug("Sending activation e-mail to '{}'", user.getEmail());
-		Locale locale = Locale.forLanguageTag(user.getLang());
-		Context context = new Context(locale);
+		var locale = Locale.forLanguageTag(user.getLang());
+		var context = new Context(locale);
 		context.setVariable("user", user);
 		context.setVariable("weburl", weburl);
 		String content;
@@ -110,7 +109,7 @@ public class MailService {
 		} else {
 			content = templateEngine.process(templateLocation + "/activate_mail_en", context);
 		}
-		String subject = messageSource.getMessage(emailEnvName + " " + "email.creation.title", null,
+		var subject = messageSource.getMessage(emailEnvName + " " + "email.creation.title", null,
 				emailEnvName + " user creation", locale);
 		sendEmail(resgisterationEmail, user.getEmail(), subject, content, false, true);
 	}
@@ -118,8 +117,8 @@ public class MailService {
 	@Async
 	public void sendCreationEmail(UserInfoMessage user) {
 		log.debug("Sending creation e-mail to '{}'", user.getEmail());
-		Locale locale = Locale.forLanguageTag(user.getLang());
-		Context context = new Context(locale);
+		var locale = Locale.forLanguageTag(user.getLang());
+		var context = new Context(locale);
 		context.setVariable("user", user);
 		context.setVariable("password", user.getPassword());
 		context.setVariable("weburl", weburl);
@@ -129,7 +128,7 @@ public class MailService {
 		} else {
 			content = templateEngine.process(templateLocation + "/creation_mail_en", context);
 		}
-		String subject = messageSource.getMessage(emailEnvName + " " + "email.activation.title", null,
+		var subject = messageSource.getMessage(emailEnvName + " " + "email.activation.title", null,
 				emailEnvName + " Activation Mail", locale);
 		log.info("Mail Content Is {}", content);
 		sendEmail(resgisterationEmail, user.getEmail(), subject, content, false, true);
@@ -138,8 +137,8 @@ public class MailService {
 	@Async
 	public void sendPasswordResetMail(UserInfoMessage user) {
 		log.debug("Sending password reset e-mail to '{}'", user.getEmail());
-		Locale locale = Locale.forLanguageTag(user.getLang());
-		Context context = new Context(locale);
+		var locale = Locale.forLanguageTag(user.getLang());
+		var context = new Context(locale);
 		context.setVariable("user", user);
 		context.setVariable("weburl", weburl);
 		String content;
@@ -149,7 +148,7 @@ public class MailService {
 			content = templateEngine.process(templateLocation + "/reset_mail_en", context);
 		}
 
-		String subject = messageSource.getMessage(emailEnvName + " " + "email.reset.title", null,
+		var subject = messageSource.getMessage(emailEnvName + " " + "email.reset.title", null,
 				emailEnvName + " Reset Passeword Mail", locale);
 		sendEmail(forgetPasswordEmail, user.getEmail(), subject, content, false, true);
 	}
@@ -163,8 +162,8 @@ public class MailService {
 		}
 		log.debug("Sending Notification e-mail to '{}'", user.getEmail());
 
-		Locale locale = Locale.forLanguageTag(user.getLang());
-		Context context = new Context(locale);
+		var locale = Locale.forLanguageTag(user.getLang());
+		var context = new Context(locale);
 		context.setVariable("user", user);
 		context.setVariable("withImage", withImage);
 		context.setVariable("weburl", weburl);
@@ -183,7 +182,7 @@ public class MailService {
 			content = templateEngine.process(templateLocation + "/notification_email_en", context);
 		}
 
-		String subject = messageSource.getMessage("email.notification.title", null, "notification mail", locale);
+		var subject = messageSource.getMessage("email.notification.title", null, "notification mail", locale);
 		sendEmail(normalNotificationsEmail, user.getEmail(), subject, content, false, true);
 	}
 
@@ -196,8 +195,8 @@ public class MailService {
 		}
 		log.debug("Sending Notification e-mail to '{}'", user.getEmail());
 
-		Locale locale = Locale.forLanguageTag(user.getLang());
-		Context context = new Context(locale);
+		var locale = Locale.forLanguageTag(user.getLang());
+		var context = new Context(locale);
 		context.setVariable("user", user);
 		context.setVariable("withImage", withImage);
 		context.setVariable("weburl", weburl);
@@ -216,7 +215,7 @@ public class MailService {
 			content = templateEngine.process(templateLocation + "/notification_email_en", context);
 		}
 
-		String subject = messageSource.getMessage("email.notification.title", null, "notification mail", locale);
+		var subject = messageSource.getMessage("email.notification.title", null, "notification mail", locale);
 		sendEmail(normalNotificationsEmail, user.getEmail(), subject, content, false, true);
 	}
 
@@ -229,8 +228,8 @@ public class MailService {
 		}
 		log.debug("Sending Announcement e-mail to '{}'", user.getEmail());
 
-		Locale locale = Locale.forLanguageTag(user.getLang());
-		Context context = new Context(locale);
+		var locale = Locale.forLanguageTag(user.getLang());
+		var context = new Context(locale);
 		context.setVariable("user", user);
 		context.setVariable("weburl", weburl);
 		context.setVariable("from", notificationMessage.getFrom().getName());
@@ -244,7 +243,7 @@ public class MailService {
 			content = templateEngine.process(templateLocation + "/announcement_email_en", context);
 		}
 
-		String subject = notificationMessage.getMessage();
+		var subject = notificationMessage.getMessage();
 		sendEmail(announcmentEmail, user.getEmail(), subject, content, false, true);
 	}
 

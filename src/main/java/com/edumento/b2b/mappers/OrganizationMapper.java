@@ -10,9 +10,9 @@ import com.edumento.b2b.model.organization.SimpleOrganizationModel;
 @Mapper
 public interface OrganizationMapper {
 
-    OrganizationMapper INSTANCE = Mappers.getMapper(OrganizationMapper.class);
+	OrganizationMapper INSTANCE = Mappers.getMapper(OrganizationMapper.class);
 
-    OrganizationModel organizationToOrganizationModel(Organization organization);
+	OrganizationModel organizationToOrganizationModel(Organization organization);
 
-    SimpleOrganizationModel mapOrganizationToSimpleOrganizationModel(Organization organization);
+	SimpleOrganizationModel mapOrganizationToSimpleOrganizationModel(Organization organization);
 }

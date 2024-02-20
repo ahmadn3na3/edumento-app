@@ -17,12 +17,15 @@ public class UserSpaceRankingModel {
 	public String getSpaceName() {
 		return spaceName;
 	}
+
 	public void setSpaceName(String spaceName) {
 		this.spaceName = spaceName;
 	}
+
 	public int getSpaceRanking() {
 		return spaceRanking;
 	}
+
 	public void setSpaceRanking(int spaceRanking) {
 		this.spaceRanking = spaceRanking;
 	}
@@ -42,6 +45,5 @@ public class UserSpaceRankingModel {
 	public void setSpaceImage(String spaceImage) {
 		this.spaceImage = spaceImage;
 	}
-
 
 }

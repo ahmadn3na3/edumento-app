@@ -1,18 +1,14 @@
 package com.edumento.b2b.model.group;
 
-import com.edumento.b2b.model.organization.SimpleOrganizationModel;
-import com.edumento.core.model.SimpleModel;
-
 /** Created by ahmad on 3/7/16. */
 public class GroupModel extends GroupCreateModel {
 
 	private Long id;
 	private Integer userCount;
-	private SimpleOrganizationModel organization;
-	private SimpleModel foundation;
 	private Integer spaceCount;
 
-	public GroupModel() {}
+	public GroupModel() {
+	}
 
 	public Long getId() {
 		return id;

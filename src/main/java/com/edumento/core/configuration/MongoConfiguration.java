@@ -15,15 +15,15 @@ import com.edumento.core.util.JSR310DateConverters;
 @Configuration
 public class MongoConfiguration {
 
-  @Bean(name = "customConversionsMongo")
-  public CustomConversions customConversions() {
-    List<Converter<?, ?>> converters = new ArrayList<>();
-    converters.add(JSR310DateConverters.DateToZonedDateTimeConverter.INSTANCE);
-    converters.add(JSR310DateConverters.ZonedDateTimeToDateConverter.INSTANCE);
-    converters.add(JSR310DateConverters.DateToLocalDateConverter.INSTANCE);
-    converters.add(JSR310DateConverters.LocalDateToDateConverter.INSTANCE);
-    converters.add(JSR310DateConverters.DateToLocalDateTimeConverter.INSTANCE);
-    converters.add(JSR310DateConverters.LocalDateTimeToDateConverter.INSTANCE);
-    return new CustomConversions(StoreConversions.NONE, converters);
-  }
+	@Bean(name = "customConversionsMongo")
+	public CustomConversions customConversions() {
+		List<Converter<?, ?>> converters = new ArrayList<>();
+		converters.add(JSR310DateConverters.DateToZonedDateTimeConverter.INSTANCE);
+		converters.add(JSR310DateConverters.ZonedDateTimeToDateConverter.INSTANCE);
+		converters.add(JSR310DateConverters.DateToLocalDateConverter.INSTANCE);
+		converters.add(JSR310DateConverters.LocalDateToDateConverter.INSTANCE);
+		converters.add(JSR310DateConverters.DateToLocalDateTimeConverter.INSTANCE);
+		converters.add(JSR310DateConverters.LocalDateTimeToDateConverter.INSTANCE);
+		return new CustomConversions(StoreConversions.NONE, converters);
+	}
 }

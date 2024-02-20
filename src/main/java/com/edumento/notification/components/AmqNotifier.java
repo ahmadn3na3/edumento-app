@@ -3,6 +3,9 @@ package com.edumento.notification.components;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -25,7 +28,7 @@ import com.edumento.user.domain.User;
 public class AmqNotifier {
 
 	private static final Logger logger = LoggerFactory.getLogger(AmqNotifier.class);
-	//private JmsTemplate jmsTemplate;
+	// private JmsTemplate jmsTemplate;
 	private NotificationRepository notificationRepository;
 	private final MessageSource messageSource;
 
@@ -42,23 +45,23 @@ public class AmqNotifier {
 	private int timeToLive;
 
 	@Autowired
-	public AmqNotifier( MessageSource messageSource) {
+	public AmqNotifier(MessageSource messageSource) {
 //		this.jmsTemplate = jmsTemplate;
 //		this.jmsTemplate.setMessageConverter(mappingJackson2MessageConverter);
 //		this.jmsTemplate.setDeliveryMode(deliveryMode);
 //		this.jmsTemplate.setMessageTimestampEnabled(true);
-		this.notificationRepository = notificationRepository;
+		notificationRepository = notificationRepository;
 		this.messageSource = messageSource;
 	}
 
 	@Deprecated
 	public NotificationMessage saveMessage(User user, BaseNotificationMessage baseNotificationMessage) {
-		return saveMessage(user, baseNotificationMessage, null,null);
+		return saveMessage(user, baseNotificationMessage, null, null);
 	}
 
 	@Deprecated
 	public NotificationMessage saveMessage(User user, BaseNotificationMessage notificationMessage, String message) {
-		return saveMessage(new UserInfoMessage(user), notificationMessage, message,null);
+		return saveMessage(new UserInfoMessage(user), notificationMessage, message, null);
 	}
 
 	@Deprecated
@@ -77,7 +80,7 @@ public class AmqNotifier {
 
 	public NotificationMessage saveMessage(UserInfoMessage user, BaseNotificationMessage notificationMessage,
 			String message, String body, Object... objects) {
-		NotificationMessage amqNotificationMessage = new NotificationMessage(notificationMessage);
+		var amqNotificationMessage = new NotificationMessage(notificationMessage);
 		amqNotificationMessage.setUserId(user.getId());
 		if (message != null && !message.isEmpty()) {
 			amqNotificationMessage.setMessage(
@@ -89,22 +92,36 @@ public class AmqNotifier {
 	}
 
 	public List<NotificationMessage> saveAll(List<UserInfoMessage> userInfoMessageList,
-			BaseNotificationMessage baseNotificationMessage, String message,String body, Object... objects) {
-		List<NotificationMessage> notificationMessages = userInfoMessageList.stream().map(user -> {
-			NotificationMessage amqNotificationMessage = new NotificationMessage(baseNotificationMessage);
-			amqNotificationMessage.setUserId(user.getId());
-			if (message != null && !message.isEmpty()) {
-				amqNotificationMessage.setMessage(
-						messageSource.getMessage(message, objects, message, Locale.forLanguageTag(user.getLang())));
+			BaseNotificationMessage baseNotificationMessage, String message, String body, Object... objects) {
+		List<NotificationMessage> notificationMessages = userInfoMessageList.stream().map(new Function<UserInfoMessage, NotificationMessage>() {
+			@Override
+			public NotificationMessage apply(UserInfoMessage user) {
+				var amqNotificationMessage = new NotificationMessage(baseNotificationMessage);
+				amqNotificationMessage.setUserId(user.getId());
+				if (message != null && !message.isEmpty()) {
+					amqNotificationMessage.setMessage(
+							messageSource.getMessage(message, objects, message, Locale.forLanguageTag(user.getLang())));
+				}
+				amqNotificationMessage.setBody(body);
+				return amqNotificationMessage;
 			}
-			amqNotificationMessage.setBody(body);
-			return amqNotificationMessage;
 		}).collect(Collectors.toList());
-		save(notificationMessages).forEach(notification -> {
-			notificationMessages.stream().filter(m -> notification.getUserId().equals(m.getUserId())).findFirst()
-					.ifPresent(notificationMessage -> {
-						notificationMessage.setId(notification.getId());
-					});
+		save(notificationMessages).forEach(new Consumer<Notification>() {
+			@Override
+			public void accept(Notification notification) {
+				notificationMessages.stream().filter(new Predicate<NotificationMessage>() {
+					@Override
+					public boolean test(NotificationMessage m) {
+						return notification.getUserId().equals(m.getUserId());
+					}
+				}).findFirst()
+						.ifPresent(new Consumer<NotificationMessage>() {
+							@Override
+							public void accept(NotificationMessage notificationMessage) {
+								notificationMessage.setId(notification.getId());
+							}
+						});
+			}
 		});
 
 		return notificationMessages;
@@ -124,26 +141,35 @@ public class AmqNotifier {
 	@Async
 	public void sendAll(List<NotificationMessage> notificationMessageList) {
 		if (enablePushNotification) {
-			notificationMessageList.stream().forEach(notificationMessage -> {
-				send(notificationMessage);
+			notificationMessageList.stream().forEach(new Consumer<NotificationMessage>() {
+				@Override
+				public void accept(NotificationMessage notificationMessage) {
+					send(notificationMessage);
+				}
 			});
 		}
 	}
 
 	private Notification save(NotificationMessage notificationMessage) {
-		Notification notification = new Notification(notificationMessage.getUserId(), notificationMessage.getMessage(), notificationMessage.getBody(),
-				notificationMessage.getDate(), notificationMessage.getNotificationCategory(),
-				notificationMessage.getFrom(), notificationMessage.getTarget());
+		var notification = new Notification(notificationMessage.getUserId(), notificationMessage.getMessage(),
+				notificationMessage.getBody(), notificationMessage.getDate(),
+				notificationMessage.getNotificationCategory(), notificationMessage.getFrom(),
+				notificationMessage.getTarget());
 		notificationRepository.save(notification);
 		return notification;
 	}
 
 	private Collection<Notification> save(Collection<NotificationMessage> notificationMessages) {
 		List<Notification> notifications = notificationMessages.stream()
-				.map(notificationMessage -> new Notification(notificationMessage.getUserId(),
-						notificationMessage.getMessage(), notificationMessage.getBody(), notificationMessage.getDate(),
-						notificationMessage.getNotificationCategory(), notificationMessage.getFrom(),
-						notificationMessage.getTarget()))
+				.map(new Function<NotificationMessage, Notification>() {
+					@Override
+					public Notification apply(NotificationMessage notificationMessage) {
+						return new Notification(notificationMessage.getUserId(),
+								notificationMessage.getMessage(), notificationMessage.getBody(), notificationMessage.getDate(),
+								notificationMessage.getNotificationCategory(), notificationMessage.getFrom(),
+								notificationMessage.getTarget());
+					}
+				})
 				.collect(Collectors.toList());
 		notificationRepository.saveAll(notifications);
 		return notifications;

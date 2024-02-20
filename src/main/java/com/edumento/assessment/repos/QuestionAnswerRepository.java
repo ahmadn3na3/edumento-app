@@ -11,6 +11,5 @@ import com.edumento.assessment.domain.QuestionAnswer;
 @Repository
 public interface QuestionAnswerRepository extends MongoRepository<QuestionAnswer, String> {
 
-  Optional<QuestionAnswer> findOneByUserIdAndQuestionIdAndDeletedFalse(
-      Long userId, Long questionId);
+	Optional<QuestionAnswer> findOneByUserIdAndQuestionIdAndDeletedFalse(Long userId, Long questionId);
 }

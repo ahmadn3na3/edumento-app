@@ -6,9 +6,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,11 +24,11 @@ public final class PackagerUtil {
 	public static void packageFiles(final File source, final Collection<File> files, String keyId, String key)
 			throws IOException, InterruptedException {
 		log.debug("PackagerUtil.packageFiles()");
-		final String dir = source.getParentFile().toString();
+		final var dir = source.getParentFile().toString();
 
-		Path videoPath = Files.createDirectory(Paths.get(dir, "video"));
-		Path audioPath = Files.createDirectory(Paths.get(dir, "audio"));
-		final StringBuilder packagerBuilder = new StringBuilder();
+		Files.createDirectory(Paths.get(dir, "video"));
+		Files.createDirectory(Paths.get(dir, "audio"));
+		final var packagerBuilder = new StringBuilder();
 		packagerBuilder.append("packager \\").append('\n').append("'input=").append(source.getName());
 		if (key != null && keyId != null) {
 			packagerBuilder.append(
@@ -62,16 +62,16 @@ public final class PackagerUtil {
 
 		// --------------------------------------------
 		log.debug(packagerBuilder.toString());
-		File fileSh = new File(dir, "packager.sh");
+		var fileSh = new File(dir, "packager.sh");
 		fileSh.setExecutable(true, true);
 		fileSh.setReadable(true, true);
 		fileSh.setWritable(true, true);
 		fileSh.createNewFile();
-		FileWriter fileWriter = new FileWriter(fileSh);
+		var fileWriter = new FileWriter(fileSh);
 		fileWriter.append(packagerBuilder.toString());
 		fileWriter.flush();
 		fileWriter.close();
-		Process process = Runtime.getRuntime().exec("sh " + fileSh.getAbsolutePath(), new String[] {}, new File(dir));
+		var process = Runtime.getRuntime().exec("sh " + fileSh.getAbsolutePath(), new String[] {}, new File(dir));
 		process.waitFor();
 		log.debug("process exit value ==> {}", process.exitValue());
 		log.debug("process output stream ==> {}", process.getOutputStream());
@@ -82,8 +82,13 @@ public final class PackagerUtil {
 		}
 
 		if (process.exitValue() != 0) {
-			BufferedReader inputStream = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-			inputStream.lines().forEach(s -> log.error("errror in packager == {}", s));
+			var inputStream = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+			inputStream.lines().forEach(new Consumer<String>() {
+				@Override
+				public void accept(String s) {
+					log.error("errror in packager == {}", s);
+				}
+			});
 			throw new InvalidException("Packager did not finish");
 		}
 		// --------------------------------------------

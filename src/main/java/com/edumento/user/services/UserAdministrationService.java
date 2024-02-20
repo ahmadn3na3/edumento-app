@@ -8,13 +8,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -49,6 +53,7 @@ import com.edumento.core.util.DateConverter;
 import com.edumento.core.util.PermissionCheck;
 import com.edumento.core.util.RandomUtils;
 import com.edumento.space.domain.Joined;
+import com.edumento.space.domain.Space;
 import com.edumento.space.repos.JoinedRepository;
 import com.edumento.space.services.SpaceService;
 import com.edumento.user.constant.UserType;
@@ -60,7 +65,9 @@ import com.edumento.user.repo.UserRepository;
 import com.edumento.user.repo.specifications.UserSpecifications;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -99,89 +106,120 @@ public class UserAdministrationService {
 	@PreAuthorize("hasAnyAuthority('USER_READ','USER_SYSTEM_ADMIN_READ','USER_FOUNDATION_ADMIN_READ','USER_ADMIN_READ') AND hasAuthority('ADMIN')")
 	public ResponseModel getUsers(PageRequest page, Long foundationId, Long organizationId, UserType type,
 			String filter, boolean all) {
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(user -> {
-			log.debug("get Users");
-			Specification<User> byUserType = null;
-			Specification<User> byOrganization = null;
-			Specification<User> byFoundation = null;
-			Specification<User> filterKey = null;
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, PageResponseModel>() {
+			@Override
+			public PageResponseModel apply(User user) {
+				log.debug("get Users");
+				Specification<User> byUserType = null;
+				Specification<User> byOrganization = null;
+				Specification<User> byFoundation = null;
+				Specification<User> filterKey = null;
 
-			if (foundationId != null) {
-				Optional<Foundation> foundationIns = foundationRepository.findOneByIdAndDeletedFalse(foundationId);
-				if (foundationIns.isPresent()) {
-					byFoundation = UserSpecifications.inFoundation(foundationIns.get());
-				} else {
-					log.warn("foundation {} not found", foundationId);
-					throw new NotFoundException("role");
-				}
-			} else {
-				byFoundation = all ? null : (root, cq, cb) -> cb.isNull(root.get("foundation"));
-			}
-
-			if (organizationId != null) {
-				Optional<Organization> org = organizationRepository.findOneByIdAndDeletedFalse(organizationId);
-				if (org.isPresent()) {
-					byOrganization = UserSpecifications.inOrganization(org.get());
-					if (foundationId == null) {
-						byFoundation = UserSpecifications.inFoundation(org.get().getFoundation());
+				if (foundationId != null) {
+					var foundationIns = foundationRepository.findOneByIdAndDeletedFalse(foundationId);
+					if (foundationIns.isPresent()) {
+						byFoundation = UserSpecifications.inFoundation(foundationIns.get());
+					} else {
+						log.warn("foundation {} not found", foundationId);
+						throw new NotFoundException("role");
 					}
 				} else {
-					log.warn("organization {} not found", organizationId);
-					throw new NotFoundException("organization");
+					byFoundation = all ? null : new Specification<User>() {
+						@Override
+						@Nullable
+						public jakarta.persistence.criteria.Predicate toPredicate(Root<User> root, CriteriaQuery<?> cq,
+								CriteriaBuilder cb) {
+							return cb.isNull(root.get("foundation"));
+						}
+					};
 				}
-			} else {
 
-				byOrganization = all ? null : (root, cq, cb) -> cb.isNull(root.get("organization"));
-			}
-
-			if (type != null) {
-
-				byUserType = UserSpecifications.hasUserType(type);
-			}
-
-			if (filter != null) {
-				if (filter.matches(GeneralConstant.EMAIL_PATTERN)) {
-					filterKey = (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("email"),
-							filter);
+				if (organizationId != null) {
+					var org = organizationRepository.findOneByIdAndDeletedFalse(organizationId);
+					if (org.isPresent()) {
+						byOrganization = UserSpecifications.inOrganization(org.get());
+						if (foundationId == null) {
+							byFoundation = UserSpecifications.inFoundation(org.get().getFoundation());
+						}
+					} else {
+						log.warn("organization {} not found", organizationId);
+						throw new NotFoundException("organization");
+					}
 				} else {
-					filterKey = (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.or(
-							criteriaBuilder.like(criteriaBuilder.lower(root.get("userName").as(String.class)),
-									"%" + filter.toLowerCase() + "%"),
-							criteriaBuilder.like(criteriaBuilder.lower(root.get("fullName").as(String.class)),
-									"%" + filter.toLowerCase() + "%"));
-				}
-			}
-			switch (user.getType()) {
-			case SUPER_ADMIN:
-				if (byUserType == null) {
-					byUserType = UserSpecifications.hasUserType(UserType.values());
-				}
-				break;
-			case SYSTEM_ADMIN:
-				if (byUserType == null) {
-					byUserType = UserSpecifications.hasUserType(UserType.FOUNDATION_ADMIN, UserType.ADMIN,
-							UserType.USER);
-				}
-				break;
-			case ADMIN:
-				byFoundation = UserSpecifications.inFoundation(user.getFoundation());
-				byOrganization = UserSpecifications.inOrganization(user.getOrganization());
-				byUserType = UserSpecifications.hasUserType(UserType.USER);
-				break;
-			case FOUNDATION_ADMIN:
-				byFoundation = UserSpecifications.inFoundation(user.getFoundation());
-				byUserType = UserSpecifications.hasUserType(UserType.USER, UserType.ADMIN);
-				log.debug("foundation ADMIN COLLECTED");
-				break;
-			default:
-				log.warn("user {} not permitted", SecurityUtils.getCurrentUserLogin());
-				throw new NotPermittedException();
-			}
 
-			Page<UserModel> userModels = userRepository.findAll(where(byUserType).and(byOrganization).and(byFoundation)
-					.and(filterKey).and(UserSpecifications.notDeleted()), page).map(UserModel::new);
-			return PageResponseModel.done(userModels.getContent(), userModels.getTotalPages(), userModels.getNumber(),
-					userModels.getTotalElements());
+					byOrganization = all ? null : new Specification<User>() {
+						@Override
+						@Nullable
+						public jakarta.persistence.criteria.Predicate toPredicate(Root<User> root, CriteriaQuery<?> cq,
+								CriteriaBuilder cb) {
+							return cb.isNull(root.get("organization"));
+						}
+					};
+				}
+
+				if (type != null) {
+
+					byUserType = UserSpecifications.hasUserType(type);
+				}
+
+				if (filter != null) {
+					if (filter.matches(GeneralConstant.EMAIL_PATTERN)) {
+						filterKey = new Specification<User>() {
+							@Override
+							@Nullable
+							public jakarta.persistence.criteria.Predicate toPredicate(Root<User> root,
+									CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+								return criteriaBuilder.equal(root.get("email"),
+										filter);
+							}
+						};
+					} else {
+						filterKey = new Specification<User>() {
+							@Override
+							@Nullable
+							public jakarta.persistence.criteria.Predicate toPredicate(Root<User> root,
+									CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+								return criteriaBuilder.or(
+										criteriaBuilder.like(criteriaBuilder.lower(root.get("userName").as(String.class)),
+												"%" + filter.toLowerCase() + "%"),
+										criteriaBuilder.like(criteriaBuilder.lower(root.get("fullName").as(String.class)),
+												"%" + filter.toLowerCase() + "%"));
+							}
+						};
+					}
+				}
+				switch (user.getType()) {
+				case SUPER_ADMIN:
+					if (byUserType == null) {
+						byUserType = UserSpecifications.hasUserType(UserType.values());
+					}
+					break;
+				case SYSTEM_ADMIN:
+					if (byUserType == null) {
+						byUserType = UserSpecifications.hasUserType(UserType.FOUNDATION_ADMIN, UserType.ADMIN,
+								UserType.USER);
+					}
+					break;
+				case ADMIN:
+					byFoundation = UserSpecifications.inFoundation(user.getFoundation());
+					byOrganization = UserSpecifications.inOrganization(user.getOrganization());
+					byUserType = UserSpecifications.hasUserType(UserType.USER);
+					break;
+				case FOUNDATION_ADMIN:
+					byFoundation = UserSpecifications.inFoundation(user.getFoundation());
+					byUserType = UserSpecifications.hasUserType(UserType.USER, UserType.ADMIN);
+					log.debug("foundation ADMIN COLLECTED");
+					break;
+				default:
+					log.warn("user {} not permitted", SecurityUtils.getCurrentUserLogin());
+					throw new NotPermittedException();
+				}
+
+				Page<UserModel> userModels = userRepository.findAll(where(byUserType).and(byOrganization).and(byFoundation)
+						.and(filterKey).and(UserSpecifications.notDeleted()), page).map(UserModel::new);
+				return PageResponseModel.done(userModels.getContent(), userModels.getTotalPages(), userModels.getNumber(),
+						userModels.getTotalElements());
+			}
 		}).orElseThrow(NotPermittedException::new);
 	}
 
@@ -207,77 +245,109 @@ public class UserAdministrationService {
 	@PreAuthorize("hasAnyAuthority('USER_UPDATE','SYSTEMADMIN_UPDATE','FOUNDATIONADMIN_UPDATE','ORGADMIN_UPDATE') AND hasAuthority('ADMIN')")
 	public ResponseModel updateUserInformation(UserOrganizationCreateModel userUpdateModel, Long Id) {
 		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
-				.map(user -> userRepository.findOneByIdAndDeletedFalse(Id).map(u -> {
-					if (user.getType() != UserType.SUPER_ADMIN && user.getType() != UserType.SYSTEM_ADMIN) {
-						if ((user.getType() == UserType.FOUNDATION_ADMIN
-								&& !user.getFoundation().equals(u.getFoundation()))
-								&& (user.getType() == UserType.ADMIN
-										&& user.getOrganization().equals(u.getOrganization()))
-								&& user.getType() == UserType.USER) {
-							throw new NotPermittedException();
-						}
-					}
-					u.setFullName(userUpdateModel.getFullName());
-					u.setBirthDate(DateConverter.convertZonedDateTimeToDate(userUpdateModel.getBirthDate()));
-					u.setCountry(userUpdateModel.getCountry());
-					u.setProfession(userUpdateModel.getProfession());
-					u.setMobile(userUpdateModel.getMobile());
-					u.setThumbnail(userUpdateModel.getImage());
-					u.setNotification(userUpdateModel.getNotification());
-					u.setMailNotification(userUpdateModel.getEmailNotification());
-					u.setGender(userUpdateModel.getGender() == null ? null : userUpdateModel.getGender().getValue());
-					if (userUpdateModel.getEmail() != null
-							&& !u.getEmail().equalsIgnoreCase(userUpdateModel.getEmail())) {
-						if (userRepository.findOneByEmailAndDeletedFalse(userUpdateModel.getEmail()).isPresent()) {
-							log.warn("email {} exist", userUpdateModel.getEmail());
-							throw new ExistException("email");
-						}
-						u.setEmail(userUpdateModel.getEmail());
-					}
-					if (userUpdateModel.getOrganizationId() != null && u.getOrganization() != null
-							&& !userUpdateModel.getOrganizationId().equals(u.getOrganization().getId())) {
-						Organization organization = organizationRepository.findById(userUpdateModel.getOrganizationId())
-								.orElse(null);
-						if (organization != null) {
-							if (u.getSpaces().stream().filter(space -> !space.isDeleted()).count() > 0) {
-								throw new MintException(Code.INVALID,
-										"user has spaces cannot be moved to another organization");
-							} else {
-								u.setOrganization(organization);
-								u.getGroups().forEach(groups -> groupService
-										.removeUserFromGroup(Collections.singletonList(u.getId()), groups.getId()));
-								roleService.removeRolesFromUser(u);
-							}
-						}
-					}
-					userRepository.save(u);
-					log.debug("user updated");
+				.map(new Function<User, ResponseModel>() {
+					@Override
+					public ResponseModel apply(User user) {
+						return userRepository.findOneByIdAndDeletedFalse(Id).map(new Function<User, ResponseModel>() {
+							@Override
+							public ResponseModel apply(User u) {
+								if (user.getType() != UserType.SUPER_ADMIN && user.getType() != UserType.SYSTEM_ADMIN) {
+									if (user.getType() == UserType.FOUNDATION_ADMIN
+											&& !user.getFoundation().equals(u.getFoundation()) && user.getType() == UserType.ADMIN
+											&& user.getOrganization().equals(u.getOrganization())
+											&& user.getType() == UserType.USER) {
+										throw new NotPermittedException();
+									}
+								}
+								u.setFullName(userUpdateModel.getFullName());
+								u.setBirthDate(DateConverter.convertZonedDateTimeToDate(userUpdateModel.getBirthDate()));
+								u.setCountry(userUpdateModel.getCountry());
+								u.setProfession(userUpdateModel.getProfession());
+								u.setMobile(userUpdateModel.getMobile());
+								u.setThumbnail(userUpdateModel.getImage());
+								u.setNotification(userUpdateModel.getNotification());
+								u.setMailNotification(userUpdateModel.getEmailNotification());
+								u.setGender(userUpdateModel.getGender() == null ? null : userUpdateModel.getGender().getValue());
+								if (userUpdateModel.getEmail() != null
+										&& !u.getEmail().equalsIgnoreCase(userUpdateModel.getEmail())) {
+									if (userRepository.findOneByEmailAndDeletedFalse(userUpdateModel.getEmail()).isPresent()) {
+										log.warn("email {} exist", userUpdateModel.getEmail());
+										throw new ExistException("email");
+									}
+									u.setEmail(userUpdateModel.getEmail());
+								}
+								if (userUpdateModel.getOrganizationId() != null && u.getOrganization() != null
+										&& !userUpdateModel.getOrganizationId().equals(u.getOrganization().getId())) {
+									var organization = organizationRepository.findById(userUpdateModel.getOrganizationId())
+											.orElse(null);
+									if (organization != null) {
+										if (u.getSpaces().stream().filter(new Predicate<Space>() {
+											@Override
+											public boolean test(Space space) {
+												return !space.isDeleted();
+											}
+										}).count() > 0) {
+											throw new MintException(Code.INVALID,
+													"user has spaces cannot be moved to another organization");
+										} else {
+											u.setOrganization(organization);
+											u.getGroups().forEach(new Consumer<Groups>() {
+												@Override
+												public void accept(Groups groups) {
+													groupService
+															.removeUserFromGroup(Collections.singletonList(u.getId()), groups.getId());
+												}
+											});
+											roleService.removeRolesFromUser(u);
+										}
+									}
+								}
+								userRepository.save(u);
+								log.debug("user updated");
 
-					if (userUpdateModel.getGroups() != null && !userUpdateModel.getGroups().isEmpty()) {
-						u.getGroups().stream()
-								.filter(groupFilter -> !userUpdateModel.getGroups().contains(groupFilter.getId()))
-								.forEach(groups -> groupService
-										.removeUserFromGroup(Collections.singletonList(u.getId()), groups.getId()));
-						boolean exist = false;
-						for (Long aLong : userUpdateModel.getGroups()) {
-							for (Groups group : u.getGroups()) {
-                                if (aLong.equals(group.getId())) {
-                                    exist = true;
-                                    break;
-                                }
-							}
-							if (!exist) {
-								groupService.assignUserToGroup(Collections.singletonList(u.getId()), aLong);
-							}
-						}
-					}
+								if (userUpdateModel.getGroups() != null && !userUpdateModel.getGroups().isEmpty()) {
+									u.getGroups().stream()
+											.filter(new Predicate<Groups>() {
+												@Override
+												public boolean test(Groups groupFilter) {
+													return !userUpdateModel.getGroups().contains(groupFilter.getId());
+												}
+											})
+											.forEach(new Consumer<Groups>() {
+												@Override
+												public void accept(Groups groups) {
+													groupService
+															.removeUserFromGroup(Collections.singletonList(u.getId()), groups.getId());
+												}
+											});
+									var exist = false;
+									for (Long aLong : userUpdateModel.getGroups()) {
+										for (Groups group : u.getGroups()) {
+											if (aLong.equals(group.getId())) {
+												exist = true;
+												break;
+											}
+										}
+										if (!exist) {
+											groupService.assignUserToGroup(Collections.singletonList(u.getId()), aLong);
+										}
+									}
+								}
 
-					if (userUpdateModel.getRoleId() != null) {
-						roleService.assignRole(new AssignRoleModel(userUpdateModel.getRoleId(), u.getId()));
+								if (userUpdateModel.getRoleId() != null) {
+									roleService.assignRole(new AssignRoleModel(userUpdateModel.getRoleId(), u.getId()));
+								}
+								log.debug("Changed Information for User: {}", u);
+								return ResponseModel.done();
+							}
+						}).orElseThrow(new Supplier<NotFoundException>() {
+							@Override
+							public NotFoundException get() {
+								return new NotFoundException("user");
+							}
+						});
 					}
-					log.debug("Changed Information for User: {}", u);
-					return ResponseModel.done();
-				}).orElseThrow(() -> new NotFoundException("user"))).orElseThrow(NotPermittedException::new);
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	@Transactional
@@ -286,37 +356,30 @@ public class UserAdministrationService {
 	@Message(entityAction = EntityAction.USER_CREATE, services = Services.NOTIFICATIONS)
 	public ResponseModel createUser(UserOrganizationCreateModel userCreateModel, String baseUrl) {
 		log.debug("create user: {}", userCreateModel);
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(u -> {
-			Object[] objects = null;
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, ResponseModel>() {
+			@Override
+			public ResponseModel apply(User u) {
+				Object[] objects = null;
 
-			switch (userCreateModel.getType()) {
-			case SYSTEM_ADMIN:
-				objects = createSystemAdmin(userCreateModel);
-				break;
-			case FOUNDATION_ADMIN:
-				objects = createFoundationAdmin(u, userCreateModel);
-				break;
-			case ADMIN:
-				objects = createOrganizationAdmin(u, userCreateModel);
-				break;
-			case USER:
-				objects = createUser(u, userCreateModel);
-				break;
-			default:
-				throw new NotPermittedException();
+				objects = switch (userCreateModel.getType()) {
+				case SYSTEM_ADMIN -> createSystemAdmin(userCreateModel);
+				case FOUNDATION_ADMIN -> createFoundationAdmin(u, userCreateModel);
+				case ADMIN -> createOrganizationAdmin(u, userCreateModel);
+				case USER -> createUser(u, userCreateModel);
+				default -> throw new NotPermittedException();
+				};
+
+				var newUser = (User) objects[0];
+				var password = String.valueOf(objects[1]);
+				var request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
+						.getRequest();
+				if (request.getHeader("lang") != null) {
+					request.getHeader("lang");
+				}
+
+				log.debug("Created Information for User: {}", objects[0]);
+				return ResponseModel.done(null, new UserInfoMessage(newUser, password));
 			}
-
-			User newUser = ((User) objects[0]);
-			String password = String.valueOf(objects[1]);
-			HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
-					.getRequest();
-			String lang = "en";
-			if (request.getHeader("lang") != null) {
-				lang = request.getHeader("lang");
-			}
-
-			log.debug("Created Information for User: {}", objects[0]);
-			return ResponseModel.done(null, new UserInfoMessage(newUser, password));
 		}).orElseThrow(NotPermittedException::new);
 	}
 
@@ -325,17 +388,30 @@ public class UserAdministrationService {
 	@PreAuthorize("hasAnyAuthority('USER_UPDATE','SYSTEMADMIN_UPDATE','FOUNDATIONADMIN_UPDATE','ORGADMIN_UPDATE') AND hasAuthority('ADMIN')")
 	public ResponseModel restPassword(Long id) {
 		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
-				.map(user -> userRepository.findOneByIdAndDeletedFalse(id).map(u -> {
-					PermissionCheck.checkUserForFoundationAndOrgOperation(user,
-							u.getOrganization() != null ? u.getOrganization().getId() : null,
-							u.getFoundation() != null ? u.getFoundation().getId() : null);
-					String password = RandomUtils.generatePassword();
-					String encryptedPassword = passwordEncoder.encode(password);
-					u.setPassword(encryptedPassword);
-					userRepository.save(u);
-					log.debug("Changed password for User: {}", u);
-					return ResponseModel.done((Object) password);
-				}).orElseThrow(() -> new NotFoundException("user"))).orElseThrow(NotPermittedException::new);
+				.map(new Function<User, ResponseModel>() {
+					@Override
+					public ResponseModel apply(User user) {
+						return userRepository.findOneByIdAndDeletedFalse(id).map(new Function<User, ResponseModel>() {
+							@Override
+							public ResponseModel apply(User u) {
+								PermissionCheck.checkUserForFoundationAndOrgOperation(user,
+										u.getOrganization() != null ? u.getOrganization().getId() : null,
+										u.getFoundation() != null ? u.getFoundation().getId() : null);
+								var password = RandomUtils.generatePassword();
+								var encryptedPassword = passwordEncoder.encode(password);
+								u.setPassword(encryptedPassword);
+								userRepository.save(u);
+								log.debug("Changed password for User: {}", u);
+								return ResponseModel.done((Object) password);
+							}
+						}).orElseThrow(new Supplier<NotFoundException>() {
+							@Override
+							public NotFoundException get() {
+								return new NotFoundException("user");
+							}
+						});
+					}
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	@Transactional
@@ -344,23 +420,51 @@ public class UserAdministrationService {
 	public ResponseModel deleteUserInformation(Long id) {
 		log.debug("delete user {} information", id);
 		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
-				.map(user -> userRepository.findOneByIdAndDeletedFalse(id).map(u -> {
-					PermissionCheck.checkUserForFoundationAndOrgOperation(user,
-							u.getOrganization() != null ? u.getOrganization().getId() : null,
-							u.getFoundation() != null ? u.getFoundation().getId() : null);
-					u.getGroups().forEach(groups -> groupService
-							.removeUserFromGroup(Collections.singletonList(u.getId()), groups.getId()));
-					roleService.removeRolesFromUser(u);
-					Set<Joined> joineds = joinedRepository.findByUserIdAndDeletedFalse(u.getId())
-							.collect(Collectors.toSet());
-					if (joineds != null && !joineds.isEmpty()) {
-						joinedRepository.deleteAll(joineds);
+				.map(new Function<User, ResponseModel>() {
+					@Override
+					public ResponseModel apply(User user) {
+						return userRepository.findOneByIdAndDeletedFalse(id).map(new Function<User, ResponseModel>() {
+							@Override
+							public ResponseModel apply(User u) {
+								PermissionCheck.checkUserForFoundationAndOrgOperation(user,
+										u.getOrganization() != null ? u.getOrganization().getId() : null,
+										u.getFoundation() != null ? u.getFoundation().getId() : null);
+								u.getGroups().forEach(new Consumer<Groups>() {
+									@Override
+									public void accept(Groups groups) {
+										groupService
+												.removeUserFromGroup(Collections.singletonList(u.getId()), groups.getId());
+									}
+								});
+								roleService.removeRolesFromUser(u);
+								Set<Joined> joineds = joinedRepository.findByUserIdAndDeletedFalse(u.getId())
+										.collect(Collectors.toSet());
+								if (joineds != null && !joineds.isEmpty()) {
+									joinedRepository.deleteAll(joineds);
+								}
+								u.getSpaces().stream().filter(new Predicate<Space>() {
+									@Override
+									public boolean test(Space space) {
+										return !space.isDeleted();
+									}
+								})
+										.forEach(new Consumer<Space>() {
+											@Override
+											public void accept(Space space) {
+												spaceService.deleteSpace(space.getId());
+											}
+										});
+								userRepository.delete(u);
+								return ResponseModel.done();
+							}
+						}).orElseThrow(new Supplier<NotFoundException>() {
+							@Override
+							public NotFoundException get() {
+								return new NotFoundException("user");
+							}
+						});
 					}
-					u.getSpaces().stream().filter(space -> !space.isDeleted())
-							.forEach(space -> spaceService.deleteSpace(space.getId()));
-					userRepository.delete(u);
-					return ResponseModel.done();
-				}).orElseThrow(() -> new NotFoundException("user"))).orElseThrow(NotPermittedException::new);
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	public void deleteUserInOrganization(Long id) {
@@ -377,19 +481,27 @@ public class UserAdministrationService {
 	@Auditable(EntityAction.USER_UPDATE)
 	@PreAuthorize("hasAuthority('USER_UPDATE') AND hasAuthority('ADMIN')")
 	public ResponseModel changeUserStatus(Long id) {
-		return userRepository.findOneByIdAndDeletedFalse(id).map(user -> {
-			if (user.getType() == UserType.SUPER_ADMIN
-					|| (user.getType() == UserType.SYSTEM_ADMIN
-							&& !SecurityUtils.isCurrentUserInRole("SYSTEMADMIN_UPDATE"))
-					|| (user.getType() == UserType.FOUNDATION_ADMIN
-							&& !SecurityUtils.isCurrentUserInRole("FOUNDATIONADMIN_UPDATE"))
-					|| (user.getType() == UserType.ADMIN && !SecurityUtils.isCurrentUserInRole("ORGADMIN_UPDATE"))) {
-				throw new NotPermittedException();
+		return userRepository.findOneByIdAndDeletedFalse(id).map(new Function<User, ResponseModel>() {
+			@Override
+			public ResponseModel apply(User user) {
+				if (user.getType() == UserType.SUPER_ADMIN
+						|| user.getType() == UserType.SYSTEM_ADMIN
+								&& !SecurityUtils.isCurrentUserInRole("SYSTEMADMIN_UPDATE")
+						|| user.getType() == UserType.FOUNDATION_ADMIN
+								&& !SecurityUtils.isCurrentUserInRole("FOUNDATIONADMIN_UPDATE")
+						|| user.getType() == UserType.ADMIN && !SecurityUtils.isCurrentUserInRole("ORGADMIN_UPDATE")) {
+					throw new NotPermittedException();
+				}
+				user.setStatus(!user.getStatus());
+				userRepository.save(user);
+				return ResponseModel.done();
 			}
-			user.setStatus(!user.getStatus());
-			userRepository.save(user);
-			return ResponseModel.done();
-		}).orElseThrow(() -> new NotFoundException("user"));
+		}).orElseThrow(new Supplier<NotFoundException>() {
+			@Override
+			public NotFoundException get() {
+				return new NotFoundException("user");
+			}
+		});
 	}
 
 	@PreAuthorize("hasAuthority('SYSTEMADMIN_CREATE') and hasAuthority('SUPER_ADMIN')")
@@ -407,15 +519,15 @@ public class UserAdministrationService {
 			throw new ExistException(exist);
 		}
 
-		User user = new User();
+		var user = new User();
 		user.setUserName(userCreateModel.getUsername());
 		user.setFullName(userCreateModel.getFullName());
 		user.setEmail(userCreateModel.getEmail());
 		user.setLangKey(userCreateModel.getLang()); // default language is English
 		user.setType(userCreateModel.getType());
 		user.setThumbnail(userCreateModel.getImage());
-		String password = RandomUtils.generatePassword();
-		String encryptedPassword = passwordEncoder.encode(password);
+		var password = RandomUtils.generatePassword();
+		var encryptedPassword = passwordEncoder.encode(password);
 		user.setPassword(encryptedPassword);
 		user.setResetKey(RandomUtils.generateResetKey());
 		user.setResetDate(DateConverter.convertZonedDateTimeToDate(ZonedDateTime.now(ZoneOffset.UTC)));
@@ -439,7 +551,7 @@ public class UserAdministrationService {
 
 		Map<String, String> exist = new HashMap<>();
 
-		Foundation foundation = userCreateModel.getFoundationId() != null
+		var foundation = userCreateModel.getFoundationId() != null
 				? foundationRepository.findById(userCreateModel.getFoundationId()).orElse(u.getFoundation())
 				: u.getFoundation();
 
@@ -462,7 +574,7 @@ public class UserAdministrationService {
 			throw new MintException(Code.INVALID, "error.foundation.active");
 		}
 
-		String userName = String.format("%s@%s", userCreateModel.getUsername(), foundation.getCode());
+		var userName = String.format("%s@%s", userCreateModel.getUsername(), foundation.getCode());
 		if (userRepository.findOneByUserNameAndDeletedFalse(userName).isPresent()) {
 			exist.put("username", "exist");
 		}
@@ -475,15 +587,15 @@ public class UserAdministrationService {
 			throw new ExistException(exist);
 		}
 
-		User user = new User();
+		var user = new User();
 		user.setUserName(userName);
 		user.setFullName(userCreateModel.getFullName());
 		user.setEmail(userCreateModel.getEmail());
 		user.setLangKey("en"); // default language is English
 		user.setType(userCreateModel.getType());
 		user.setThumbnail(userCreateModel.getImage());
-		String password = RandomUtils.generatePassword();
-		String encryptedPassword = passwordEncoder.encode(password);
+		var password = RandomUtils.generatePassword();
+		var encryptedPassword = passwordEncoder.encode(password);
 		user.setPassword(encryptedPassword);
 		user.setResetKey(RandomUtils.generateResetKey());
 		user.setResetDate(DateConverter.convertZonedDateTimeToDate(ZonedDateTime.now(ZoneOffset.UTC)));
@@ -507,7 +619,12 @@ public class UserAdministrationService {
 
 		if (userCreateModel.getGroups() != null) {
 			userCreateModel.getGroups()
-					.forEach(aLong -> groupService.assignUserToGroup(Collections.singletonList(user.getId()), aLong));
+					.forEach(new Consumer<Long>() {
+						@Override
+						public void accept(Long aLong) {
+							groupService.assignUserToGroup(Collections.singletonList(user.getId()), aLong);
+						}
+					});
 		}
 
 		log.debug("Created Information for User: {}", user);
@@ -521,7 +638,7 @@ public class UserAdministrationService {
 
 		Map<String, String> exist = new HashMap<>();
 
-		Organization organization = userCreateModel.getOrganizationId() != null
+		var organization = userCreateModel.getOrganizationId() != null
 				? organizationRepository.findById(userCreateModel.getOrganizationId()).orElse(u.getOrganization())
 				: u.getOrganization();
 
@@ -535,7 +652,7 @@ public class UserAdministrationService {
 
 		checkFoundationCapacity(organization.getFoundation());
 
-		String userName = String.format("%s@%s", userCreateModel.getUsername(), organization.getOrgId());
+		var userName = String.format("%s@%s", userCreateModel.getUsername(), organization.getOrgId());
 		if (userRepository.findOneByUserNameAndDeletedFalse(userName).isPresent()) {
 			exist.put("username", "exist");
 		}
@@ -547,15 +664,15 @@ public class UserAdministrationService {
 			log.warn("user {} already exist", exist);
 			throw new ExistException(exist);
 		}
-		User user = new User();
+		var user = new User();
 		user.setUserName(userName);
 		user.setFullName(userCreateModel.getFullName());
 		user.setEmail(userCreateModel.getEmail());
 		user.setLangKey(userCreateModel.getLang()); // default language is English
 		user.setType(userCreateModel.getType());
 		user.setThumbnail(userCreateModel.getImage());
-		String password = RandomUtils.generatePassword();
-		String encryptedPassword = passwordEncoder.encode(password);
+		var password = RandomUtils.generatePassword();
+		var encryptedPassword = passwordEncoder.encode(password);
 		user.setPassword(encryptedPassword);
 		user.setResetKey(RandomUtils.generateResetKey());
 		user.setResetDate(DateConverter.convertZonedDateTimeToDate(ZonedDateTime.now(ZoneOffset.UTC)));
@@ -580,7 +697,12 @@ public class UserAdministrationService {
 
 		if (userCreateModel.getGroups() != null) {
 			userCreateModel.getGroups()
-					.forEach(aLong -> groupService.assignUserToGroup(Collections.singletonList(user.getId()), aLong));
+					.forEach(new Consumer<Long>() {
+						@Override
+						public void accept(Long aLong) {
+							groupService.assignUserToGroup(Collections.singletonList(user.getId()), aLong);
+						}
+					});
 		}
 		return new Object[] { user, password };
 	}
@@ -591,12 +713,13 @@ public class UserAdministrationService {
 			Organization organization = null;
 			Map<String, String> exist = new HashMap<>();
 
-			Foundation foundation = userCreateModel.getFoundationId() != null
+			var foundation = userCreateModel.getFoundationId() != null
 					? foundationRepository.findById(userCreateModel.getFoundationId()).orElse(u.getFoundation())
 					: u.getFoundation();
 
 			if (userCreateModel.getOrganizationId() != null) {
-				organization = organizationRepository.findById(userCreateModel.getOrganizationId()).orElse(u.getOrganization());
+				organization = organizationRepository.findById(userCreateModel.getOrganizationId())
+						.orElse(u.getOrganization());
 			}
 
 			if (organization != null && foundation != null
@@ -608,7 +731,7 @@ public class UserAdministrationService {
 				throw new MintException(Code.INVALID, "organization");
 			}
 
-			if ((organization != null && foundation == null)) {
+			if (organization != null && foundation == null) {
 				throw new NotPermittedException();
 			}
 
@@ -617,7 +740,7 @@ public class UserAdministrationService {
 				throw new MintException(Code.INVALID, "error.organization.active");
 			}
 
-			String userName = (organization != null)
+			var userName = organization != null
 					? String.format("%s@%s", userCreateModel.getUsername(), organization.getOrgId())
 					: String.format("%s@%s", userCreateModel.getUsername(), foundation.getCode());
 
@@ -634,15 +757,15 @@ public class UserAdministrationService {
 				throw new ExistException(exist);
 			}
 
-			User user = new User();
+			var user = new User();
 			user.setUserName(userName);
 			user.setFullName(userCreateModel.getFullName());
 			user.setEmail(userCreateModel.getEmail());
 			user.setLangKey(userCreateModel.getLang());
 			user.setType(userCreateModel.getType());
 			user.setThumbnail(userCreateModel.getImage());
-			String password = RandomUtils.generatePassword();
-			String encryptedPassword = passwordEncoder.encode(password);
+			var password = RandomUtils.generatePassword();
+			var encryptedPassword = passwordEncoder.encode(password);
 			user.setPassword(encryptedPassword);
 			user.setResetKey(RandomUtils.generateResetKey());
 			user.setResetDate(DateConverter.convertZonedDateTimeToDate(ZonedDateTime.now(ZoneOffset.UTC)));
@@ -672,7 +795,12 @@ public class UserAdministrationService {
 
 			if (userCreateModel.getGroups() != null) {
 				userCreateModel.getGroups().forEach(
-						aLong -> groupService.assignUserToGroup(Collections.singletonList(user.getId()), aLong));
+						new Consumer<Long>() {
+							@Override
+							public void accept(Long aLong) {
+								groupService.assignUserToGroup(Collections.singletonList(user.getId()), aLong);
+							}
+						});
 			}
 
 			log.debug("Created Information for User: {}", user);
@@ -700,15 +828,18 @@ public class UserAdministrationService {
 	@Transactional
 	@PostConstruct
 	protected void userInitializer() {
-		userRepository.findOneByUserNameAndDeletedFalse("admin").orElseGet(() -> {
-			User user2 = new User();
-			user2.setUserName("admin");
-			user2.setFullName("mint adminstraor");
-			user2.setType(UserType.SUPER_ADMIN);
-			user2.setEmail("admin@edu-tek.net");
-			user2.setStatus(Boolean.TRUE);
-			user2.setPassword(passwordEncoder.encode("P@ssw0rd"));
-			return userRepository.save(user2);
+		userRepository.findOneByUserNameAndDeletedFalse("admin").orElseGet(new Supplier<User>() {
+			@Override
+			public User get() {
+				var user2 = new User();
+				user2.setUserName("admin");
+				user2.setFullName("mint adminstraor");
+				user2.setType(UserType.SUPER_ADMIN);
+				user2.setEmail("admin@edu-tek.net");
+				user2.setStatus(Boolean.TRUE);
+				user2.setPassword(passwordEncoder.encode("P@ssw0rd"));
+				return userRepository.save(user2);
+			}
 		});
 	}
 }

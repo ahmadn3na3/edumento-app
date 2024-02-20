@@ -9,5 +9,5 @@ import com.edumento.b2b.domain.TimeLockException;
 
 @Repository
 public interface TimeLockExceptionRepository extends JpaRepository<TimeLockException, Long> {
-  Optional<TimeLockException> findOneByIdAndTimeLockIdAndDeletedFalse(Long id, Long timeLockId);
+	Optional<TimeLockException> findOneByIdAndTimeLockIdAndDeletedFalse(Long id, Long timeLockId);
 }

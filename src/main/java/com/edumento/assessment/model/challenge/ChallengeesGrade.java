@@ -1,6 +1,5 @@
 package com.edumento.assessment.model.challenge;
 
-
 import com.edumento.core.constants.AssessmentStatus;
 import com.edumento.core.model.SimpleModel;
 
@@ -10,9 +9,9 @@ public class ChallengeesGrade extends SimpleModel {
 	private boolean creator;
 	private AssessmentStatus status;
 
-	/** created by A.Alsayed on 5-2-2019
-	 * for getting user challenges API
-	**/
+	/**
+	 * created by A.Alsayed on 5-2-2019 for getting user challenges API
+	 **/
 	private String school;
 	private String thumbnail;
 
@@ -20,13 +19,15 @@ public class ChallengeesGrade extends SimpleModel {
 
 	}
 
-	public ChallengeesGrade(Long id,String name, Float totalGrade) {
-		super(id,name);
+	public ChallengeesGrade(Long id, String name, Float totalGrade) {
+		super(id, name);
 		this.totalGrade = totalGrade;
 	}
+
 	public Float getTotalGrade() {
 		return totalGrade;
 	}
+
 	public void setTotalGrade(Float totalGrade) {
 		this.totalGrade = totalGrade;
 	}

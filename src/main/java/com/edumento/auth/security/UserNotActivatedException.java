@@ -9,15 +9,15 @@ import com.edumento.core.exception.MintException;
  */
 public class UserNotActivatedException extends MintException {
 
-  public UserNotActivatedException(String message) {
-    super(Code.NOT_ACTIVATED, message);
-  }
+	public UserNotActivatedException(String message) {
+		super(Code.NOT_ACTIVATED, message);
+	}
 
-  public UserNotActivatedException(String message, Throwable t) {
-    super(t, Code.NOT_ACTIVATED, message);
-  }
+	public UserNotActivatedException(String message, Throwable t) {
+		super(t, Code.NOT_ACTIVATED, message);
+	}
 
-  public String getOAuth2ErrorCode() {
-    return "user_not_activated";
-  }
+	public String getOAuth2ErrorCode() {
+		return "user_not_activated";
+	}
 }

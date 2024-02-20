@@ -4,7 +4,7 @@ import static com.edumento.core.constants.notification.Actions.CREATE;
 import static com.edumento.core.constants.notification.Actions.UPDATE;
 
 import java.time.ZonedDateTime;
-import java.util.List;
+import java.util.function.Consumer;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,7 +20,6 @@ import com.edumento.core.model.messages.content.ContentInfoMessage;
 import com.edumento.core.model.messages.user.UserInfoMessage;
 import com.edumento.notification.components.AmqNotifier;
 import com.edumento.notification.handlers.AbstractHandler;
-import com.edumento.notification.models.NotificationMessage;
 import com.edumento.notification.service.MailService;
 import com.edumento.notification.util.Utilities;
 import com.edumento.space.domain.Joined;
@@ -61,24 +60,27 @@ public class ContentHandler extends AbstractHandler {
 
 	private void notify(BaseMessage baseMessage, int action, boolean withImage, boolean useTagImage,
 			boolean enablesendemail) {
-		ContentInfoMessage contentInfoMessage = mapJsonObject(baseMessage, ContentInfoMessage.class);
-		if (!contentInfoMessage.getContentType().equals(ContentType.WORKSHEET)) {
-			List<Joined> joinedList = utilities.getCommunityUserList(contentInfoMessage.getSpaceId(),
+		var contentInfoMessage = mapJsonObject(baseMessage, ContentInfoMessage.class);
+		if (!ContentType.WORKSHEET.equals(contentInfoMessage.getContentType())) {
+			var joinedList = utilities.getCommunityUserList(contentInfoMessage.getSpaceId(),
 					contentInfoMessage.getFrom().getId());
-			joinedList.forEach(joined -> {
-				UserInfoMessage userInfoMessage = new UserInfoMessage(joined.getUser());
-				NotificationMessage notificationMessage = amqNotifier.saveMessage(userInfoMessage,
-						new BaseNotificationMessage(ZonedDateTime.now(), MessageCategory.USER,
-								contentInfoMessage.getFrom(),
-								new Target(EntityType.CONTENT, contentInfoMessage.getId().toString(), action)),
-						createMessage(baseMessage), null, contentInfoMessage.getName(),
-						contentInfoMessage.getSpaceName(), contentInfoMessage.getCategoryName());
+			joinedList.forEach(new Consumer<Joined>() {
+				@Override
+				public void accept(Joined joined) {
+					var userInfoMessage = new UserInfoMessage(joined.getUser());
+					var notificationMessage = amqNotifier.saveMessage(userInfoMessage,
+							new BaseNotificationMessage(ZonedDateTime.now(), MessageCategory.USER,
+									contentInfoMessage.getFrom(),
+									new Target(EntityType.CONTENT, contentInfoMessage.getId().toString(), action)),
+							createMessage(baseMessage), null, contentInfoMessage.getName(),
+							contentInfoMessage.getSpaceName(), contentInfoMessage.getCategoryName());
 
-				if (joined.getNotification() && joined.getUser().getNotification() && !joined.getUser().isDeleted()) {
-					amqNotifier.send(notificationMessage);
-				}
-				if (enablesendemail && Boolean.TRUE.equals(joined.getUser().getMailNotification())) {
-					mailService.sendNotificationMail(notificationMessage, userInfoMessage, withImage, useTagImage);
+					if (joined.getNotification() && joined.getUser().getNotification() && !joined.getUser().isDeleted()) {
+						amqNotifier.send(notificationMessage);
+					}
+					if (enablesendemail && Boolean.TRUE.equals(joined.getUser().getMailNotification())) {
+						mailService.sendNotificationMail(notificationMessage, userInfoMessage, withImage, useTagImage);
+					}
 				}
 			});
 		}

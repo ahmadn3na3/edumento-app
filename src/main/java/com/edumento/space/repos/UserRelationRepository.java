@@ -12,11 +12,9 @@ import com.edumento.space.domain.UserRelation;
 /** Created by ahmad on 5/23/16. */
 @Repository
 public interface UserRelationRepository extends JpaRepository<UserRelation, Long> {
-  Optional<UserRelation> findOneByUserUserNameAndFollowIdAndDeletedFalse(
-      String userName, Long userId);
+	Optional<UserRelation> findOneByUserUserNameAndFollowIdAndDeletedFalse(String userName, Long userId);
 
-  Integer countByUserUserNameAndFollowIdAndDeletedFalse(String userName, Long userId);
+	Integer countByUserUserNameAndFollowIdAndDeletedFalse(String userName, Long userId);
 
-  Stream<UserRelation> findByUserIdAndRelationTypeAndDeletedFalse(
-      Long userId, UserRelationType relationType);
+	Stream<UserRelation> findByUserIdAndRelationTypeAndDeletedFalse(Long userId, UserRelationType relationType);
 }

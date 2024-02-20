@@ -13,13 +13,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Component
 public class AnnotationRelplyHandler extends AbstractHandler {
 
-  @Autowired
-  public AnnotationRelplyHandler(
-      UserRepository userRepository,
-      AmqNotifier amqNotifier,
-      MailService mailService,
-      ObjectMapper objectMapper) {
-    super(userRepository, amqNotifier, mailService, objectMapper);
-    // TODO Auto-generated constructor stub
-  }
+	@Autowired
+	public AnnotationRelplyHandler(UserRepository userRepository, AmqNotifier amqNotifier, MailService mailService,
+			ObjectMapper objectMapper) {
+		super(userRepository, amqNotifier, mailService, objectMapper);
+		// TODO Auto-generated constructor stub
+	}
 }

@@ -14,15 +14,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Component
 public class JsonUtils {
 
-  Logger logger = LoggerFactory.getLogger(JsonUtils.class);
-  @Autowired private ObjectMapper objectMapper;
+	Logger logger = LoggerFactory.getLogger(JsonUtils.class);
+	@Autowired
+	private ObjectMapper objectMapper;
 
-  public <T> T mapJsonObject(String payload, Class<T> objectClass) {
-    try {
-      return objectMapper.readValue(payload, objectClass);
-    } catch (IOException e) {
-      logger.error("error in parse", e);
-      throw new MintException(e, Code.UNKNOWN, "parse error in payload data");
-    }
-  }
+	public <T> T mapJsonObject(String payload, Class<T> objectClass) {
+		try {
+			return objectMapper.readValue(payload, objectClass);
+		} catch (IOException e) {
+			logger.error("error in parse", e);
+			throw new MintException(e, Code.UNKNOWN, "parse error in payload data");
+		}
+	}
 }

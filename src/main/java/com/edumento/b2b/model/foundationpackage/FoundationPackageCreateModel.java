@@ -5,76 +5,76 @@ import java.util.Set;
 
 /** Created by ahmad on 4/18/17. */
 public class FoundationPackageCreateModel {
-  private String name;
-  private Long storage = 0L;
-  private Long packageTimeLimit = 0L;
-  private Boolean integrationWithSIS = Boolean.FALSE;
-  private Boolean broadcastMessages = Boolean.FALSE;
-  private Integer numberOfOrganizations = 1;
-  private Integer numberOfUsers = 1;
-  private Set<Long> modules = new HashSet<>();
+	private String name;
+	private Long storage = 0L;
+	private Long packageTimeLimit = 0L;
+	private Boolean integrationWithSIS = Boolean.FALSE;
+	private Boolean broadcastMessages = Boolean.FALSE;
+	private Integer numberOfOrganizations = 1;
+	private Integer numberOfUsers = 1;
+	private Set<Long> modules = new HashSet<>();
 
-  public String getName() {
-    return name;
-  }
+	public String getName() {
+		return name;
+	}
 
-  public void setName(String name) {
-    this.name = name;
-  }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-  public Long getStorage() {
-    return storage;
-  }
+	public Long getStorage() {
+		return storage;
+	}
 
-  public void setStorage(Long storage) {
-    this.storage = storage;
-  }
+	public void setStorage(Long storage) {
+		this.storage = storage;
+	}
 
-  public Long getPackageTimeLimit() {
-    return packageTimeLimit;
-  }
+	public Long getPackageTimeLimit() {
+		return packageTimeLimit;
+	}
 
-  public void setPackageTimeLimit(Long packageTimeLimit) {
-    this.packageTimeLimit = packageTimeLimit;
-  }
+	public void setPackageTimeLimit(Long packageTimeLimit) {
+		this.packageTimeLimit = packageTimeLimit;
+	}
 
-  public Boolean getIntegrationWithSIS() {
-    return integrationWithSIS;
-  }
+	public Boolean getIntegrationWithSIS() {
+		return integrationWithSIS;
+	}
 
-  public void setIntegrationWithSIS(Boolean integrationWithSIS) {
-    this.integrationWithSIS = integrationWithSIS;
-  }
+	public void setIntegrationWithSIS(Boolean integrationWithSIS) {
+		this.integrationWithSIS = integrationWithSIS;
+	}
 
-  public Boolean getBroadcastMessages() {
-    return broadcastMessages;
-  }
+	public Boolean getBroadcastMessages() {
+		return broadcastMessages;
+	}
 
-  public void setBroadcastMessages(Boolean broadcastMessages) {
-    this.broadcastMessages = broadcastMessages;
-  }
+	public void setBroadcastMessages(Boolean broadcastMessages) {
+		this.broadcastMessages = broadcastMessages;
+	}
 
-  public Integer getNumberOfOrganizations() {
-    return numberOfOrganizations;
-  }
+	public Integer getNumberOfOrganizations() {
+		return numberOfOrganizations;
+	}
 
-  public void setNumberOfOrganizations(Integer numberOfOrganizations) {
-    this.numberOfOrganizations = numberOfOrganizations;
-  }
+	public void setNumberOfOrganizations(Integer numberOfOrganizations) {
+		this.numberOfOrganizations = numberOfOrganizations;
+	}
 
-  public Integer getNumberOfUsers() {
-    return numberOfUsers;
-  }
+	public Integer getNumberOfUsers() {
+		return numberOfUsers;
+	}
 
-  public void setNumberOfUsers(Integer numberOfUsers) {
-    this.numberOfUsers = numberOfUsers;
-  }
+	public void setNumberOfUsers(Integer numberOfUsers) {
+		this.numberOfUsers = numberOfUsers;
+	}
 
-  public Set<Long> getModules() {
-    return modules;
-  }
+	public Set<Long> getModules() {
+		return modules;
+	}
 
-  public void setModules(Set<Long> modules) {
-    this.modules = modules;
-  }
+	public void setModules(Set<Long> modules) {
+		this.modules = modules;
+	}
 }

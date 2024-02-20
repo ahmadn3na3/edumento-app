@@ -9,15 +9,15 @@ import com.edumento.core.exception.MintException;
  */
 public class UserExpiredException extends MintException {
 
-  public UserExpiredException(String message) {
-    super(Code.INVALID, message);
-  }
+	public UserExpiredException(String message) {
+		super(Code.INVALID, message);
+	}
 
-  public UserExpiredException(String message, Throwable t) {
-    super(t, Code.INVALID, message);
-  }
+	public UserExpiredException(String message, Throwable t) {
+		super(t, Code.INVALID, message);
+	}
 
-  public String getOAuth2ErrorCode() {
-    return "user_expired";
-  }
+	public String getOAuth2ErrorCode() {
+		return "user_expired";
+	}
 }

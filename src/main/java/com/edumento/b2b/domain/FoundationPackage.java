@@ -26,74 +26,72 @@ import jakarta.persistence.OneToMany;
 @DynamicUpdate
 public class FoundationPackage extends Package {
 
-  @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinTable(name = "package_module",
-      joinColumns = {@JoinColumn(name = "package_id", nullable = false, updatable = false,
-          foreignKey = @ForeignKey(name = "FK_MODULE_PACKAGE"))},
-      inverseJoinColumns = {@JoinColumn(name = "module_id", nullable = false, updatable = false,
-          foreignKey = @ForeignKey(name = "FK_PACKAGE_MODULE"))})
-  private Set<Module> modules = new HashSet<>();
+	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinTable(name = "package_module", joinColumns = {
+			@JoinColumn(name = "package_id", nullable = false, updatable = false, foreignKey = @ForeignKey(name = "FK_MODULE_PACKAGE")) }, inverseJoinColumns = {
+					@JoinColumn(name = "module_id", nullable = false, updatable = false, foreignKey = @ForeignKey(name = "FK_PACKAGE_MODULE")) })
+	private Set<Module> modules = new HashSet<>();
 
-  @Column
-  private Boolean integrationWithSIS = false;
+	@Column
+	private Boolean integrationWithSIS = false;
 
-  @Column
-  private Boolean broadcastMessages = false;
+	@Column
+	private Boolean broadcastMessages = false;
 
-  @Column
-  private Integer numberOfOrganizations = 1;
+	@Column
+	private Integer numberOfOrganizations = 1;
 
-  @Column
-  private Integer numberOfUsers = 1;
+	@Column
+	private Integer numberOfUsers = 1;
 
-  @OneToMany(mappedBy = "foundationPackage")
-  private List<Foundation> foundation;
+	@OneToMany(mappedBy = "foundationPackage")
+	private List<Foundation> foundation;
 
-  public Set<Module> getModules() {
-    return modules;
-  }
+	public Set<Module> getModules() {
+		return modules;
+	}
 
-  public void setModules(Set<Module> modules) {
-    this.modules = modules;
-  }
+	public void setModules(Set<Module> modules) {
+		this.modules = modules;
+	}
 
-  public Boolean getIntegrationWithSIS() {
-    return integrationWithSIS;
-  }
+	public Boolean getIntegrationWithSIS() {
+		return integrationWithSIS;
+	}
 
-  public void setIntegrationWithSIS(Boolean integrationWithSIS) {
-    this.integrationWithSIS = integrationWithSIS;
-  }
+	public void setIntegrationWithSIS(Boolean integrationWithSIS) {
+		this.integrationWithSIS = integrationWithSIS;
+	}
 
-  public Boolean getBroadcastMessages() {
-    return broadcastMessages;
-  }
+	public Boolean getBroadcastMessages() {
+		return broadcastMessages;
+	}
 
-  public void setBroadcastMessages(Boolean broadcastMessages) {
-    this.broadcastMessages = broadcastMessages;
-  }
+	public void setBroadcastMessages(Boolean broadcastMessages) {
+		this.broadcastMessages = broadcastMessages;
+	}
 
-  public Integer getNumberOfOrganizations() {
-    return numberOfOrganizations;
-  }
+	public Integer getNumberOfOrganizations() {
+		return numberOfOrganizations;
+	}
 
-  public void setNumberOfOrganizations(Integer numberOfOrganizations) {
-    this.numberOfOrganizations = numberOfOrganizations;
-  }
+	public void setNumberOfOrganizations(Integer numberOfOrganizations) {
+		this.numberOfOrganizations = numberOfOrganizations;
+	}
 
-  public Integer getNumberOfUsers() {
-    return numberOfUsers;
-  }
+	public Integer getNumberOfUsers() {
+		return numberOfUsers;
+	}
 
-  public void setNumberOfUsers(Integer numberOfUsers) {
-    this.numberOfUsers = numberOfUsers;
-  }
+	public void setNumberOfUsers(Integer numberOfUsers) {
+		this.numberOfUsers = numberOfUsers;
+	}
 
-  public List<Foundation> getFoundation() {
-    return foundation;
-  }
+	public List<Foundation> getFoundation() {
+		return foundation;
+	}
 
-  public void setFoundation(List<Foundation> foundation) {
-    this.foundation = foundation;
-  }
+	public void setFoundation(List<Foundation> foundation) {
+		this.foundation = foundation;
+	}
 }

@@ -5,7 +5,8 @@ import static com.edumento.core.constants.notification.EntityType.DISCUSSION;
 import static com.edumento.core.constants.notification.MessageCategory.USER;
 
 import java.time.ZonedDateTime;
-import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -31,75 +32,58 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Component
 public class DiscussionReplyHandler extends AbstractHandler {
 
-  private final Utilities utilities;
+	private final Utilities utilities;
 
-  @Autowired
-  public DiscussionReplyHandler(
-      UserRepository userRepository,
-      AmqNotifier amqNotifier,
-      MailService mailService,
-      ObjectMapper objectMapper,
-      Utilities utilities) {
-    super(userRepository, amqNotifier, mailService, objectMapper);
-    // TODO Auto-generated constructor stub
-    this.utilities = utilities;
-  }
+	@Autowired
+	public DiscussionReplyHandler(UserRepository userRepository, AmqNotifier amqNotifier, MailService mailService,
+			ObjectMapper objectMapper, Utilities utilities) {
+		super(userRepository, amqNotifier, mailService, objectMapper);
+		// TODO Auto-generated constructor stub
+		this.utilities = utilities;
+	}
 
-  @Override
-  protected void onCreate(BaseMessage baseMessage) {
-    {
-      DiscussionMessage discussionMessage = mapJsonObject(baseMessage, DiscussionMessage.class);
-      logger.debug("message recived in descussion  message {} ", baseMessage.getDataModel());
-      List<Joined> joinedList =
-          utilities.getCommunityUserList(
-              discussionMessage.getSpaceId(), discussionMessage.getFrom().getId());
-      logger.debug("joined list {}", joinedList.size());
-      BaseNotificationMessage baseNotificationMessage =
-          new BaseNotificationMessage(
-              ZonedDateTime.now(),
-              USER,
-              discussionMessage.getFrom(),
-              new Target(DISCUSSION, discussionMessage.getId(), CREATE));
-      joinedList
-          .stream()
-          .filter(
-              joined ->
-                  joined.getSpaceRole() != SpaceRole.VIEWER
-                      && joined.getUser().getId() != discussionMessage.getFrom().getId())
-          .forEach(
-              joined -> {
-                UserInfoMessage userInfoMessage = new UserInfoMessage(joined.getUser());
-                logger.trace("save notification {}", userInfoMessage.getLogin());
-                NotificationMessage notificationMessage = null;
-                if(discussionMessage.getType()
-                		== DiscussionType.INQUIRY) {
-                	notificationMessage = amqNotifier.saveMessage(
-                            userInfoMessage,
-                            baseNotificationMessage,
-                            createMessage(EntityAction.INQUERY_COMMENT_CREATE),
-                            null,
-                            discussionMessage.getSpaceName());
+	@Override
+	protected void onCreate(BaseMessage baseMessage) {
+		{
+			var discussionMessage = mapJsonObject(baseMessage, DiscussionMessage.class);
+			logger.debug("message recived in descussion  message {} ", baseMessage.getDataModel());
+			var joinedList = utilities.getCommunityUserList(discussionMessage.getSpaceId(),
+					discussionMessage.getFrom().getId());
+			logger.debug("joined list {}", joinedList.size());
+			var baseNotificationMessage = new BaseNotificationMessage(ZonedDateTime.now(), USER,
+					discussionMessage.getFrom(), new Target(DISCUSSION, discussionMessage.getId(), CREATE));
+			joinedList.stream().filter(new Predicate<Joined>() {
+				@Override
+				public boolean test(Joined joined) {
+					return joined.getSpaceRole() != SpaceRole.VIEWER
+							&& joined.getUser().getId() != discussionMessage.getFrom().getId();
+				}
+			}).forEach(new Consumer<Joined>() {
+						@Override
+						public void accept(Joined joined) {
+							var userInfoMessage = new UserInfoMessage(joined.getUser());
+							logger.trace("save notification {}", userInfoMessage.getLogin());
+							NotificationMessage notificationMessage = null;
+							if (discussionMessage.getType() == DiscussionType.INQUIRY) {
+								notificationMessage = amqNotifier.saveMessage(userInfoMessage, baseNotificationMessage,
+										createMessage(EntityAction.INQUERY_COMMENT_CREATE), null,
+										discussionMessage.getSpaceName());
 
-                }else {
-                	notificationMessage = amqNotifier.saveMessage(
-                            userInfoMessage,
-                            baseNotificationMessage,
-                            createMessage(baseMessage),
-                            discussionMessage.getTitle(),
-                            discussionMessage.getSpaceName(),
-                            discussionMessage.getCategoryName());
-                }
-                if (joined.getNotification()
-                    && joined.getUser().getNotification()
-                    && !joined.getUser().isDeleted()) {
-                  logger.trace("sending notification allowed {} ", userInfoMessage.getLogin());
-                  amqNotifier.send(notificationMessage);
-                }
-                if (joined.getUser().getMailNotification()) {
-                    mailService.sendNotificationMail(
-                        notificationMessage, userInfoMessage, true, true);
-                }
-              });
-    }
-  }
+							} else {
+								notificationMessage = amqNotifier.saveMessage(userInfoMessage, baseNotificationMessage,
+										createMessage(baseMessage), discussionMessage.getTitle(),
+										discussionMessage.getSpaceName(), discussionMessage.getCategoryName());
+							}
+							if (joined.getNotification() && joined.getUser().getNotification()
+									&& !joined.getUser().isDeleted()) {
+								logger.trace("sending notification allowed {} ", userInfoMessage.getLogin());
+								amqNotifier.send(notificationMessage);
+							}
+							if (joined.getUser().getMailNotification()) {
+								mailService.sendNotificationMail(notificationMessage, userInfoMessage, true, true);
+							}
+						}
+					});
+		}
+	}
 }

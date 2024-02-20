@@ -14,15 +14,15 @@ import com.edumento.notification.domian.Notification;
 /** Created by ayman on 02/03/17. */
 @Repository
 public interface NotificationRepository extends MongoRepository<Notification, String> {
-  Stream<Notification> findByUserIdAndReceivedFalseAndDeletedFalseOrderByCreationDateDesc(Long userid);
+	Stream<Notification> findByUserIdAndReceivedFalseAndDeletedFalseOrderByCreationDateDesc(Long userid);
 
-  Page<Notification> findByUserIdAndDeletedFalseAndNotificationCategoryEqualsOrderByCreationDateDesc(
-      Long userid, Pageable pageable, int i);
+	Page<Notification> findByUserIdAndDeletedFalseAndNotificationCategoryEqualsOrderByCreationDateDesc(Long userid,
+			Pageable pageable, int i);
 
-  Stream<Notification> findByIdInAndUserIdAndReceivedFalseAndDeletedFalseOrderByCreationDateDesc(
-      List<String> id, Long userId);
+	Stream<Notification> findByIdInAndUserIdAndReceivedFalseAndDeletedFalseOrderByCreationDateDesc(List<String> id,
+			Long userId);
 
-  Stream<Notification> findByIdInAndUserIdAndDeletedFalseOrderByCreationDateDesc(List<String> id, Long userId);
+	Stream<Notification> findByIdInAndUserIdAndDeletedFalseOrderByCreationDateDesc(List<String> id, Long userId);
 
-  Optional<Long> countByUserIdAndReceivedFalseAndDeletedFalseAndNotificationCategoryEquals(Long userId, int i);
+	Optional<Long> countByUserIdAndReceivedFalseAndDeletedFalseAndNotificationCategoryEquals(Long userId, int i);
 }

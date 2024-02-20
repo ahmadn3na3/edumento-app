@@ -35,14 +35,14 @@ public class MintImagetoPDfConverter {
 	private ContentService contentService;
 
 	public Path convertImageToPdf(Task task) throws IOException, InterruptedException {
-		Path imgPath = fileUtil.createFilePathFromTask(task);
+		var imgPath = fileUtil.createFilePathFromTask(task);
 
 		// Convert
 		convertImgToPDF(imgPath.toFile());
 
 		// move to original dir
-		Path originalDirectory = Files.createDirectories(Paths.get(imgPath.getParent().toString(), "original"));
-		Path outPath = Paths.get(originalDirectory.toString(), imgPath.getFileName().toFile().getName());
+		var originalDirectory = Files.createDirectories(Paths.get(imgPath.getParent().toString(), "original"));
+		var outPath = Paths.get(originalDirectory.toString(), imgPath.getFileName().toFile().getName());
 		Files.move(imgPath, outPath, StandardCopyOption.REPLACE_EXISTING);
 
 		contentService.updateContentStatus(task.getContentId(), ContentStatus.READY, null, null, "pdf",
@@ -60,9 +60,10 @@ public class MintImagetoPDfConverter {
 	private void convertImgToPDF(File file) throws IOException, InterruptedException {
 		log.info("Convert " + file.getAbsolutePath() + " to pdf");
 
-		String output = file.getName().substring(0, file.getName().lastIndexOf(".")) + ".pdf";
+		var output = file.getName().substring(0, file.getName().lastIndexOf(".")) + ".pdf";
 
-        Process process = Runtime.getRuntime().exec("convert " + file.getAbsolutePath() + " " + file.getParent() + "/" + output);
+		var process = Runtime.getRuntime()
+				.exec("convert " + file.getAbsolutePath() + " " + file.getParent() + "/" + output);
 		process.waitFor();
 		log.info("Convertion done");
 	}

@@ -175,7 +175,7 @@ public class Joined extends AbstractEntity {
 			return false;
 		}
 
-		Joined joined = (Joined) o;
+		var joined = (Joined) o;
 
 		if (!getUser().equals(joined.getUser())) {
 			return false;
@@ -270,8 +270,7 @@ public class Joined extends AbstractEntity {
 
 	@Override
 	public int hashCode() {
-		int result = getUser().hashCode();
-		result = 31 * result + getSpace().hashCode();
-		return result;
+		var result = getUser().hashCode();
+		return 31 * result + getSpace().hashCode();
 	}
 }

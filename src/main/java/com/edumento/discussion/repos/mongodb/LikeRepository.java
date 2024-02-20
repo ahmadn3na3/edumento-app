@@ -22,7 +22,7 @@ public interface LikeRepository extends MongoRepository<Like, String> {
 	}
 
 	default void deleteByParentIdIn(Iterable<String> parentIds) {
-		List<Like> list = this.findByParentIdInAndDeletedFalse(parentIds);
+		var list = findByParentIdInAndDeletedFalse(parentIds);
 		if (list != null && !list.isEmpty()) {
 			deleteAll(list);
 		}

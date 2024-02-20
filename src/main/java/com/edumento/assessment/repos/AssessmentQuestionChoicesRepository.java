@@ -9,9 +9,8 @@ import com.edumento.assessment.domain.AssessmentQuestionChoice;
 /** Created by ayman on 29/06/16. */
 @Repository
 public interface AssessmentQuestionChoicesRepository
-                extends JpaRepository<AssessmentQuestionChoice, Long>,
-                JpaSpecificationExecutor<AssessmentQuestionChoice> {
+		extends JpaRepository<AssessmentQuestionChoice, Long>, JpaSpecificationExecutor<AssessmentQuestionChoice> {
 
-        AssessmentQuestionChoice findByAssessmentQuestionIdAndId(
-                        Long assessmentQuestionId, Long assessmentQuestionChoiceId);
+	AssessmentQuestionChoice findByAssessmentQuestionIdAndId(Long assessmentQuestionId,
+			Long assessmentQuestionChoiceId);
 }

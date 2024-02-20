@@ -8,5 +8,5 @@ import com.edumento.b2b.domain.FoundationPackage;
 /** Created by ahmad on 4/16/17. */
 @Repository
 public interface FoundationPackageRepository extends JpaRepository<FoundationPackage, Long> {
-  FoundationPackage findByNameAndDeletedFalse(String name);
+	FoundationPackage findByNameAndDeletedFalse(String name);
 }

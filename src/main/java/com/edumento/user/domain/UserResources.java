@@ -11,85 +11,85 @@ import com.edumento.core.domain.AbstractEntity;
 @Document(collection = "mint.user.resources")
 public class UserResources extends AbstractEntity {
 
-  @Id
-  private String id;
-  @Field
-  private Long userId;
-  @Field
-  private String userName;
-  @Field
-  private ContentType resourceType;
-  @Field
-  private String format;
-  @Field
-  private String fileName;
-  @Field
-  private Long fileSize;
+	@Id
+	private String id;
+	@Field
+	private Long userId;
+	@Field
+	private String userName;
+	@Field
+	private ContentType resourceType;
+	@Field
+	private String format;
+	@Field
+	private String fileName;
+	@Field
+	private Long fileSize;
 
-  @Field
-  private String diskFileName;
+	@Field
+	private String diskFileName;
 
-  public String getId() {
-    return id;
-  }
+	public String getId() {
+		return id;
+	}
 
-  public void setId(String id) {
-    this.id = id;
-  }
+	public void setId(String id) {
+		this.id = id;
+	}
 
-  public Long getUserId() {
-    return userId;
-  }
+	public Long getUserId() {
+		return userId;
+	}
 
-  public void setUserId(Long userId) {
-    this.userId = userId;
-  }
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
 
-  public String getUserName() {
-    return userName;
-  }
+	public String getUserName() {
+		return userName;
+	}
 
-  public void setUserName(String userName) {
-    this.userName = userName;
-  }
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
 
-  public ContentType getResourceType() {
-    return resourceType;
-  }
+	public ContentType getResourceType() {
+		return resourceType;
+	}
 
-  public void setResourceType(ContentType resourceType) {
-    this.resourceType = resourceType;
-  }
+	public void setResourceType(ContentType resourceType) {
+		this.resourceType = resourceType;
+	}
 
-  public String getFormat() {
-    return format;
-  }
+	public String getFormat() {
+		return format;
+	}
 
-  public void setFormat(String format) {
-    this.format = format;
-  }
+	public void setFormat(String format) {
+		this.format = format;
+	}
 
-  public String getFileName() {
-    return fileName;
-  }
+	public String getFileName() {
+		return fileName;
+	}
 
-  public void setFileName(String fileName) {
-    this.fileName = fileName;
-  }
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
 
-  public Long getFileSize() {
-    return fileSize;
-  }
+	public Long getFileSize() {
+		return fileSize;
+	}
 
-  public void setFileSize(Long fileSize) {
-    this.fileSize = fileSize;
-  }
+	public void setFileSize(Long fileSize) {
+		this.fileSize = fileSize;
+	}
 
-  public String getDiskFileName() {
-    return diskFileName;
-  }
+	public String getDiskFileName() {
+		return diskFileName;
+	}
 
-  public void setDiskFileName(String diskFileName) {
-    this.diskFileName = diskFileName;
-  }
+	public void setDiskFileName(String diskFileName) {
+		this.diskFileName = diskFileName;
+	}
 }

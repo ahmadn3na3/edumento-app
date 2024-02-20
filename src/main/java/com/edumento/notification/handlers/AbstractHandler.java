@@ -34,7 +34,6 @@ public abstract class AbstractHandler {
 
 	public AbstractHandler(UserRepository userRepository, AmqNotifier amqNotifier, MailService mailService,
 			ObjectMapper objectMapper) {
-		super();
 		this.userRepository = userRepository;
 		this.amqNotifier = amqNotifier;
 		this.mailService = mailService;
@@ -77,7 +76,7 @@ public abstract class AbstractHandler {
 
 	protected <T> T mapJsonObject(BaseMessage notificationMessage, Class<T> objectClass) {
 		try {
-			return this.objectMapper.readValue(notificationMessage.getDataModel(), objectClass);
+			return objectMapper.readValue(notificationMessage.getDataModel(), objectClass);
 		} catch (IOException e) {
 			logger.error("error in parse", e);
 			throw new MintException(e, Code.UNKNOWN, "parse error in messagedata");

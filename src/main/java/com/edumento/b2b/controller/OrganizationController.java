@@ -22,116 +22,115 @@ import jakarta.servlet.http.HttpServletRequest;
 @RequestMapping("/api/organization")
 public class OrganizationController extends AbstractController<OrganizationCreateModel, Long> {
 
-  @Autowired OrganizationService organizationService;
+	@Autowired
+	OrganizationService organizationService;
 
-  @Override
-  @RequestMapping(method = RequestMethod.POST)
+	@Override
+	@RequestMapping(method = RequestMethod.POST)
 //  @ApiOperation(
 //    value = "Create Organization",
 //    notes = "this method is used to create new organization"
 //  )
-  public ResponseModel create(@RequestBody @Validated OrganizationCreateModel createModel) {
-    return organizationService.create(createModel);
-  }
+	public ResponseModel create(@RequestBody @Validated OrganizationCreateModel createModel) {
+		return organizationService.create(createModel);
+	}
 
-  @Override
-  @RequestMapping(path = "/{id}", method = RequestMethod.PUT)
+	@Override
+	@RequestMapping(path = "/{id}", method = RequestMethod.PUT)
 //  @ApiOperation(
 //    value = "Update Organization",
 //    notes = "this method is used to update organization by organization id"
 //  )
-  public ResponseModel update(
-      @PathVariable Long id, @RequestBody @Validated OrganizationCreateModel updateModel) {
-    return organizationService.update(id, updateModel);
-  }
+	public ResponseModel update(@PathVariable Long id, @RequestBody @Validated OrganizationCreateModel updateModel) {
+		return organizationService.update(id, updateModel);
+	}
 
-  @Override
-  @RequestMapping(path = "/{id}", method = RequestMethod.GET)
+	@Override
+	@RequestMapping(path = "/{id}", method = RequestMethod.GET)
 //  @ApiOperation(
 //    value = "Get Organization",
 //    response = OrganizationModel.class,
 //    notes = "this method is used to get organization by id"
 //  )
-  public ResponseModel get(@PathVariable Long id) {
-    return organizationService.getOrganization(id);
-  }
+	public ResponseModel get(@PathVariable Long id) {
+		return organizationService.getOrganization(id);
+	}
 
-  @RequestMapping(path = "/{id}/toggleStatus", method = RequestMethod.PUT)
+	@RequestMapping(path = "/{id}/toggleStatus", method = RequestMethod.PUT)
 //  @ApiOperation(
 //    value = "Change organization's status",
 //    notes = "this method is used to change status of an organization by organization id"
 //  )
-  public ResponseModel changeStatus(@PathVariable Long id, HttpServletRequest request) {
-    return organizationService.changeOrganizationStatus(id);
-  }
+	public ResponseModel changeStatus(@PathVariable Long id, HttpServletRequest request) {
+		return organizationService.changeOrganizationStatus(id);
+	}
 
-  @Override
-  @RequestMapping(method = RequestMethod.GET)
+	@Override
+	@RequestMapping(method = RequestMethod.GET)
 //  @ApiOperation(
 //    value = "Get All Organizations",
 //    notes = "this method is used to list all organizations"
 //  )
-  public ResponseModel get(
-      @RequestHeader(required = false) Integer page,
-      @RequestHeader(required = false) Integer size) {
-    return organizationService.getAllOrganization(PageRequestModel.getPageRequestModel(page, size));
-  }
+	public ResponseModel get(@RequestHeader(required = false) Integer page,
+			@RequestHeader(required = false) Integer size) {
+		return organizationService.getAllOrganization(PageRequestModel.getPageRequestModel(page, size));
+	}
 
-  @Override
-  @RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
+	@Override
+	@RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
 //  @ApiOperation(
 //    value = "Delete Organization",
 //    notes = "this method is used to delete an organization by id"
 //  )
-  public ResponseModel delete(@PathVariable Long id) {
-    return organizationService.delete(id);
-  }
+	public ResponseModel delete(@PathVariable Long id) {
+		return organizationService.delete(id);
+	}
 
-  @Deprecated
-  @RequestMapping(path = "/{id}/users", method = RequestMethod.GET)
+	@Deprecated
+	@RequestMapping(path = "/{id}/users", method = RequestMethod.GET)
 //  @ApiOperation(
 //    value = "Get users",
 //    notes = "this method is used to list users in organization",
 //    hidden = true
 //  )
-  public ResponseModel getUsers(@PathVariable Long id) {
-    return organizationService.getUsersInOrganization(id);
-  }
+	public ResponseModel getUsers(@PathVariable Long id) {
+		return organizationService.getUsersInOrganization(id);
+	}
 
-  @Deprecated
-  @RequestMapping(path = "/{id}/groups", method = RequestMethod.GET)
+	@Deprecated
+	@RequestMapping(path = "/{id}/groups", method = RequestMethod.GET)
 //  @ApiOperation(
 //    value = "Get Groups",
 //    notes = "this method is used to list groups in organization",
 //    hidden = true
 //  )
-  public ResponseModel getGroups(@PathVariable Long id) {
-    return organizationService.getGroupsInOrganization(id);
-  }
+	public ResponseModel getGroups(@PathVariable Long id) {
+		return organizationService.getGroupsInOrganization(id);
+	}
 
-  @RequestMapping(path = "/{id}/spaces", method = RequestMethod.GET)
+	@RequestMapping(path = "/{id}/spaces", method = RequestMethod.GET)
 //  @ApiOperation(value = "Get Spaces", notes = "this method is used to list spaces in organization")
-  public ResponseModel getSpaces(@PathVariable Long id) {
-    return organizationService.getSpacesByOrganizationId(id);
-  }
+	public ResponseModel getSpaces(@PathVariable Long id) {
+		return organizationService.getSpacesByOrganizationId(id);
+	}
 
-  @RequestMapping(path = "/{id}/categories", method = RequestMethod.GET)
+	@RequestMapping(path = "/{id}/categories", method = RequestMethod.GET)
 //  @ApiOperation(
 //    value = "Get Categories",
 //    notes = "this method is used to list all categories in organization"
 //  )
-  public ResponseModel getCategories(@PathVariable Long id) {
-    return organizationService.getCategoriesByOrganizationId(id);
-  }
+	public ResponseModel getCategories(@PathVariable Long id) {
+		return organizationService.getCategoriesByOrganizationId(id);
+	}
 
-  @Deprecated
-  @RequestMapping(path = "/foundation/{id}", method = RequestMethod.GET)
+	@Deprecated
+	@RequestMapping(path = "/foundation/{id}", method = RequestMethod.GET)
 //  @ApiOperation(
 //    value = "Get Organization in Foundation",
 //    notes =
 //        "this method is used to list all organizations in specific organization , by foundation id"
 //  )
-  public ResponseModel getOrganizationsByFoundation(@PathVariable Long id) {
-    return organizationService.getAllOrganizationByFoundation(id);
-  }
+	public ResponseModel getOrganizationsByFoundation(@PathVariable Long id) {
+		return organizationService.getAllOrganizationByFoundation(id);
+	}
 }

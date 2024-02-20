@@ -32,11 +32,11 @@ public class MintH5PInteractiveContentConverter {
 			throws IOException, InterruptedException, URISyntaxException {
 		try {
 			log.info("start convert H5P Interactive Content");
-			Path uploadParentPathFromTask = fileUtil.createUploadParentPathFromTask(task);
+			var uploadParentPathFromTask = fileUtil.createUploadParentPathFromTask(task);
 			// rename .h5p to .zip
-			Path path = fileUtil.createFilePathFromTask(task);
-			Path pathZIP = Paths.get(path.getParent().toString(), task.getFileName() + ".zip");
-			Path ExtractPath = Paths.get(uploadParentPathFromTask + File.separator + "content");
+			var path = fileUtil.createFilePathFromTask(task);
+			var pathZIP = Paths.get(path.getParent().toString(), task.getFileName() + ".zip");
+			var ExtractPath = Paths.get(uploadParentPathFromTask + File.separator + "content");
 			path.toFile().renameTo(pathZIP.toFile());
 			log.info("extract H5P Interactive Content");
 			fileUtil.extractZIP(pathZIP, ExtractPath);

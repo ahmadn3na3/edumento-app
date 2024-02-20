@@ -9,24 +9,30 @@ public class LeaderboardModel {
 
 	public LeaderboardModel(String username, int userLevel, Float globalScorePoints) {
 		this.username = username;
-		this.userlevel = userLevel;
+		userlevel = userLevel;
 		this.globalScorePoints = globalScorePoints;
 	}
+
 	public String getUsername() {
 		return username;
 	}
+
 	public void setUsername(String username) {
 		this.username = username;
 	}
+
 	public int getUserlevel() {
 		return userlevel;
 	}
+
 	public void setUserlevel(int userlevel) {
 		this.userlevel = userlevel;
 	}
+
 	public Float getGlobalScorePoints() {
 		return globalScorePoints;
 	}
+
 	public void setGlobalScorePoints(Float globalScorePoints) {
 		this.globalScorePoints = globalScorePoints;
 	}

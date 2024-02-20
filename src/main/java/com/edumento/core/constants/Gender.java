@@ -2,15 +2,15 @@ package com.edumento.core.constants;
 
 /** Created by ahmad on 6/12/16. */
 public enum Gender {
-  MALE(true),
-  FEMALE(false);
-  private final Boolean value;
+	MALE(true), FEMALE(false);
 
-  Gender(boolean value) {
-    this.value = value;
-  }
+	private final Boolean value;
 
-  public Boolean getValue() {
-    return value;
-  }
+	Gender(boolean value) {
+		this.value = value;
+	}
+
+	public Boolean getValue() {
+		return value;
+	}
 }

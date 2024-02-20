@@ -7,7 +7,6 @@ public class ModuleListModel extends ModuleCreateModel {
 	private Long id;
 
 	public ModuleListModel() {
-		super();
 		// TODO Auto-generated constructor stub
 	}
 
@@ -18,7 +17,7 @@ public class ModuleListModel extends ModuleCreateModel {
 
 	public ModuleListModel(Module module) {
 		super(module.getName(), module.getDescription(), module.getKeyCode());
-		this.id = module.getId();
+		id = module.getId();
 	}
 
 	public Long getId() {

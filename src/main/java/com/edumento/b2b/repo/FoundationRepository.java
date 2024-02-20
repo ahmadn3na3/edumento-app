@@ -10,11 +10,11 @@ import com.edumento.b2b.domain.Foundation;
 /** Created by ayman on 02/06/16. */
 @Repository
 public interface FoundationRepository extends JpaRepository<Foundation, Long> {
-  Optional<Foundation> findOneByNameAndDeletedFalse(String instituteName);
+	Optional<Foundation> findOneByNameAndDeletedFalse(String instituteName);
 
-  Optional<Foundation> findOneByIdAndDeletedFalse(Long Id);
+	Optional<Foundation> findOneByIdAndDeletedFalse(Long Id);
 
-  Optional<Foundation> findOneByCodeAndDeletedFalse(String code);
+	Optional<Foundation> findOneByCodeAndDeletedFalse(String code);
 
-  Foundation findByNameAndDeletedFalse(String foundationName);
+	Foundation findByNameAndDeletedFalse(String foundationName);
 }

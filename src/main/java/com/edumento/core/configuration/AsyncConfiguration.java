@@ -31,7 +31,7 @@ public class AsyncConfiguration implements AsyncConfigurer {
 	@Bean(name = "taskExecutor")
 	public Executor getAsyncExecutor() {
 		log.debug("Creating Async Task Executor");
-		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		var executor = new ThreadPoolTaskExecutor();
 		executor.setCorePoolSize(mintProperties.getAsync().getCorePoolSize());
 		executor.setMaxPoolSize(mintProperties.getAsync().getMaxPoolSize());
 		executor.setQueueCapacity(mintProperties.getAsync().getQueueCapacity());
@@ -51,7 +51,7 @@ public class AsyncConfiguration implements AsyncConfigurer {
 
 	@Bean
 	public ThreadPoolTaskScheduler threadPoolTaskScheduler() {
-		ThreadPoolTaskScheduler threadPoolTaskScheduler = new ThreadPoolTaskScheduler();
+		var threadPoolTaskScheduler = new ThreadPoolTaskScheduler();
 		threadPoolTaskScheduler.setPoolSize(mintProperties.getAsync().getMaxPoolSize());
 		threadPoolTaskScheduler.setThreadNamePrefix("AutoSolvingTaskScheduler");
 		return threadPoolTaskScheduler;

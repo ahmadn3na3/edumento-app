@@ -7,6 +7,7 @@ import static com.edumento.core.constants.notification.EntityType.CATEGORY;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import com.edumento.notification.components.AmqNotifier;
 import com.edumento.notification.handlers.AbstractHandler;
 import com.edumento.notification.service.MailService;
 import com.edumento.user.constant.UserType;
+import com.edumento.user.domain.User;
 import com.edumento.user.repo.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -40,7 +42,7 @@ public class CategoryNotificationHandler extends AbstractHandler {
 	@Transactional
 	protected void onCreate(BaseMessage notificationMessage) {
 		logger.debug("Category create");
-		CategoryMessageInfo categoryMessageInfo = mapJsonObject(notificationMessage, CategoryMessageInfo.class);
+		var categoryMessageInfo = mapJsonObject(notificationMessage, CategoryMessageInfo.class);
 		categoryNotify(categoryMessageInfo, CREATE);
 	}
 
@@ -48,7 +50,7 @@ public class CategoryNotificationHandler extends AbstractHandler {
 	@Transactional
 	protected void onDelete(BaseMessage notificationMessage) {
 		logger.debug("Category delete");
-		CategoryMessageInfo categoryMessageInfo = mapJsonObject(notificationMessage, CategoryMessageInfo.class);
+		var categoryMessageInfo = mapJsonObject(notificationMessage, CategoryMessageInfo.class);
 		categoryNotify(categoryMessageInfo, DELETE);
 	}
 
@@ -56,14 +58,14 @@ public class CategoryNotificationHandler extends AbstractHandler {
 	@Transactional
 	protected void onUpdate(BaseMessage notificationMessage) {
 		logger.debug("Category update");
-		CategoryMessageInfo categoryMessageInfo = mapJsonObject(notificationMessage, CategoryMessageInfo.class);
+		var categoryMessageInfo = mapJsonObject(notificationMessage, CategoryMessageInfo.class);
 		categoryNotify(categoryMessageInfo, UPDATE);
 	}
 
 	@Transactional()
 	protected void categoryNotify(CategoryMessageInfo categoryMessageInfo, int action) {
 
-		BaseNotificationMessage baseNotificationMessage = new BaseNotificationMessage(ZonedDateTime.now(),
+		var baseNotificationMessage = new BaseNotificationMessage(ZonedDateTime.now(),
 				MessageCategory.APP, categoryMessageInfo.getFrom(),
 				new Target(CATEGORY, categoryMessageInfo.getId().toString(), action));
 
@@ -72,17 +74,32 @@ public class CategoryNotificationHandler extends AbstractHandler {
 			logger.debug("handle organization category");
 			userInfoMessages = userRepository
 					.findByOrganizationIdAndDeletedFalse(categoryMessageInfo.getOrganizationId())
-					.filter(user -> user.getType().equals(UserType.USER)).map(UserInfoMessage::new)
+					.filter(new Predicate<User>() {
+						@Override
+						public boolean test(User user) {
+							return UserType.USER.equals(user.getType());
+						}
+					}).map(UserInfoMessage::new)
 					.collect(Collectors.toList());
 
 		} else if (null != categoryMessageInfo.getFoundationId()) {
 			userInfoMessages = userRepository.findByFoundationIdAndDeletedFalse(categoryMessageInfo.getFoundationId())
-					.filter(user -> user.getType().equals(UserType.USER)).map(UserInfoMessage::new)
+					.filter(new Predicate<User>() {
+						@Override
+						public boolean test(User user) {
+							return UserType.USER.equals(user.getType());
+						}
+					}).map(UserInfoMessage::new)
 					.collect(Collectors.toList());
 
 		} else {
 			userInfoMessages = userRepository.findByOrganizationIsNullAndFoundationIsNullAndDeletedFalse()
-					.filter(user -> user.getType().equals(UserType.USER)).map(UserInfoMessage::new)
+					.filter(new Predicate<User>() {
+						@Override
+						public boolean test(User user) {
+							return UserType.USER.equals(user.getType());
+						}
+					}).map(UserInfoMessage::new)
 					.collect(Collectors.toList());
 		}
 

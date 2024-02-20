@@ -7,7 +7,6 @@ import com.edumento.category.domain.CategoryGradesAndChapter;
 
 /** Created by ahmad on 5/15/17. */
 @Repository
-public interface CategoryGradesAndChapterRepository
-    extends MongoRepository<CategoryGradesAndChapter, String> {
-  CategoryGradesAndChapter findByCategoryId(Long category);
+public interface CategoryGradesAndChapterRepository extends MongoRepository<CategoryGradesAndChapter, String> {
+	CategoryGradesAndChapter findByCategoryId(Long category);
 }

@@ -2,6 +2,8 @@ package com.edumento.notification.handlers.impl;
 
 import static com.edumento.core.constants.notification.Actions.FOLLOW;
 
+import java.util.function.Consumer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +18,8 @@ import com.edumento.core.model.messages.UserFollowMessage;
 import com.edumento.core.model.messages.user.UserInfoMessage;
 import com.edumento.notification.components.AmqNotifier;
 import com.edumento.notification.handlers.AbstractHandler;
-import com.edumento.notification.models.NotificationMessage;
 import com.edumento.notification.service.MailService;
+import com.edumento.user.domain.User;
 import com.edumento.user.repo.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -44,21 +46,24 @@ public class UserHandler extends AbstractHandler {
 	}
 
 	private void onFollow(BaseMessage message) {
-		UserFollowMessage userFollowMessage = mapJsonObject(message, UserFollowMessage.class);
+		var userFollowMessage = mapJsonObject(message, UserFollowMessage.class);
 		// TODO: sunday
-		BaseNotificationMessage baseNotificationMessage = new BaseNotificationMessage(MessageCategory.USER,
+		var baseNotificationMessage = new BaseNotificationMessage(MessageCategory.USER,
 				new From(userFollowMessage.getFollowerInfoMessage()),
 				new Target(message.getEntityAction().getEntity(),
 						userFollowMessage.getFollowerInfoMessage().getId().toString(),
 						message.getEntityAction().getAction(), userFollowMessage.getFollowerInfoMessage().getImage()));
 
-		NotificationMessage notificationMessage = amqNotifier.saveMessage(userFollowMessage.getUserInfoMessage(),
+		var notificationMessage = amqNotifier.saveMessage(userFollowMessage.getUserInfoMessage(),
 				baseNotificationMessage, createMessage(message), null);
-		userRepository.findById(userFollowMessage.getUserInfoMessage().getId()).ifPresent(user -> {
-			if (user.getNotification()) {
-				if (user.getMailNotification()) {
-					mailService.sendNotificationMail(notificationMessage, userFollowMessage.getUserInfoMessage(), true,
-							true);
+		userRepository.findById(userFollowMessage.getUserInfoMessage().getId()).ifPresent(new Consumer<User>() {
+			@Override
+			public void accept(User user) {
+				if (user.getNotification()) {
+					if (user.getMailNotification()) {
+						mailService.sendNotificationMail(notificationMessage, userFollowMessage.getUserInfoMessage(), true,
+								true);
+					}
 				}
 			}
 		});
@@ -66,7 +71,7 @@ public class UserHandler extends AbstractHandler {
 
 	@Override
 	protected void onCreate(BaseMessage notificationMessage) {
-		UserInfoMessage userInfoMessage = mapJsonObject(notificationMessage, UserInfoMessage.class);
+		var userInfoMessage = mapJsonObject(notificationMessage, UserInfoMessage.class);
 		switch (notificationMessage.getEntityAction()) {
 		case USER_REGISTER:
 			mailService.sendActivationEmail(userInfoMessage);
@@ -82,7 +87,7 @@ public class UserHandler extends AbstractHandler {
 
 	@Override
 	protected void onUpdate(BaseMessage notificationMessage) {
-		UserInfoMessage userInfoMessage = mapJsonObject(notificationMessage, UserInfoMessage.class);
+		var userInfoMessage = mapJsonObject(notificationMessage, UserInfoMessage.class);
 		switch (notificationMessage.getEntityAction()) {
 		case USER_REACTIVATE:
 			mailService.sendActivationEmail(userInfoMessage);

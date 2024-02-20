@@ -1,8 +1,10 @@
 package com.edumento.b2b.services;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -13,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.edumento.b2b.domain.Foundation;
-import com.edumento.b2b.domain.FoundationPackage;
 import com.edumento.b2b.domain.Organization;
 import com.edumento.b2b.domain.Role;
 import com.edumento.b2b.model.foundation.FoundationCreateModel;
@@ -90,13 +91,13 @@ public class FoundationService {
 			throw new ExistException("code");
 		}
 
-		FoundationPackage foundationPackage = foundationPackageRepository
+		var foundationPackage = foundationPackageRepository
 				.findById(foundationCreateModel.getFoundationPackageId()).orElseThrow(NotFoundException::new);
 
 		if (!foundationCreateModel.getCode().matches(GeneralConstant.CODE_PATTERN)) {
 			throw new InvalidException("error.code.invaild");
 		}
-		Foundation foundation = new Foundation();
+		var foundation = new Foundation();
 		foundation.setName(foundationCreateModel.getName());
 		foundation.setFoundationPackage(foundationPackage);
 		foundation.setGenderSensitivity(foundationCreateModel.getGenderSensitivity());
@@ -114,10 +115,10 @@ public class FoundationService {
 	@PreAuthorize("hasAuthority('FOUNDATION_UPDATE') AND hasAuthority('SYSTEM_ADMIN')")
 	public ResponseModel update(Long id, FoundationCreateModel foundationCreateModel) {
 		log.debug("Update Foundation {}", foundationCreateModel);
-		Foundation foundation = foundationRepository.findById(id).orElseThrow(NotFoundException::new);
+		var foundation = foundationRepository.findById(id).orElseThrow(NotFoundException::new);
 
 		if (!foundationCreateModel.getName().equals(foundation.getName())) {
-			Foundation tempFoundation = foundationRepository.findByNameAndDeletedFalse(foundationCreateModel.getName());
+			var tempFoundation = foundationRepository.findByNameAndDeletedFalse(foundationCreateModel.getName());
 			if (tempFoundation != null && !id.equals(tempFoundation.getId())) {
 				throw new ExistException("foundation");
 			}
@@ -128,30 +129,36 @@ public class FoundationService {
 		foundation.setEndDate(DateConverter.convertZonedDateTimeToDate(foundationCreateModel.getEndDate()));
 		// TODO: Flags update in organizations
 		foundation.setGenderSensitivity(foundationCreateModel.getGenderSensitivity());
-		FoundationPackage foundationPackage = foundationPackageRepository
+		var foundationPackage = foundationPackageRepository
 				.findById(foundationCreateModel.getFoundationPackageId()).orElseThrow(NotFoundException::new);
 		if (foundationPackage != null && (foundation.getFoundationPackage() == null
 				|| !foundationPackage.getId().equals(foundation.getFoundationPackage().getId()))) {
 			foundation.setFoundationPackage(foundationPackage);
 		}
 
-		Date endDate = foundation.getEndDate();
+		var endDate = foundation.getEndDate();
 		List<User> users = new ArrayList<>();
 		List<Organization> organizations = new ArrayList<>();
 
 		// update user end date by foundation end date
-		userRepository.findByFoundationAndDeletedFalse(foundation).forEach(user -> {
-			user.setEndDate(endDate);
-			users.add(user);
+		userRepository.findByFoundationAndDeletedFalse(foundation).forEach(new Consumer<User>() {
+			@Override
+			public void accept(User user) {
+				user.setEndDate(endDate);
+				users.add(user);
+			}
 		});
 		if (!users.isEmpty()) {
 			userRepository.saveAll(users);
 		}
 
 		// update organization end date by foundation end date
-		organizationRepository.findByFoundationIdAndDeletedFalse(foundation.getId()).forEach(organization -> {
-			organization.setEndDate(endDate);
-			organizations.add(organization);
+		organizationRepository.findByFoundationIdAndDeletedFalse(foundation.getId()).forEach(new Consumer<Organization>() {
+			@Override
+			public void accept(Organization organization) {
+				organization.setEndDate(endDate);
+				organizations.add(organization);
+			}
 		});
 		if (!organizations.isEmpty()) {
 			organizationRepository.saveAll(organizations);
@@ -166,13 +173,21 @@ public class FoundationService {
 	@Transactional(readOnly = true)
 	public ResponseModel getFoundation(Long id) {
 		log.debug("get Foundation with id{}", id);
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(user -> {
-			if (user.getType() == UserType.FOUNDATION_ADMIN && !user.getFoundation().getId().equals(id)) {
-				throw new NotPermittedException();
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, ResponseModel>() {
+			@Override
+			public ResponseModel apply(User user) {
+				if (user.getType() == UserType.FOUNDATION_ADMIN && !user.getFoundation().getId().equals(id)) {
+					throw new NotPermittedException();
+				}
+				return foundationRepository.findOneByIdAndDeletedFalse(id)
+						.map(new Function<Foundation, ResponseModel>() {
+							@Override
+							public ResponseModel apply(Foundation foundation) {
+								return ResponseModel.done(getFoundationModel(foundation));
+							}
+						})
+						.orElseThrow(NotFoundException::new);
 			}
-			return foundationRepository.findOneByIdAndDeletedFalse(id)
-					.map(foundation -> ResponseModel.done(getFoundationModel(foundation)))
-					.orElseThrow(NotFoundException::new);
 		}).orElseThrow(NotFoundException::new);
 	}
 
@@ -185,7 +200,7 @@ public class FoundationService {
 	}
 
 	private FoundationModel getFoundationModel(Foundation foundation) {
-		FoundationModel foundationModel = new FoundationModel();
+		var foundationModel = new FoundationModel();
 		foundationModel.setId(foundation.getId());
 		foundationModel.setName(foundation.getName());
 		foundationModel.setCode(foundation.getCode());
@@ -214,26 +229,39 @@ public class FoundationService {
 	public ResponseModel delete(Long id) {
 		log.debug("delete foundation with id :{},", id);
 		if (null != id) {
-			return foundationRepository.findOneByIdAndDeletedFalse(id).map(foundation -> {
-				organizationService.delete(foundation.getOrganizations().stream()
-						.filter(organization -> !organization.isDeleted()).collect(Collectors.toSet()));
-				List<User> users = userRepository.findByFoundationAndDeletedFalse(foundation)
-						.collect(Collectors.toList());
-				if (!users.isEmpty()) {
-					userRepository.deleteAll(
-							userRepository.findByFoundationAndDeletedFalse(foundation).collect(Collectors.toList()));
+			return foundationRepository.findOneByIdAndDeletedFalse(id).map(new Function<Foundation, ResponseModel>() {
+				@Override
+				public ResponseModel apply(Foundation foundation) {
+					organizationService.delete(foundation.getOrganizations().stream()
+							.filter(new Predicate<Organization>() {
+								@Override
+								public boolean test(Organization organization) {
+									return !organization.isDeleted();
+								}
+							}).collect(Collectors.toSet()));
+					List<User> users = userRepository.findByFoundationAndDeletedFalse(foundation)
+							.collect(Collectors.toList());
+					if (!users.isEmpty()) {
+						userRepository.deleteAll(
+								userRepository.findByFoundationAndDeletedFalse(foundation).collect(Collectors.toList()));
+					}
+					if (!foundation.getRoles().isEmpty()) {
+						roleService.delete(foundation.getRoles().stream().filter(new Predicate<Role>() {
+							@Override
+							public boolean test(Role role) {
+								return !role.isDeleted();
+							}
+						}).map(Role::getId)
+								.collect(Collectors.toList()));
+					}
+					spaceService.deleteSpacesInFoundation(foundation);
+					if (!foundation.getCategories().isEmpty()) {
+						categoryService.deleteInFoundation(foundation);
+					}
+					foundationRepository.delete(foundation);
+					log.debug("foundation {} deleted", id);
+					return ResponseModel.done();
 				}
-				if (!foundation.getRoles().isEmpty()) {
-					roleService.delete(foundation.getRoles().stream().filter(role -> !role.isDeleted()).map(Role::getId)
-							.collect(Collectors.toList()));
-				}
-				spaceService.deleteSpacesInFoundation(foundation);
-				if (!foundation.getCategories().isEmpty()) {
-					categoryService.deleteInFoundation(foundation);
-				}
-				foundationRepository.delete(foundation);
-				log.debug("foundation {} deleted", id);
-				return ResponseModel.done();
 			}).orElseThrow(NotFoundException::new);
 		}
 		log.warn("id parameter cant be null");
@@ -259,19 +287,32 @@ public class FoundationService {
 	@PreAuthorize("hasAuthority('FOUNDATION_UPDATE') AND hasAnyAuthority('SYSTEM_ADMIN')")
 	public ResponseModel changeFoundationStatus(Long id) {
 		log.debug("change organization {} status", id);
-		return foundationRepository.findOneByIdAndDeletedFalse(id).map(foundation -> {
-			if ("mint".equals(foundation.getName())) {
-				log.warn("Not permitted to change MINT Status");
-				throw new NotPermittedException();
+		return foundationRepository.findOneByIdAndDeletedFalse(id).map(new Function<Foundation, ResponseModel>() {
+			@Override
+			public ResponseModel apply(Foundation foundation) {
+				if ("mint".equals(foundation.getName())) {
+					log.warn("Not permitted to change MINT Status");
+					throw new NotPermittedException();
+				}
+				foundation.setActive(!foundation.getActive());
+				foundation.getUsers().forEach(new Consumer<User>() {
+					@Override
+					public void accept(User user) {
+						user.setStatus(foundation.getActive());
+					}
+				});
+				foundation.getOrganizations().forEach(new Consumer<Organization>() {
+					@Override
+					public void accept(Organization organization) {
+						organization.setActive(foundation.getActive());
+					}
+				});
+				organizationRepository.saveAll(foundation.getOrganizations());
+				userRepository.saveAll(foundation.getUsers());
+				foundationRepository.save(foundation);
+				log.debug("organization {} changed", id);
+				return ResponseModel.done();
 			}
-			foundation.setActive(!foundation.getActive());
-			foundation.getUsers().forEach(user -> user.setStatus(foundation.getActive()));
-			foundation.getOrganizations().forEach(organization -> organization.setActive(foundation.getActive()));
-			organizationRepository.saveAll(foundation.getOrganizations());
-			userRepository.saveAll(foundation.getUsers());
-			foundationRepository.save(foundation);
-			log.debug("organization {} changed", id);
-			return ResponseModel.done();
 		}).orElseThrow(NotFoundException::new);
 	}
 
@@ -283,17 +324,25 @@ public class FoundationService {
 	@PreAuthorize("hasAuthority('ADMIN')")
 	public ResponseModel getUsersInFoundation(Long foundationId) {
 		log.debug("get users in organization {}", foundationId);
-		return foundationRepository.findOneByIdAndDeletedFalse(foundationId).map(foundation -> {
-			if (SecurityUtils.isCurrentUserInRole(UserType.SYSTEM_ADMIN.name())
-					|| SecurityUtils.isCurrentUserInRole(UserType.SUPER_ADMIN.name())) {
-				return ResponseModel.done(userRepository.findByFoundationAndDeletedFalse(foundation).map(UserModel::new)
-						.collect(Collectors.toList()));
-			} else if (SecurityUtils.isCurrentUserInRole(UserType.FOUNDATION_ADMIN.name())) {
-				return ResponseModel.done(userRepository.findByFoundationAndDeletedFalse(foundation)
-						.filter(user -> user.getType() == UserType.ADMIN || user.getType() == UserType.USER)
-						.map(UserModel::new).collect(Collectors.toList()));
+		return foundationRepository.findOneByIdAndDeletedFalse(foundationId).map(new Function<Foundation, ResponseModel>() {
+			@Override
+			public ResponseModel apply(Foundation foundation) {
+				if (SecurityUtils.isCurrentUserInRole(UserType.SYSTEM_ADMIN.name())
+						|| SecurityUtils.isCurrentUserInRole(UserType.SUPER_ADMIN.name())) {
+					return ResponseModel.done(userRepository.findByFoundationAndDeletedFalse(foundation).map(UserModel::new)
+							.collect(Collectors.toList()));
+				} else if (SecurityUtils.isCurrentUserInRole(UserType.FOUNDATION_ADMIN.name())) {
+					return ResponseModel.done(userRepository.findByFoundationAndDeletedFalse(foundation)
+							.filter(new Predicate<User>() {
+								@Override
+								public boolean test(User user) {
+									return user.getType() == UserType.ADMIN || user.getType() == UserType.USER;
+								}
+							})
+							.map(UserModel::new).collect(Collectors.toList()));
+				}
+				throw new NotPermittedException();
 			}
-			throw new NotPermittedException();
 		}).orElseThrow(NotFoundException::new);
 	}
 }

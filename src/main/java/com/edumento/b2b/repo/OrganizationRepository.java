@@ -15,15 +15,15 @@ import com.edumento.b2b.domain.Organization;
 @Repository
 public interface OrganizationRepository extends JpaRepository<Organization, Long> {
 
-  Optional<Organization> findOneByNameAndDeletedFalse(String organizationName);
+	Optional<Organization> findOneByNameAndDeletedFalse(String organizationName);
 
-  Optional<Organization> findOneByIdAndDeletedFalse(Long Id);
+	Optional<Organization> findOneByIdAndDeletedFalse(Long Id);
 
-  Optional<Organization> findOneByOrgIdAndDeletedFalse(String orgId);
+	Optional<Organization> findOneByOrgIdAndDeletedFalse(String orgId);
 
-  Stream<Organization> findByFoundationIdAndDeletedFalse(Long id);
+	Stream<Organization> findByFoundationIdAndDeletedFalse(Long id);
 
-  Page<Organization> findByFoundationIdAndDeletedFalse(Long id, Pageable pageable);
+	Page<Organization> findByFoundationIdAndDeletedFalse(Long id, Pageable pageable);
 
-  Integer countByFoundationAndDeletedFalse(Foundation foundation);
+	Integer countByFoundationAndDeletedFalse(Foundation foundation);
 }

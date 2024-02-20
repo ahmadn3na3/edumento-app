@@ -5,9 +5,13 @@ import static org.springframework.data.jpa.domain.Specification.where;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.slf4j.Logger;
@@ -16,11 +20,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.edumento.b2b.domain.Foundation;
 import com.edumento.b2b.domain.Groups;
 import com.edumento.b2b.domain.Organization;
 import com.edumento.b2b.mappers.GroupsMappers;
@@ -53,6 +57,10 @@ import com.edumento.user.domain.User;
 import com.edumento.user.model.user.UserInfoModel;
 import com.edumento.user.model.user.UserModel;
 import com.edumento.user.repo.UserRepository;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 
 /** Created by ahmad on 3/7/16. */
 @Service
@@ -90,29 +98,37 @@ public class GroupService {
 	public ResponseModel create(GroupCreateModel groupCreateModel, Long organizationId) {
 		log.debug("create group {} in organization {}", groupCreateModel.getName(), organizationId);
 
-		return organizationRepository.findOneByIdAndDeletedFalse(organizationId).map(organization -> {
-			if (groupRepository.findOneByNameAndDeletedFalse(
-					String.format("%s@%s", groupCreateModel.getName(), organization.getOrgId())).isPresent()) {
-				log.debug("group {} already exist in organization {}", groupCreateModel.getName(), organizationId);
-				throw new ExistException("name");
+		return organizationRepository.findOneByIdAndDeletedFalse(organizationId).map(new Function<Organization, ResponseModel>() {
+			@Override
+			public ResponseModel apply(Organization organization) {
+				if (groupRepository.findOneByNameAndDeletedFalse(
+						String.format("%s@%s", groupCreateModel.getName(), organization.getOrgId())).isPresent()) {
+					log.debug("group {} already exist in organization {}", groupCreateModel.getName(), organizationId);
+					throw new ExistException("name");
+				}
+				var groups = new Groups();
+				groups.setName(String.format("%s@%s", groupCreateModel.getName(), organization.getOrgId()));
+				if (groupCreateModel.getGender() != null) {
+					groupCreateModel.getTags().add(0, groupCreateModel.getGender().name());
+				}
+				if (groupCreateModel.getTags() != null) {
+					groups.setTags(String.join(",", groupCreateModel.getTags()));
+				}
+				if (groupCreateModel.getCanAccess() != null) {
+					groups.setCanAccess(String.join(",", groupCreateModel.getCanAccess()));
+				}
+				groups.setOrganization(organization);
+				groups.setFoundation(organization.getFoundation());
+				groupRepository.save(groups);
+				log.debug("group created");
+				return ResponseModel.done(new IdModel(groups.getId()));
 			}
-			Groups groups = new Groups();
-			groups.setName(String.format("%s@%s", groupCreateModel.getName(), organization.getOrgId()));
-			if (groupCreateModel.getGender() != null) {
-				groupCreateModel.getTags().add(0, groupCreateModel.getGender().name());
+		}).orElseThrow(new Supplier<NotFoundException>() {
+			@Override
+			public NotFoundException get() {
+				return new NotFoundException("organization");
 			}
-			if (groupCreateModel.getTags() != null) {
-				groups.setTags(String.join(",", groupCreateModel.getTags()));
-			}
-			if (groupCreateModel.getCanAccess() != null) {
-				groups.setCanAccess(String.join(",", groupCreateModel.getCanAccess()));
-			}
-			groups.setOrganization(organization);
-			groups.setFoundation(organization.getFoundation());
-			groupRepository.save(groups);
-			log.debug("group created");
-			return ResponseModel.done(new IdModel(groups.getId()));
-		}).orElseThrow(() -> new NotFoundException("organization"));
+		});
 	}
 
 	@Transactional
@@ -120,40 +136,43 @@ public class GroupService {
 	@PreAuthorize("hasAuthority('GROUP_CREATE') AND hasAuthority('ADMIN')")
 	public ResponseModel create(GroupCreateModel groupCreateModel) {
 		log.debug("create group {}", groupCreateModel.getName());
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(user -> {
-			PermissionCheck.checkUserForFoundationAndOrgOperation(user, groupCreateModel.getOrganizationId(),
-					groupCreateModel.getFoundationId());
-			Foundation foundation = groupCreateModel.getFoundationId() != null
-					? foundationRepository.findById(groupCreateModel.getFoundationId()).orElse(user.getFoundation())
-					: user.getFoundation();
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, ResponseModel>() {
+			@Override
+			public ResponseModel apply(User user) {
+				PermissionCheck.checkUserForFoundationAndOrgOperation(user, groupCreateModel.getOrganizationId(),
+						groupCreateModel.getFoundationId());
+				var foundation = groupCreateModel.getFoundationId() != null
+						? foundationRepository.findById(groupCreateModel.getFoundationId()).orElse(user.getFoundation())
+						: user.getFoundation();
 
-			Organization organization = groupCreateModel.getOrganizationId() != null ? organizationRepository
-					.findById(groupCreateModel.getOrganizationId()).orElse(user.getOrganization())
-					: user.getOrganization();
+				var organization = groupCreateModel.getOrganizationId() != null ? organizationRepository
+						.findById(groupCreateModel.getOrganizationId()).orElse(user.getOrganization())
+						: user.getOrganization();
 
-			if (foundation == null && organization == null) {
-				throw new InvalidException("error.groups.valid.orgfound");
+				if (foundation == null && organization == null) {
+					throw new InvalidException("error.groups.valid.orgfound");
+				}
+
+				var groupName = organization != null
+						? String.format("%s@%s", groupCreateModel.getName(), organization.getOrgId())
+						: String.format("%s@%s", groupCreateModel.getName(), foundation.getCode());
+
+				if (groupRepository.findOneByNameAndDeletedFalse(groupName).isPresent()) {
+					log.warn("group {} already exist", groupCreateModel.getName());
+					throw new ExistException("error.groups.name.exists");
+				}
+				var groups = new Groups();
+				groups.setName(groupName);
+				if (groupCreateModel.getGender() != null) {
+					groupCreateModel.getTags().add(0, groupCreateModel.getGender().name());
+				}
+				groups.setTags(String.join(",", groupCreateModel.getTags()));
+				groups.setCanAccess(String.join(",", groupCreateModel.getCanAccess()));
+				groups.setOrganization(organization);
+				groups.setFoundation(foundation == null ? organization.getFoundation() : foundation);
+				groupRepository.save(groups);
+				return ResponseModel.done(new IdModel(groups.getId()));
 			}
-
-			String groupName = organization != null
-					? String.format("%s@%s", groupCreateModel.getName(), organization.getOrgId())
-					: String.format("%s@%s", groupCreateModel.getName(), foundation.getCode());
-
-			if (groupRepository.findOneByNameAndDeletedFalse(groupName).isPresent()) {
-				log.warn("group {} already exist", groupCreateModel.getName());
-				throw new ExistException("error.groups.name.exists");
-			}
-			Groups groups = new Groups();
-			groups.setName(groupName);
-			if (groupCreateModel.getGender() != null) {
-				groupCreateModel.getTags().add(0, groupCreateModel.getGender().name());
-			}
-			groups.setTags(String.join(",", groupCreateModel.getTags()));
-			groups.setCanAccess(String.join(",", groupCreateModel.getCanAccess()));
-			groups.setOrganization(organization);
-			groups.setFoundation(foundation == null ? organization.getFoundation() : foundation);
-			groupRepository.save(groups);
-			return ResponseModel.done(new IdModel(groups.getId()));
 		}).orElseThrow(NotPermittedException::new);
 	}
 
@@ -162,66 +181,125 @@ public class GroupService {
 	public ResponseModel getGroups(PageRequest page, Long foundationId, Long organizationId, String filter,
 			boolean all) {
 		log.debug("get groups");
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(user -> {
-			log.debug("get Users");
-			Specification<Groups> byFoundation = null;
-			Specification<Groups> byOrganization = null;
-			Specification<Groups> name = null;
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, PageResponseModel>() {
+			@Override
+			public PageResponseModel apply(User user) {
+				log.debug("get Users");
+				Specification<Groups> byFoundation = null;
+				Specification<Groups> byOrganization = null;
+				Specification<Groups> name = null;
 
-			if (foundationId != null) {
-				Optional<Foundation> foundationIns = foundationRepository.findOneByIdAndDeletedFalse(foundationId);
-				if (foundationIns.isPresent()) {
-					byFoundation = (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder
-							.equal(root.get("foundation"), foundationIns.get());
+				if (foundationId != null) {
+					var foundationIns = foundationRepository.findOneByIdAndDeletedFalse(foundationId);
+					if (foundationIns.isPresent()) {
+						byFoundation = new Specification<Groups>() {
+							@Override
+							@Nullable
+							public jakarta.persistence.criteria.Predicate toPredicate(Root<Groups> root,
+									CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+								return criteriaBuilder
+										.equal(root.get("foundation"), foundationIns.get());
+							}
+						};
 
-				} else {
-					log.warn("foundation {} not found", foundationId);
-					throw new NotFoundException("error.foundation.notfound");
+					} else {
+						log.warn("foundation {} not found", foundationId);
+						throw new NotFoundException("error.foundation.notfound");
+					}
 				}
-			}
 
-			if (organizationId != null) {
-				Optional<Organization> org = organizationRepository.findOneByIdAndDeletedFalse(organizationId);
-				if (org.isPresent()) {
-					byOrganization = (root, criteriaQuery, criteriaBuilder) -> root.get("organization").in(org.get());
+				if (organizationId != null) {
+					var org = organizationRepository.findOneByIdAndDeletedFalse(organizationId);
+					if (org.isPresent()) {
+						byOrganization = new Specification<Groups>() {
+							@Override
+							@Nullable
+							public jakarta.persistence.criteria.Predicate toPredicate(Root<Groups> root,
+									CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+								return root.get("organization").in(org.get());
+							}
+						};
+					} else {
+						log.warn("organization {} not found", organizationId);
+						throw new NotFoundException("error.organization.notfound");
+					}
 				} else {
-					log.warn("organization {} not found", organizationId);
-					throw new NotFoundException("error.organization.notfound");
+					byOrganization = all ? null : new Specification<Groups>() {
+						@Override
+						@Nullable
+						public jakarta.persistence.criteria.Predicate toPredicate(Root<Groups> root, CriteriaQuery<?> cq,
+								CriteriaBuilder cb) {
+							return cb.isNull(root.get("organization"));
+						}
+					};
 				}
-			} else {
-				byOrganization = all ? null : (root, cq, cb) -> cb.isNull(root.get("organization"));
-			}
 
-			if (filter != null) {
-				name = (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.like(
-						criteriaBuilder.lower(root.get("name").as(String.class)), "%" + filter.toLowerCase() + "%");
-			}
-			switch (user.getType()) {
+				if (filter != null) {
+					name = new Specification<Groups>() {
+						@Override
+						@Nullable
+						public jakarta.persistence.criteria.Predicate toPredicate(Root<Groups> root,
+								CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+							return criteriaBuilder.like(
+									criteriaBuilder.lower(root.get("name").as(String.class)), "%" + filter.toLowerCase() + "%");
+						}
+					};
+				}
+				switch (user.getType()) {
 				case SUPER_ADMIN:
 				case SYSTEM_ADMIN:
 					break;
 				case ADMIN:
-					byOrganization = (root, criteriaQuery, criteriaBuilder) -> root.get("organization")
-							.in(user.getOrganization());
-					byFoundation = (root, criteriaQuery, criteriaBuilder) -> root.get("foundation")
-							.in(user.getFoundation());
+					byOrganization = new Specification<Groups>() {
+						@Override
+						@Nullable
+						public jakarta.persistence.criteria.Predicate toPredicate(Root<Groups> root,
+								CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+							return root.get("organization")
+									.in(user.getOrganization());
+						}
+					};
+					byFoundation = new Specification<Groups>() {
+						@Override
+						@Nullable
+						public jakarta.persistence.criteria.Predicate toPredicate(Root<Groups> root,
+								CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+							return root.get("foundation")
+									.in(user.getFoundation());
+						}
+					};
 
 					break;
 				case FOUNDATION_ADMIN:
-					byFoundation = (root, criteriaQuery, criteriaBuilder) -> root.get("foundation")
-							.in(user.getFoundation());
+					byFoundation = new Specification<Groups>() {
+						@Override
+						@Nullable
+						public jakarta.persistence.criteria.Predicate toPredicate(Root<Groups> root,
+								CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+							return root.get("foundation")
+									.in(user.getFoundation());
+						}
+					};
 					log.debug("foundation ADMIN COLLECTED");
 					break;
 				default:
 					log.warn("user {} not permitted", SecurityUtils.getCurrentUserLogin());
 					throw new NotPermittedException();
-			}
+				}
 
-			Page<GroupModel> groupModels = groupRepository.findAll(where(byOrganization).and(byFoundation).and(name)
-					.and((root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("deleted"), false)),
-					page).map(this::getGroupModel);
-			return PageResponseModel.done(groupModels.getContent(), groupModels.getTotalPages(),
-					groupModels.getNumber(), groupModels.getTotalElements());
+				Page<GroupModel> groupModels = groupRepository.findAll(where(byOrganization).and(byFoundation).and(name)
+						.and(new Specification<Groups>() {
+							@Override
+							@Nullable
+							public jakarta.persistence.criteria.Predicate toPredicate(Root<Groups> root,
+									CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+								return criteriaBuilder.equal(root.get("deleted"), false);
+							}
+						}),
+						page).map(GroupService.this::getGroupModel);
+				return PageResponseModel.done(groupModels.getContent(), groupModels.getTotalPages(),
+						groupModels.getNumber(), groupModels.getTotalElements());
+			}
 		}).orElseThrow(NotPermittedException::new);
 	}
 
@@ -229,9 +307,12 @@ public class GroupService {
 	@PreAuthorize("hasAuthority('GROUP_READ') AND hasAuthority('ADMIN')")
 	public ResponseModel getGroup(Long id) {
 		log.debug("get group by id {}", id);
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(user -> {
-			Groups groups = groupRepository.findById(id).orElseThrow(NotFoundException::new);
-			return ResponseModel.done(getGroupModel(groups));
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, ResponseModel>() {
+			@Override
+			public ResponseModel apply(User user) {
+				var groups = groupRepository.findById(id).orElseThrow(NotFoundException::new);
+				return ResponseModel.done(getGroupModel(groups));
+			}
 		}).orElseThrow(NotPermittedException::new);
 	}
 
@@ -239,11 +320,14 @@ public class GroupService {
 	@PreAuthorize("hasAuthority('GROUP_ASSIGN_READ') AND hasAuthority('ADMIN')")
 	public ResponseModel getUsers(Long id) {
 		log.debug("Get users in group {}", id);
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(user -> {
-			Groups groups = groupRepository.findById(id).orElseThrow(NotFoundException::new);
-			List<UserInfoModel> userInfoModels = groups.getUsers().stream().map(UserModel::new)
-					.collect(Collectors.toList());
-			return ResponseModel.done(userInfoModels);
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, ResponseModel>() {
+			@Override
+			public ResponseModel apply(User user) {
+				var groups = groupRepository.findById(id).orElseThrow(NotFoundException::new);
+				List<UserInfoModel> userInfoModels = groups.getUsers().stream().map(UserModel::new)
+						.collect(Collectors.toList());
+				return ResponseModel.done(userInfoModels);
+			}
 		}).orElseThrow(NotPermittedException::new);
 	}
 
@@ -253,15 +337,23 @@ public class GroupService {
 	public ResponseModel delete(Long id) {
 		log.debug("Delete Group {}", id);
 		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
-				.map(user -> groupRepository.findById(id).map(groups -> {
-					if (!groups.getUsers().isEmpty()) {
-						removeUserFromGroup(groups.getUsers().stream().map(User::getId).collect(Collectors.toList()),
-								id);
+				.map(new Function<User, ResponseModel>() {
+					@Override
+					public ResponseModel apply(User user) {
+						return groupRepository.findById(id).map(new Function<Groups, ResponseModel>() {
+							@Override
+							public ResponseModel apply(Groups groups) {
+								if (!groups.getUsers().isEmpty()) {
+									removeUserFromGroup(groups.getUsers().stream().map(User::getId).collect(Collectors.toList()),
+											id);
+								}
+								groupRepository.deleteById(id);
+								log.debug("group {} deleted", id);
+								return ResponseModel.done();
+							}
+						}).orElseThrow(NotFoundException::new);
 					}
-					groupRepository.deleteById(id);
-					log.debug("group {} deleted", id);
-					return ResponseModel.done();
-				}).orElseThrow(NotFoundException::new)).orElseThrow(NotPermittedException::new);
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	@Transactional
@@ -281,35 +373,43 @@ public class GroupService {
 	@PreAuthorize("hasAuthority('GROUP_UPDATE') AND hasAuthority('ADMIN')")
 	public ResponseModel update(Long id, GroupCreateModel groupCreateModel) {
 		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
-				.map(user -> groupRepository.findById(id).map(groups -> {
-					groupCreateModel.setName(groupCreateModel.getName().split("@")[0]);
-					String groupName = null;
-					if (groups.getOrganization() != null) {
-						groupName = String.format("%s@%s", groupCreateModel.getName(),
-								groups.getOrganization().getOrgId());
-					} else {
-						groupName = String.format("%s@%s", groupCreateModel.getName(),
-								groups.getFoundation().getCode());
-					}
+				.map(new Function<User, ResponseModel>() {
+					@Override
+					public ResponseModel apply(User user) {
+						return groupRepository.findById(id).map(new Function<Groups, ResponseModel>() {
+							@Override
+							public ResponseModel apply(Groups groups) {
+								groupCreateModel.setName(groupCreateModel.getName().split("@")[0]);
+								String groupName = null;
+								if (groups.getOrganization() != null) {
+									groupName = String.format("%s@%s", groupCreateModel.getName(),
+											groups.getOrganization().getOrgId());
+								} else {
+									groupName = String.format("%s@%s", groupCreateModel.getName(),
+											groups.getFoundation().getCode());
+								}
 
-					if (!groups.getName().equalsIgnoreCase(groupName)
-							&& groupRepository.findOneByNameAndDeletedFalse(groupName).isPresent()) {
-						throw new ExistException("name");
-					}
+								if (!groups.getName().equalsIgnoreCase(groupName)
+										&& groupRepository.findOneByNameAndDeletedFalse(groupName).isPresent()) {
+									throw new ExistException("name");
+								}
 
-					groups.setName(groupName);
-					if (groupCreateModel.getGender() != null) {
-						groupCreateModel.getTags().add(0, groupCreateModel.getGender().name());
+								groups.setName(groupName);
+								if (groupCreateModel.getGender() != null) {
+									groupCreateModel.getTags().add(0, groupCreateModel.getGender().name());
+								}
+								if (groupCreateModel.getTags() != null) {
+									groups.setTags(String.join(",", groupCreateModel.getTags()));
+								}
+								if (groupCreateModel.getCanAccess() != null) {
+									groups.setCanAccess(String.join(",", groupCreateModel.getCanAccess()));
+								}
+								groupRepository.save(groups);
+								return ResponseModel.done(new IdModel(groups.getId()));
+							}
+						}).orElseThrow(NotFoundException::new);
 					}
-					if (groupCreateModel.getTags() != null) {
-						groups.setTags(String.join(",", groupCreateModel.getTags()));
-					}
-					if (groupCreateModel.getCanAccess() != null) {
-						groups.setCanAccess(String.join(",", groupCreateModel.getCanAccess()));
-					}
-					groupRepository.save(groups);
-					return ResponseModel.done(new IdModel(groups.getId()));
-				}).orElseThrow(NotFoundException::new)).orElseThrow(NotPermittedException::new);
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	@Transactional
@@ -319,15 +419,28 @@ public class GroupService {
 		log.debug("Toggle Group Status : {}", toggleStatusModel);
 
 		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
-				.map(user -> groupRepository.findById(toggleStatusModel.getId()).map(groups -> {
-					Set<User> users = groups.getUsers();
-					if (users != null) {
-						users.forEach(u -> u.setStatus(toggleStatusModel.getStatus()));
-						userRepository.saveAll(users);
-						log.debug("group status updated");
+				.map(new Function<User, ResponseModel>() {
+					@Override
+					public ResponseModel apply(User user) {
+						return groupRepository.findById(toggleStatusModel.getId()).map(new Function<Groups, ResponseModel>() {
+							@Override
+							public ResponseModel apply(Groups groups) {
+								var users = groups.getUsers();
+								if (users != null) {
+									users.forEach(new Consumer<User>() {
+										@Override
+										public void accept(User u) {
+											u.setStatus(toggleStatusModel.getStatus());
+										}
+									});
+									userRepository.saveAll(users);
+									log.debug("group status updated");
+								}
+								return ResponseModel.done();
+							}
+						}).orElseThrow(NotFoundException::new);
 					}
-					return ResponseModel.done();
-				}).orElseThrow(NotFoundException::new)).orElseThrow(NotPermittedException::new);
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	@Transactional
@@ -336,35 +449,61 @@ public class GroupService {
 	public ResponseModel assignUserToGroup(List<Long> usersId, Long groupId) {
 		log.debug("assign user {} to group {}", usersId, groupId);
 		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
-				.map(user -> assginToGroup(usersId, groupId)).orElseThrow(NotPermittedException::new);
+				.map(new Function<User, ResponseModel>() {
+					@Override
+					public ResponseModel apply(User user) {
+						return assginToGroup(usersId, groupId);
+					}
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	public ResponseModel assginToGroup(List<Long> usersId, Long groupId) {
-		return groupRepository.findById(groupId).map(groups -> {
-			Set<User> users = new HashSet<>();
-			userRepository.findAllById(usersId).forEach(user -> users.add(user));
-			groups.getUsers().addAll(users);
-			groupRepository.save(groups);
-			log.debug("user {} assigned to group {}", usersId, groupId);
-			Set<Space> spaces = joinedRepository.findByGroupNameAndDeletedFalse(String.valueOf(groups.getId()))
-					.map(Joined::getSpace).collect(Collectors.toSet());
-			if (spaces.isEmpty()) {
-				spaces = joinedRepository.findByGroupNameAndDeletedFalse(String.valueOf(groups.getName()))
+		return groupRepository.findById(groupId).map(new Function<Groups, ResponseModel>() {
+			@Override
+			public ResponseModel apply(Groups groups) {
+				Set<User> users = new HashSet<>();
+				userRepository.findAllById(usersId).forEach(new Consumer<User>() {
+					@Override
+					public void accept(User user) {
+						users.add(user);
+					}
+				});
+				groups.getUsers().addAll(users);
+				groupRepository.save(groups);
+				log.debug("user {} assigned to group {}", usersId, groupId);
+				Set<Space> spaces = joinedRepository.findByGroupNameAndDeletedFalse(String.valueOf(groups.getId()))
 						.map(Joined::getSpace).collect(Collectors.toSet());
-			}
+				if (spaces.isEmpty()) {
+					spaces = joinedRepository.findByGroupNameAndDeletedFalse(String.valueOf(groups.getName()))
+							.map(Joined::getSpace).collect(Collectors.toSet());
+				}
 
-			Set<Joined> joineds = spaces.stream().flatMap(space -> users.stream().map(u -> {
-				Joined joined = joinedRepository.findOneBySpaceIdAndUserIdAndDeletedFalse(space.getId(), u.getId())
-						.orElseGet(() -> new Joined(u, space));
-				joined.setGroupName(groups.getId().toString());
-				joined.setSpaceRole(SpaceRole.COLLABORATOR);
-				return joined;
-			})).collect(Collectors.toSet());
-			if (!joineds.isEmpty()) {
-				joinedRepository.saveAll(joineds);
+				Set<Joined> joineds = spaces.stream().flatMap(new Function<Space, Stream<? extends Joined>>() {
+					@Override
+					public Stream<? extends Joined> apply(Space space) {
+						return users.stream().map(new Function<User, Joined>() {
+							@Override
+							public Joined apply(User u) {
+								var joined = joinedRepository.findOneBySpaceIdAndUserIdAndDeletedFalse(space.getId(), u.getId())
+										.orElseGet(new Supplier<Joined>() {
+											@Override
+											public Joined get() {
+												return new Joined(u, space);
+											}
+										});
+								joined.setGroupName(groups.getId().toString());
+								joined.setSpaceRole(SpaceRole.COLLABORATOR);
+								return joined;
+							}
+						});
+					}
+				}).collect(Collectors.toSet());
+				if (!joineds.isEmpty()) {
+					joinedRepository.saveAll(joineds);
+				}
+				log.trace("reshare group");
+				return ResponseModel.done();
 			}
-			log.trace("reshare group");
-			return ResponseModel.done();
 		}).orElseThrow(NotFoundException::new);
 	}
 
@@ -381,25 +520,43 @@ public class GroupService {
 			throw new MintException(Code.INVALID);
 		}
 		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
-				.map(user -> groupRepository.findById(groupId).map(groups -> {
-					var users = StreamSupport.stream(userRepository.findAllById(usersId).spliterator(), false)
-							.collect(Collectors.toList());
-					if (users != null && !users.isEmpty()) {
-						groups.getUsers().removeAll(users);
-						groupRepository.save(groups);
-						Set<Joined> joineds = joinedRepository.findByGroupNameAndDeletedFalse(groups.getId().toString())
-								.filter(joined -> users.contains(joined.getUser())).collect(Collectors.toSet());
-						if (joineds.isEmpty()) {
-							joineds = joinedRepository.findByGroupNameAndDeletedFalse(groups.getName())
-									.filter(joined -> users.contains(joined.getUser())).collect(Collectors.toSet());
-						}
-						if (!joineds.isEmpty()) {
-							joinedRepository.deleteAll(joineds);
-						}
+				.map(new Function<User, ResponseModel>() {
+					@Override
+					public ResponseModel apply(User user) {
+						return groupRepository.findById(groupId).map(new Function<Groups, ResponseModel>() {
+							@Override
+							public ResponseModel apply(Groups groups) {
+								var users = StreamSupport.stream(userRepository.findAllById(usersId).spliterator(), false)
+										.collect(Collectors.toList());
+								if (users != null && !users.isEmpty()) {
+									groups.getUsers().removeAll(users);
+									groupRepository.save(groups);
+									Set<Joined> joineds = joinedRepository.findByGroupNameAndDeletedFalse(groups.getId().toString())
+											.filter(new Predicate<Joined>() {
+												@Override
+												public boolean test(Joined joined) {
+													return users.contains(joined.getUser());
+												}
+											}).collect(Collectors.toSet());
+									if (joineds.isEmpty()) {
+										joineds = joinedRepository.findByGroupNameAndDeletedFalse(groups.getName())
+												.filter(new Predicate<Joined>() {
+													@Override
+													public boolean test(Joined joined) {
+														return users.contains(joined.getUser());
+													}
+												}).collect(Collectors.toSet());
+									}
+									if (!joineds.isEmpty()) {
+										joinedRepository.deleteAll(joineds);
+									}
+								}
+								log.debug("user {} removed from group {}", usersId, groupId);
+								return ResponseModel.done();
+							}
+						}).orElseThrow(NotFoundException::new);
 					}
-					log.debug("user {} removed from group {}", usersId, groupId);
-					return ResponseModel.done();
-				}).orElseThrow(NotFoundException::new)).orElseThrow(NotPermittedException::new);
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	@Transactional
@@ -416,14 +573,19 @@ public class GroupService {
 	public ResponseModel getSpacesByGroupId(Long id) {
 		log.debug("get space is group {}", id);
 		return userRepository
-				.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(user -> groupRepository
-						.findById(id).map(spaceService::getSpaceByGroupName).orElseThrow(NotPermittedException::new))
+				.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, ResponseModel>() {
+					@Override
+					public ResponseModel apply(User user) {
+						return groupRepository
+								.findById(id).map(spaceService::getSpaceByGroupName).orElseThrow(NotPermittedException::new);
+					}
+				})
 				.orElseThrow(NotPermittedException::new);
 	}
 
 	public GroupModel getGroupModel(Groups groups) {
 		log.debug("get group model");
-		GroupModel groupModel = GroupsMappers.INSTANCE.groupsToGroupModel(groups);
+		var groupModel = GroupsMappers.INSTANCE.groupsToGroupModel(groups);
 		if (groups.getTags() != null && !groups.getTags().isEmpty()) {
 			groupModel.getTags().addAll(Arrays.asList(groups.getTags().split(",")));
 			if (groupModel.getTags().get(0).equalsIgnoreCase(Gender.MALE.name())

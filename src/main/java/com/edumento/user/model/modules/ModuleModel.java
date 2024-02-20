@@ -5,7 +5,6 @@ import java.util.Set;
 
 import com.edumento.user.domain.Module;
 
-
 public class ModuleModel extends ModuleListModel {
 	private Set<PermissionModel> permissions = new HashSet<>();
 

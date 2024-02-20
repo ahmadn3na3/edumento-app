@@ -16,24 +16,22 @@ import com.edumento.category.domain.Category;
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long>, JpaSpecificationExecutor<Category> {
 
-    Optional<Category> findOneByNameAndOrganizationAndDeletedFalse(
-            String name, Organization organization);
+	Optional<Category> findOneByNameAndOrganizationAndDeletedFalse(String name, Organization organization);
 
-    Optional<Category> findOneByNameAndFoundationAndOrganizationIsNullAndDeletedFalse(
-            String name, Foundation foundation);
+	Optional<Category> findOneByNameAndFoundationAndOrganizationIsNullAndDeletedFalse(String name,
+			Foundation foundation);
 
-    Optional<Category> findOneByNameAndOrganizationIsNullAndFoundationIsNullAndDeletedFalse(
-            String name);
+	Optional<Category> findOneByNameAndOrganizationIsNullAndFoundationIsNullAndDeletedFalse(String name);
 
-    Stream<Category> findByOrganizationIsNullAndFoundationIsNullAndDeletedFalse();
+	Stream<Category> findByOrganizationIsNullAndFoundationIsNullAndDeletedFalse();
 
-    Stream<Category> findByFoundationAndDeletedFalse(Foundation foundation);
+	Stream<Category> findByFoundationAndDeletedFalse(Foundation foundation);
 
-    Stream<Category> findByOrganizationAndDeletedFalse(Organization organization);
+	Stream<Category> findByOrganizationAndDeletedFalse(Organization organization);
 
-    Optional<Category> findOneByIdAndDeletedFalse(Long id);
+	Optional<Category> findOneByIdAndDeletedFalse(Long id);
 
-    @Query("select j.space.category from Joined j where j.user.id = ?1 and j.deleted=false and j.space.deleted=false and j.space.category.deleted=false")
-    Stream<Category> findRelatedCategoryWithSpaceForUserAndDeletedFalse(Long userId);
+	@Query("select j.space.category from Joined j where j.user.id = ?1 and j.deleted=false and j.space.deleted=false and j.space.category.deleted=false")
+	Stream<Category> findRelatedCategoryWithSpaceForUserAndDeletedFalse(Long userId);
 
 }

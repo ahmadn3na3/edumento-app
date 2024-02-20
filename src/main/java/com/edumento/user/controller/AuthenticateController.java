@@ -1,6 +1,5 @@
 package com.edumento.user.controller;
 
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
@@ -43,64 +42,63 @@ import jakarta.validation.Valid;
 @RequestMapping("/api")
 public class AuthenticateController {
 
-    private final Logger log = LoggerFactory.getLogger(AuthenticateController.class);
+	private final Logger log = LoggerFactory.getLogger(AuthenticateController.class);
 
-    private final JwtEncoder jwtEncoder;
+	private final JwtEncoder jwtEncoder;
 
-    @Value("${jhipster.security.authentication.jwt.token-validity-in-seconds:18600}")
-    private long tokenValidityInSeconds;
+	@Value("${jhipster.security.authentication.jwt.token-validity-in-seconds:18600}")
+	private long tokenValidityInSeconds;
 
-    @Value("${jhipster.security.authentication.jwt.token-validity-in-seconds-for-remember-me:0}")
-    private long tokenValidityInSecondsForRememberMe;
+	@Value("${jhipster.security.authentication.jwt.token-validity-in-seconds-for-remember-me:0}")
+	private long tokenValidityInSecondsForRememberMe;
 
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+	private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
-    public AuthenticateController(JwtEncoder jwtEncoder,
-            AuthenticationManagerBuilder authenticationManagerBuilder) {
-        this.jwtEncoder = jwtEncoder;
-        this.authenticationManagerBuilder = authenticationManagerBuilder;
-    }
+	public AuthenticateController(JwtEncoder jwtEncoder, AuthenticationManagerBuilder authenticationManagerBuilder) {
+		this.jwtEncoder = jwtEncoder;
+		this.authenticationManagerBuilder = authenticationManagerBuilder;
+	}
 
-    @PostMapping("/authenticate")
-    public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginModel loginVM) {
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(loginVM.username(), loginVM.password());
+	@PostMapping("/authenticate")
+	public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginModel loginVM) {
+		var authenticationToken = new UsernamePasswordAuthenticationToken(
+				loginVM.username(), loginVM.password());
 
-        Authentication authentication =
-                authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = this.createToken(authentication, loginVM.rememberMe());
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setBearerAuth(jwt);
-        return new ResponseEntity<>(new JWTToken(jwt), httpHeaders, HttpStatus.OK);
-    }
+		var authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+		var jwt = createToken(authentication, loginVM.rememberMe());
+		var httpHeaders = new HttpHeaders();
+		httpHeaders.setBearerAuth(jwt);
+		return new ResponseEntity<>(new JWTToken(jwt), httpHeaders, HttpStatus.OK);
+	}
 
-    /**
-     * {@code GET /authenticate} : check if the user is authenticated, and return its login.
-     *
-     * @param request the HTTP request.
-     * @return the login if the user is authenticated.
-     */
-    @GetMapping("/authenticate")
-    public String isAuthenticated(HttpServletRequest request) {
-        log.debug("REST request to check if the current user is authenticated");
-        return request.getRemoteUser();
-    }
+	/**
+	 * {@code GET /authenticate} : check if the user is authenticated, and return
+	 * its login.
+	 *
+	 * @param request the HTTP request.
+	 * @return the login if the user is authenticated.
+	 */
+	@GetMapping("/authenticate")
+	public String isAuthenticated(HttpServletRequest request) {
+		log.debug("REST request to check if the current user is authenticated");
+		return request.getRemoteUser();
+	}
 
-    public String createToken(Authentication authentication, boolean rememberMe) {
-        String authorities = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority).collect(Collectors.joining(" "));
+	public String createToken(Authentication authentication, boolean rememberMe) {
+		var authorities = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority)
+				.collect(Collectors.joining(" "));
 
-        Instant now = Instant.now();
-        Instant validity;
-        if (rememberMe) {
-            validity = now.plus(this.tokenValidityInSecondsForRememberMe, ChronoUnit.SECONDS);
-        } else {
-            validity = now.plus(this.tokenValidityInSeconds, ChronoUnit.SECONDS);
-        }
-        var userdetails = (CurrentUserDetail) authentication.getPrincipal();
-        // @formatter:off
-        JwtClaimsSet claims = JwtClaimsSet.builder()
+		var now = Instant.now();
+		Instant validity;
+		if (rememberMe) {
+			validity = now.plus(tokenValidityInSecondsForRememberMe, ChronoUnit.SECONDS);
+		} else {
+			validity = now.plus(tokenValidityInSeconds, ChronoUnit.SECONDS);
+		}
+		var userdetails = (CurrentUserDetail) authentication.getPrincipal();
+		// @formatter:off
+        var claims = JwtClaimsSet.builder()
             .issuedAt(now)
             .expiresAt(validity)
             .subject(authentication.getName())
@@ -111,9 +109,9 @@ public class AuthenticateController {
             .claim("type", userdetails.getType())
             .build();
 
-        JwsHeader jwsHeader = JwsHeader.with(MacAlgorithm.HS512).build();
+        var jwsHeader = JwsHeader.with(MacAlgorithm.HS512).build();
 
-        return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
+        return jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
     }
 
     /**

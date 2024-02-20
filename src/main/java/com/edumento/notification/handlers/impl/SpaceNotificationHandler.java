@@ -11,7 +11,8 @@ import static com.edumento.core.constants.notification.EntityType.SPACE;
 import static com.edumento.core.constants.notification.MessageCategory.USER;
 
 import java.time.ZonedDateTime;
-import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,7 +28,6 @@ import com.edumento.core.model.messages.space.SpaceShareInfoMessage;
 import com.edumento.core.model.messages.user.UserInfoMessage;
 import com.edumento.notification.components.AmqNotifier;
 import com.edumento.notification.handlers.AbstractHandler;
-import com.edumento.notification.models.NotificationMessage;
 import com.edumento.notification.service.MailService;
 import com.edumento.notification.util.Utilities;
 import com.edumento.space.domain.Joined;
@@ -83,14 +83,14 @@ public class SpaceNotificationHandler extends AbstractHandler {
 	}
 
 	private void onAcceptJoin(BaseMessage baseMessage) {
-		SpaceJoinMessage spaceJoinMessage = mapJsonObject(baseMessage, SpaceJoinMessage.class);
-		BaseNotificationMessage baseNotificationMessage = new BaseNotificationMessage(ZonedDateTime.now(), USER,
+		var spaceJoinMessage = mapJsonObject(baseMessage, SpaceJoinMessage.class);
+		var baseNotificationMessage = new BaseNotificationMessage(ZonedDateTime.now(), USER,
 				spaceJoinMessage.getFrom(),
 				new Target(SPACE, spaceJoinMessage.getId().toString(), JOIN, spaceJoinMessage.getImage()));
-		User user = userRepository.findById(spaceJoinMessage.getJoinedInfoMessage().getId()).orElse(null);
+		var user = userRepository.findById(spaceJoinMessage.getJoinedInfoMessage().getId()).orElse(null);
 		if (user != null) {
-			UserInfoMessage userInfoMessage = new UserInfoMessage(user);
-			NotificationMessage notificationMessage = amqNotifier.saveMessage(userInfoMessage, baseNotificationMessage,
+			var userInfoMessage = new UserInfoMessage(user);
+			var notificationMessage = amqNotifier.saveMessage(userInfoMessage, baseNotificationMessage,
 					createMessage(baseMessage), null, spaceJoinMessage.getName(),
 					getCantegoryNameByLang(user.getLangKey(), spaceJoinMessage.getCategoryName(),
 							spaceJoinMessage.getCategoryNameAR()));
@@ -104,21 +104,21 @@ public class SpaceNotificationHandler extends AbstractHandler {
 	}
 
 	private void onJoin(BaseMessage baseMessage) {
-		SpaceJoinMessage spaceJoinMessage = mapJsonObject(baseMessage, SpaceJoinMessage.class);
+		var spaceJoinMessage = mapJsonObject(baseMessage, SpaceJoinMessage.class);
 		logger.debug(spaceJoinMessage.toString());
-		String message = "mint.notification.message.space.joined";
+		var message = "mint.notification.message.space.joined";
 		if (spaceJoinMessage.getIsPrivate() != null && spaceJoinMessage.getIsPrivate().booleanValue()) {
 			message = "mint.notification.message.space.join";
 		}
-		BaseNotificationMessage baseNotificationMessage = new BaseNotificationMessage(ZonedDateTime.now(), USER,
+		var baseNotificationMessage = new BaseNotificationMessage(ZonedDateTime.now(), USER,
 				spaceJoinMessage.getFrom(),
 				new Target(SPACE, spaceJoinMessage.getId().toString(), JOIN, spaceJoinMessage.getImage()));
 
-		User user = utilities.getSpaceOwner(spaceJoinMessage.getId());
+		var user = utilities.getSpaceOwner(spaceJoinMessage.getId());
 		logger.debug(user.toString());
 		if (user != null) {
-			UserInfoMessage userInfoMessage = new UserInfoMessage(user);
-			NotificationMessage notificationMessage = amqNotifier.saveMessage(userInfoMessage, baseNotificationMessage,
+			var userInfoMessage = new UserInfoMessage(user);
+			var notificationMessage = amqNotifier.saveMessage(userInfoMessage, baseNotificationMessage,
 					message, null, spaceJoinMessage.getName(), getCantegoryNameByLang(user.getLangKey(),
 							spaceJoinMessage.getCategoryName(), spaceJoinMessage.getCategoryNameAR()));
 			logger.debug(user.toString());
@@ -134,28 +134,31 @@ public class SpaceNotificationHandler extends AbstractHandler {
 
 	@Override
 	protected void onCreate(BaseMessage baseMessage) {
-		SpaceInfoMessage spaceInfoMessage = mapJsonObject(baseMessage, SpaceInfoMessage.class);
+		var spaceInfoMessage = mapJsonObject(baseMessage, SpaceInfoMessage.class);
 		if (spaceInfoMessage.getIsPrivate().booleanValue()) {
 			return;
 		}
 
-		List<User> followers = utilities.getFollowerList(spaceInfoMessage.getFrom().getId());
+		var followers = utilities.getFollowerList(spaceInfoMessage.getFrom().getId());
 
-		BaseNotificationMessage baseNotificationMessage = new BaseNotificationMessage(ZonedDateTime.now(), USER,
+		var baseNotificationMessage = new BaseNotificationMessage(ZonedDateTime.now(), USER,
 				spaceInfoMessage.getFrom(),
 				new Target(SPACE, spaceInfoMessage.getId().toString(), CREATE, spaceInfoMessage.getImage()));
 
 		if (null != followers && !followers.isEmpty()) {
-			followers.forEach(user -> {
-				UserInfoMessage userInfoMessage = new UserInfoMessage(user);
-				NotificationMessage notificationMessage = amqNotifier.saveMessage(userInfoMessage,
-						baseNotificationMessage, createMessage(baseMessage), null, spaceInfoMessage.getName(),
-						getCantegoryNameByLang(user.getLangKey(), spaceInfoMessage.getCategoryName(),
-								spaceInfoMessage.getCategoryNameAR()));
-				if (user.getNotification() && !user.isDeleted()) {
-					amqNotifier.send(notificationMessage);
-					if (user.getMailNotification()) {
-						mailService.sendNotificationMail(notificationMessage, userInfoMessage, true, false);
+			followers.forEach(new Consumer<User>() {
+				@Override
+				public void accept(User user) {
+					var userInfoMessage = new UserInfoMessage(user);
+					var notificationMessage = amqNotifier.saveMessage(userInfoMessage,
+							baseNotificationMessage, createMessage(baseMessage), null, spaceInfoMessage.getName(),
+							getCantegoryNameByLang(user.getLangKey(), spaceInfoMessage.getCategoryName(),
+									spaceInfoMessage.getCategoryNameAR()));
+					if (user.getNotification() && !user.isDeleted()) {
+						amqNotifier.send(notificationMessage);
+						if (user.getMailNotification()) {
+							mailService.sendNotificationMail(notificationMessage, userInfoMessage, true, false);
+						}
 					}
 				}
 			});
@@ -164,28 +167,31 @@ public class SpaceNotificationHandler extends AbstractHandler {
 
 	@Override
 	protected void onUpdate(BaseMessage baseMessage) {
-		SpaceInfoMessage spaceInfoMessage = mapJsonObject(baseMessage, SpaceInfoMessage.class);
+		var spaceInfoMessage = mapJsonObject(baseMessage, SpaceInfoMessage.class);
 
-		List<Joined> community = utilities.getCommunityUserList(spaceInfoMessage.getId(),
+		var community = utilities.getCommunityUserList(spaceInfoMessage.getId(),
 				spaceInfoMessage.getFrom().getId());
 
 		if (null != community && !community.isEmpty()) {
-			community.stream().forEach(joined -> {
-				UserInfoMessage userInfoMessage = new UserInfoMessage(joined.getUser());
-				NotificationMessage notificationMessage = amqNotifier.saveMessage(userInfoMessage,
-						new BaseNotificationMessage(ZonedDateTime.now(), USER, spaceInfoMessage.getFrom(),
-								new Target(SPACE, spaceInfoMessage.getId().toString(), UPDATE,
-										spaceInfoMessage.getImage())),
-						createMessage(baseMessage), null, spaceInfoMessage.getName(),
-						getCantegoryNameByLang(joined.getUser().getLangKey(), spaceInfoMessage.getCategoryName(),
-								spaceInfoMessage.getCategoryNameAR()));
+			community.stream().forEach(new Consumer<Joined>() {
+				@Override
+				public void accept(Joined joined) {
+					var userInfoMessage = new UserInfoMessage(joined.getUser());
+					var notificationMessage = amqNotifier.saveMessage(userInfoMessage,
+							new BaseNotificationMessage(ZonedDateTime.now(), USER, spaceInfoMessage.getFrom(),
+									new Target(SPACE, spaceInfoMessage.getId().toString(), UPDATE,
+											spaceInfoMessage.getImage())),
+							createMessage(baseMessage), null, spaceInfoMessage.getName(),
+							getCantegoryNameByLang(joined.getUser().getLangKey(), spaceInfoMessage.getCategoryName(),
+									spaceInfoMessage.getCategoryNameAR()));
 
-				if (joined.getNotification() && joined.getUser().getNotification() && !joined.getUser().isDeleted()) {
-					amqNotifier.send(notificationMessage);
-					if (enableEditSpaceEmail && joined.getUser().getMailNotification()) {
-						logger.debug("has notification flag" + joined.getUser().getMailNotification().toString());
+					if (joined.getNotification() && joined.getUser().getNotification() && !joined.getUser().isDeleted()) {
+						amqNotifier.send(notificationMessage);
+						if (enableEditSpaceEmail && joined.getUser().getMailNotification()) {
+							logger.debug("has notification flag" + joined.getUser().getMailNotification().toString());
+						}
+						mailService.sendNotificationMail(notificationMessage, userInfoMessage, true, true);
 					}
-					mailService.sendNotificationMail(notificationMessage, userInfoMessage, true, true);
 				}
 			});
 		}
@@ -193,23 +199,26 @@ public class SpaceNotificationHandler extends AbstractHandler {
 
 	@Override
 	protected void onDelete(BaseMessage baseMessage) {
-		SpaceShareInfoMessage spaceInfoMessage = mapJsonObject(baseMessage, SpaceShareInfoMessage.class);
+		var spaceInfoMessage = mapJsonObject(baseMessage, SpaceShareInfoMessage.class);
 		if (spaceInfoMessage.getUserIds() != null && !spaceInfoMessage.getUserIds().isEmpty()) {
-			Iterable<User> community = userRepository.findAllById(spaceInfoMessage.getUserIds());
-			BaseNotificationMessage baseNotificationMessage = new BaseNotificationMessage(ZonedDateTime.now(), USER,
+			var community = userRepository.findAllById(spaceInfoMessage.getUserIds());
+			var baseNotificationMessage = new BaseNotificationMessage(ZonedDateTime.now(), USER,
 					spaceInfoMessage.getFrom(), new Target(SPACE, spaceInfoMessage.getId().toString(), DELETE));
 
 			if (null != community) {
-				community.forEach(user -> {
-					UserInfoMessage userInfoMessage = new UserInfoMessage(user);
-					NotificationMessage notificationMessage1 = amqNotifier.saveMessage(userInfoMessage,
-							baseNotificationMessage, createMessage(baseMessage), null, spaceInfoMessage.getName(),
-							getCantegoryNameByLang(user.getLangKey(), spaceInfoMessage.getCategoryName(),
-									spaceInfoMessage.getCategoryNameAR()));
-					if (user.getNotification() && !user.isDeleted()) {
-						amqNotifier.send(notificationMessage1);
-						if (user.getMailNotification()) {
-							mailService.sendNotificationMail(notificationMessage1, userInfoMessage, true, false);
+				community.forEach(new Consumer<User>() {
+					@Override
+					public void accept(User user) {
+						var userInfoMessage = new UserInfoMessage(user);
+						var notificationMessage1 = amqNotifier.saveMessage(userInfoMessage,
+								baseNotificationMessage, createMessage(baseMessage), null, spaceInfoMessage.getName(),
+								getCantegoryNameByLang(user.getLangKey(), spaceInfoMessage.getCategoryName(),
+										spaceInfoMessage.getCategoryNameAR()));
+						if (user.getNotification() && !user.isDeleted()) {
+							amqNotifier.send(notificationMessage1);
+							if (user.getMailNotification()) {
+								mailService.sendNotificationMail(notificationMessage1, userInfoMessage, true, false);
+							}
 						}
 					}
 				});
@@ -218,28 +227,36 @@ public class SpaceNotificationHandler extends AbstractHandler {
 	}
 
 	private void onRate(BaseMessage baseMessage) {
-		SpaceInfoMessage spaceInfoMessage = mapJsonObject(baseMessage, SpaceInfoMessage.class);
+		var spaceInfoMessage = mapJsonObject(baseMessage, SpaceInfoMessage.class);
 		logger.debug(spaceInfoMessage.toString());
-		List<Joined> community = utilities.getCommunityUserList(spaceInfoMessage.getId(),
+		var community = utilities.getCommunityUserList(spaceInfoMessage.getId(),
 				spaceInfoMessage.getFrom().getId());
 		logger.debug(community.toString());
-		BaseNotificationMessage baseNotificationMessage = new BaseNotificationMessage(ZonedDateTime.now(), USER,
+		var baseNotificationMessage = new BaseNotificationMessage(ZonedDateTime.now(), USER,
 				spaceInfoMessage.getFrom(),
 				new Target(SPACE, spaceInfoMessage.getId().toString(), UPDATE, spaceInfoMessage.getImage()));
 
 		if (null != community && !community.isEmpty()) {
-			community.stream().filter(joined -> joined.getSpaceRole() == SpaceRole.OWNER).forEach(joined -> {
-				UserInfoMessage userInfoMessage = new UserInfoMessage(joined.getUser());
-				NotificationMessage notificationMessage = amqNotifier.saveMessage(userInfoMessage,
-						baseNotificationMessage, createMessage(baseMessage), null, spaceInfoMessage.getName(),
-						getCantegoryNameByLang(joined.getUser().getLangKey(), spaceInfoMessage.getCategoryName(),
-								spaceInfoMessage.getCategoryNameAR()));
-				logger.debug(joined.toString());
-				if (joined.getNotification() && joined.getUser().getNotification() && !joined.getUser().isDeleted()) {
-					amqNotifier.send(notificationMessage);
-					logger.debug("has notification flag" + joined.getUser().getMailNotification().toString());
-					if (enableRateSpaceEmail && joined.getUser().getMailNotification()) {
-						mailService.sendNotificationMail(notificationMessage, userInfoMessage, true, true);
+			community.stream().filter(new Predicate<Joined>() {
+				@Override
+				public boolean test(Joined joined) {
+					return joined.getSpaceRole() == SpaceRole.OWNER;
+				}
+			}).forEach(new Consumer<Joined>() {
+				@Override
+				public void accept(Joined joined) {
+					var userInfoMessage = new UserInfoMessage(joined.getUser());
+					var notificationMessage = amqNotifier.saveMessage(userInfoMessage,
+							baseNotificationMessage, createMessage(baseMessage), null, spaceInfoMessage.getName(),
+							getCantegoryNameByLang(joined.getUser().getLangKey(), spaceInfoMessage.getCategoryName(),
+									spaceInfoMessage.getCategoryNameAR()));
+					logger.debug(joined.toString());
+					if (joined.getNotification() && joined.getUser().getNotification() && !joined.getUser().isDeleted()) {
+						amqNotifier.send(notificationMessage);
+						logger.debug("has notification flag" + joined.getUser().getMailNotification().toString());
+						if (enableRateSpaceEmail && joined.getUser().getMailNotification()) {
+							mailService.sendNotificationMail(notificationMessage, userInfoMessage, true, true);
+						}
 					}
 				}
 			});
@@ -247,27 +264,30 @@ public class SpaceNotificationHandler extends AbstractHandler {
 	}
 
 	private void onShare(BaseMessage baseMessage) {
-		SpaceShareInfoMessage spaceShareInfoMessage = mapJsonObject(baseMessage, SpaceShareInfoMessage.class);
+		var spaceShareInfoMessage = mapJsonObject(baseMessage, SpaceShareInfoMessage.class);
 
-		BaseNotificationMessage baseNotificationMessage = new BaseNotificationMessage(ZonedDateTime.now(), USER,
+		var baseNotificationMessage = new BaseNotificationMessage(ZonedDateTime.now(), USER,
 				spaceShareInfoMessage.getFrom(), new Target(SPACE, spaceShareInfoMessage.getId().toString(), SHARED));
-		userRepository.findByIdInAndDeletedFalse(spaceShareInfoMessage.getUserIds()).forEach(user -> {
-			UserInfoMessage infoMessage = new UserInfoMessage(user);
-			NotificationMessage notificationMessage1 = amqNotifier.saveMessage(infoMessage, baseNotificationMessage,
-					createMessage(baseMessage), null, spaceShareInfoMessage.getName(),
-					getCantegoryNameByLang(user.getLangKey(), spaceShareInfoMessage.getCategoryName(),
-							spaceShareInfoMessage.getCategoryNameAR()));
-			if (user.getNotification()) {
-				amqNotifier.send(notificationMessage1);
-				if (user.getMailNotification()) {
-					mailService.sendNotificationMail(notificationMessage1, infoMessage, true, false);
+		userRepository.findByIdInAndDeletedFalse(spaceShareInfoMessage.getUserIds()).forEach(new Consumer<User>() {
+			@Override
+			public void accept(User user) {
+				var infoMessage = new UserInfoMessage(user);
+				var notificationMessage1 = amqNotifier.saveMessage(infoMessage, baseNotificationMessage,
+						createMessage(baseMessage), null, spaceShareInfoMessage.getName(),
+						getCantegoryNameByLang(user.getLangKey(), spaceShareInfoMessage.getCategoryName(),
+								spaceShareInfoMessage.getCategoryNameAR()));
+				if (user.getNotification()) {
+					amqNotifier.send(notificationMessage1);
+					if (user.getMailNotification()) {
+						mailService.sendNotificationMail(notificationMessage1, infoMessage, true, false);
+					}
 				}
 			}
 		});
 	}
 
 	private String getCantegoryNameByLang(String lang, String categoryname, String categorynameAR) {
-		if (lang.equals("ar") && categorynameAR != null && !categorynameAR.equals("")) {
+		if ("ar".equals(lang) && categorynameAR != null && !"".equals(categorynameAR)) {
 			return categorynameAR;
 		} else {
 			return categoryname;

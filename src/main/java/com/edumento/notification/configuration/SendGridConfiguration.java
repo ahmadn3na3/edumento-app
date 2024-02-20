@@ -9,11 +9,11 @@ import com.sendgrid.SendGrid;
 @Configuration
 public class SendGridConfiguration {
 
-  @Value("${mint.sendGrid.apikey:000000000}")
-  private String sendGridApiKey;
+	@Value("${mint.sendGrid.apikey:000000000}")
+	private String sendGridApiKey;
 
-  @Bean
-  public SendGrid createSendGridCreate() {
-    return new SendGrid(sendGridApiKey);
-  }
+	@Bean
+	public SendGrid createSendGridCreate() {
+		return new SendGrid(sendGridApiKey);
+	}
 }

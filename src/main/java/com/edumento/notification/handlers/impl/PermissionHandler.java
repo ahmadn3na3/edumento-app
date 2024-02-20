@@ -12,12 +12,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Component
 public class PermissionHandler extends AbstractHandler {
 
-  public PermissionHandler(
-      UserRepository userRepository,
-      AmqNotifier amqNotifier,
-      MailService mailService,
-      ObjectMapper objectMapper) {
-    super(userRepository, amqNotifier, mailService, objectMapper);
-    // TODO Auto-generated constructor stub
-  }
+	public PermissionHandler(UserRepository userRepository, AmqNotifier amqNotifier, MailService mailService,
+			ObjectMapper objectMapper) {
+		super(userRepository, amqNotifier, mailService, objectMapper);
+		// TODO Auto-generated constructor stub
+	}
 }

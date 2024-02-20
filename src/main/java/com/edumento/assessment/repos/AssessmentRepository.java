@@ -58,11 +58,12 @@ public interface AssessmentRepository extends JpaRepository<Assessment, Long>, J
 	List<Object[]> assessmentStaticsByOwnerIdTypeAndCreationDateBetween(Date from, Date to, Long ownerId);
 
 	/** Created by A.Alsayed on 05/01/19. */
-	@Query("select a from Assessment a join a.challengees u where a.assessmentType=?1 and a.space.id=?2 "
-			+ "and (a.owner.id=?3 or u.id = ?3) "
-			+ "and (a.assessmentStatus=?4 or (a.assessmentStatus!=?4 and a.dueDate > ?5)) "
-			+ "and a.deleted=false "
-			+ "order by a.creationDate desc")
+	@Query("""
+			select a from Assessment a join a.challengees u where a.assessmentType=?1 and a.space.id=?2\s\
+			and (a.owner.id=?3 or u.id = ?3)\s\
+			and (a.assessmentStatus=?4 or (a.assessmentStatus!=?4 and a.dueDate > ?5))\s\
+			and a.deleted=false\s\
+			order by a.creationDate desc""")
 	Page<Assessment> getUserChallenges(AssessmentType type, Long spaceId, Long userId, AssessmentStatus status,
 			Date currentDate, Pageable page);
 
@@ -78,9 +79,10 @@ public interface AssessmentRepository extends JpaRepository<Assessment, Long>, J
 	Optional<Assessment> findOneByIdAndDeletedFalseAndAssessmentType(Long id, AssessmentType type);
 
 	/** Created by A.Alsayed on 19/02/19. */
-	@Query("select a from Assessment a join a.challengees u where u.id = ?1 "
-			+ "and a.id =?2 "
-			+ "and a.assessmentType = 4 "
-			+ "and a.deleted=false")
+	@Query("""
+			select a from Assessment a join a.challengees u where u.id = ?1\s\
+			and a.id =?2\s\
+			and a.assessmentType = 4\s\
+			and a.deleted=false""")
 	List<Assessment> findAssessmentByChallengee(Long userId, Long assessmentId);
 }

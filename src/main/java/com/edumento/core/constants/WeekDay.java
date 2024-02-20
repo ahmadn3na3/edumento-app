@@ -3,41 +3,29 @@ package com.edumento.core.constants;
 import java.util.Calendar;
 
 public enum WeekDay {
-  SUN(Calendar.SUNDAY),
-  MON(Calendar.MONDAY),
-  TUE(Calendar.TUESDAY),
-  WEN(Calendar.WEDNESDAY),
-  THU(Calendar.THURSDAY),
-  FRI(Calendar.FRIDAY),
-  SAT(Calendar.SATURDAY);
-  private final int day;
+	SUN(Calendar.SUNDAY), MON(Calendar.MONDAY), TUE(Calendar.TUESDAY), WEN(Calendar.WEDNESDAY), THU(Calendar.THURSDAY),
+	FRI(Calendar.FRIDAY), SAT(Calendar.SATURDAY);
 
-  WeekDay(int day) {
-    this.day = day;
-  }
+	private final int day;
 
-  public static WeekDay valueOf(int day) {
-    switch (day) {
-      case Calendar.SUNDAY:
-        return SUN;
-      case Calendar.MONDAY:
-        return MON;
-      case Calendar.TUESDAY:
-        return TUE;
-      case Calendar.WEDNESDAY:
-        return WEN;
-      case Calendar.THURSDAY:
-        return THU;
-      case Calendar.FRIDAY:
-        return FRI;
-      case Calendar.SATURDAY:
-        return SAT;
-      default:
-        return null;
-    }
-  }
+	WeekDay(int day) {
+		this.day = day;
+	}
 
-  public int getDay() {
-    return day;
-  }
+	public static WeekDay valueOf(int day) {
+		return switch (day) {
+		case Calendar.SUNDAY -> SUN;
+		case Calendar.MONDAY -> MON;
+		case Calendar.TUESDAY -> TUE;
+		case Calendar.WEDNESDAY -> WEN;
+		case Calendar.THURSDAY -> THU;
+		case Calendar.FRIDAY -> FRI;
+		case Calendar.SATURDAY -> SAT;
+		default -> null;
+		};
+	}
+
+	public int getDay() {
+		return day;
+	}
 }

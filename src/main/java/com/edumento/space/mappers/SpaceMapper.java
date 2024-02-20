@@ -11,9 +11,9 @@ import com.edumento.user.domain.User;
 
 @Mapper
 public interface SpaceMapper {
-    SpaceMapper INSTANCE = Mappers.getMapper(SpaceMapper.class);
+	SpaceMapper INSTANCE = Mappers.getMapper(SpaceMapper.class);
 
-    SpaceUserModel userToSpaceUserModel(User user);
+	SpaceUserModel userToSpaceUserModel(User user);
 
-    void mapSpaceDomainToListingModel(Space space, @MappingTarget SpaceListingModel spaceListingModel);
+	void mapSpaceDomainToListingModel(Space space, @MappingTarget SpaceListingModel spaceListingModel);
 }

@@ -6,15 +6,15 @@ import jakarta.validation.constraints.NotNull;
 /** Created by ayman on 25/08/16. */
 public class CommentCreateModel {
 
-  @NotNull(message = "error.comment.body")
-  @NotEmpty(message = "error.comment.body")
-  private String commentBody;
+	@NotNull(message = "error.comment.body")
+	@NotEmpty(message = "error.comment.body")
+	private String commentBody;
 
-  public String getCommentBody() {
-    return commentBody;
-  }
+	public String getCommentBody() {
+		return commentBody;
+	}
 
-  public void setCommentBody(String commentBody) {
-    this.commentBody = commentBody;
-  }
+	public void setCommentBody(String commentBody) {
+		this.commentBody = commentBody;
+	}
 }
