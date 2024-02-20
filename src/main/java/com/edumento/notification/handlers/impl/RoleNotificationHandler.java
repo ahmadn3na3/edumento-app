@@ -33,7 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Component
 public class RoleNotificationHandler extends AbstractHandler {
 
-  private static Logger logger = LoggerFactory.getLogger(RoleNotificationHandler.class);
+  private static final Logger logger = LoggerFactory.getLogger(RoleNotificationHandler.class);
   private final RoleRepository roleRepository;
 
   public RoleNotificationHandler(
@@ -62,7 +62,7 @@ public class RoleNotificationHandler extends AbstractHandler {
   private void onUnAssign(BaseMessage notificationMessage) {
     try {
       Long[] userList = objectMapper.readValue(notificationMessage.getDataModel(), Long[].class);
-      Long roleId = new Long((Integer) notificationMessage.getEntityId());
+      Long roleId = Long.valueOf((Integer) notificationMessage.getEntityId());
       userRepository
           .findOneByUserNameAndDeletedFalse(notificationMessage.getUserName())
           .ifPresent(
@@ -88,7 +88,7 @@ public class RoleNotificationHandler extends AbstractHandler {
   private void onAssign(BaseMessage notificationMessage) {
     try {
       Long[] userList = objectMapper.readValue(notificationMessage.getDataModel(), Long[].class);
-      Long roleId = new Long((Integer) notificationMessage.getEntityId());
+      Long roleId = Long.valueOf((Integer) notificationMessage.getEntityId());
       if (userList != null) {
         userRepository
             .findOneByUserNameAndDeletedFalse(notificationMessage.getUserName())
@@ -155,7 +155,7 @@ public class RoleNotificationHandler extends AbstractHandler {
 
   @Override
   protected void onUpdate(BaseMessage notificationMessage) {
-    Long roleId = new Long((Integer) notificationMessage.getEntityId());
+    Long roleId = Long.valueOf((Integer) notificationMessage.getEntityId());
     userRepository
         .findOneByUserNameAndDeletedFalse(notificationMessage.getUserName())
         .ifPresent(

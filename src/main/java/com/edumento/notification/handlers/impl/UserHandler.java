@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /** Created by ayman on 04/07/17. */
 @Component
 public class UserHandler extends AbstractHandler {
-	private static Logger logger = LoggerFactory.getLogger(UserHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(UserHandler.class);
 
 	@Autowired
 	public UserHandler(UserRepository userRepository, AmqNotifier amqNotifier, MailService mailService,

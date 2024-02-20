@@ -95,7 +95,7 @@ public class FileUtil {
 		String fileName = null, ext = null;
 		if (!file.isEmpty()) {
 			fileName = file.getOriginalFilename();
-			ext = fileName.lastIndexOf(".") > -1 ? fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length())
+			ext = fileName.lastIndexOf(".") > -1 ? fileName.substring(fileName.lastIndexOf(".") + 1)
 					: "";
 			File fileOnDisk = null;
 			switch (type) {
@@ -127,7 +127,7 @@ public class FileUtil {
 			UserResources userResources = new UserResources();
 			String diskFileName = fileOnDisk.getAbsolutePath();
 			if (diskFileName.indexOf(":") == 1) {
-				diskFileName = diskFileName.substring(2, diskFileName.length()).replace("\\", "/");
+				diskFileName = diskFileName.substring(2).replace("\\", "/");
 			}
 			log.debug("disk file name {}", diskFileName);
 			userResources.setDiskFileName(diskFileName);
@@ -162,7 +162,7 @@ public class FileUtil {
 			chunks.add(curChunk);
 		}
 
-		if ((maxChunkCount * chunkSize) < contentSize) {
+		if (((long) maxChunkCount * chunkSize) < contentSize) {
 			Chunk lastChunk = new Chunk(maxChunkCount);
 			lastChunk.setChunkStart(Integer.valueOf(maxChunkCount * chunkSize).longValue());
 			lastChunk.setChunkEnd(contentSize);
@@ -241,7 +241,7 @@ public class FileUtil {
 			ZipEntry ze = zis.getNextEntry();
 			while (ze != null) {
 				String fileName = ze.getName();
-				File newFile = new File(extractedFolder.toString() + File.separator + fileName);
+				File newFile = new File(extractedFolder + File.separator + fileName);
 				System.out.println("Unzipping to " + newFile.getAbsolutePath());
 				// create directories for sub directories in zip
 				new File(newFile.getParent()).mkdirs();

@@ -1,6 +1,7 @@
 package com.edumento.core.model.messages;
 
 import java.time.ZonedDateTime;
+import java.util.Objects;
 
 /** Created by ahmad on 2/8/17. */
 public class BaseNotificationMessage {
@@ -70,7 +71,7 @@ public class BaseNotificationMessage {
 
     BaseNotificationMessage that = (BaseNotificationMessage) o;
 
-    if ((notificationCategory != that.notificationCategory) || (date != null ? !date.equals(that.date) : that.date != null) || !from.equals(that.from)) {
+    if ((notificationCategory != that.notificationCategory) || (!Objects.equals(date, that.date)) || !from.equals(that.from)) {
 		return false;
 	}
     return target.equals(that.target);

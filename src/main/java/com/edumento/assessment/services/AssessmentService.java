@@ -1539,7 +1539,7 @@ public class AssessmentService {
               assessmentRepository.findById(id).ifPresent(assessment -> {
                 assessment.setAssessmentStatus(AssessmentStatus.NEW);
                 assessment.setStartDateTime(null);
-                assessment.setLimitDuration(0l);
+                assessment.setLimitDuration(0L);
                 assessmentRepository.save(assessment);
               });
             });

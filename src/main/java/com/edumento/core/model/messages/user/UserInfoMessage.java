@@ -140,13 +140,8 @@ public class UserInfoMessage extends SimpleModel implements Serializable {
 		return false;
 	}
     if (login == null) {
-      if (other.login != null) {
-		return false;
-	}
-    } else if (!login.equals(other.login)) {
-		return false;
-	}
-    return true;
+        return other.login == null;
+    } else return login.equals(other.login);
   }
 
 public Boolean getNotification() {

@@ -27,7 +27,7 @@ public class AmqNotifier {
 	private static final Logger logger = LoggerFactory.getLogger(AmqNotifier.class);
 	//private JmsTemplate jmsTemplate;
 	private NotificationRepository notificationRepository;
-	private MessageSource messageSource;
+	private final MessageSource messageSource;
 
 	@Value("${mint.pushnotification.enable:false}")
 	private boolean enablePushNotification;

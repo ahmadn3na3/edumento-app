@@ -2,6 +2,7 @@ package com.edumento.assessment.model;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Objects;
 
 import com.edumento.assessment.domain.Assessment;
 import com.edumento.assessment.domain.UserAssessment;
@@ -300,7 +301,7 @@ public class AssessmentListModel extends AssessmentCreateModel {
 
     AssessmentListModel that = (AssessmentListModel) o;
 
-    return id != null ? id.equals(that.id) : that.id == null;
+    return Objects.equals(id, that.id);
   }
 
   @Override

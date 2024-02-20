@@ -10,7 +10,7 @@ public enum WeekDay {
   THU(Calendar.THURSDAY),
   FRI(Calendar.FRIDAY),
   SAT(Calendar.SATURDAY);
-  private int day;
+  private final int day;
 
   WeekDay(int day) {
     this.day = day;

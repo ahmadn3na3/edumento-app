@@ -11,9 +11,9 @@ import java.util.function.Predicate;
 /** Created by IntelliJ IDEA. User: bbejeck Date: 1/29/12 Time: 10:11 PM */
 public class CopyPredicateVisitor extends SimpleFileVisitor<Path> {
 
-  private Path fromPath;
-  private Path toPath;
-  private Predicate<Path> copyPredicate;
+  private final Path fromPath;
+  private final Path toPath;
+  private final Predicate<Path> copyPredicate;
 
   public CopyPredicateVisitor(Path fromPath, Path toPath, Predicate<Path> copyPredicate) {
     this.fromPath = fromPath;

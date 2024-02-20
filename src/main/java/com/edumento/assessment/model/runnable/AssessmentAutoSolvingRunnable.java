@@ -1,13 +1,5 @@
 package com.edumento.assessment.model.runnable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.edumento.assessment.domain.QuestionAnswer;
 import com.edumento.assessment.domain.UserAssessment;
 import com.edumento.assessment.model.QuestionAnswerModel;
@@ -15,6 +7,12 @@ import com.edumento.assessment.model.UserAssessmentModel;
 import com.edumento.assessment.repos.UserAssessmentRepository;
 import com.edumento.assessment.services.AssessmentService;
 import com.edumento.core.constants.AssessmentStatus;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AssessmentAutoSolvingRunnable implements Runnable {
 
@@ -40,12 +38,12 @@ public class AssessmentAutoSolvingRunnable implements Runnable {
 	@Override
 	//FIXME: Do not use string concat in logger
 	//FIXME: Use DEBUG/TRACE Level in detail
-
+	
 	public void run() {
 		log.info("AssessmentAutoSolvingRunnable ::: Running Thread......");
-		log.info("AssessmentAutoSolvingRunnable ::: userId = " + userId);
-		log.info("AssessmentAutoSolvingRunnable ::: assessmentId = " + assessmentId);
-		log.info("AssessmentAutoSolvingRunnable ::: limitDuration = " + limitDuration);
+		log.debug("AssessmentAutoSolvingRunnable ::: userId = {}" , userId);
+		log.debug("AssessmentAutoSolvingRunnable ::: assessmentId= {}" , assessmentId);
+		log.debug("AssessmentAutoSolvingRunnable ::: limitDuration = {}", limitDuration);
 		Optional<UserAssessment> userAssessment = userAssessmentRepository
 				.findOneByUserIdAndAssessmentIdAndDeletedFalse(userId, assessmentId);
 		if (userAssessment.isPresent()) {
@@ -83,7 +81,7 @@ public class AssessmentAutoSolvingRunnable implements Runnable {
 	//TODO: Use lamba experision
 	private List<QuestionAnswerModel> questionListMapping(List<QuestionAnswer> questionAnswerList) {
 		if (questionAnswerList != null && questionAnswerList.size() > 0) {
-			List<QuestionAnswerModel> questionAnswerModels = new ArrayList<>();
+			List<QuestionAnswerModel> questionAnswerModels = new ArrayList<QuestionAnswerModel>();
 			for (QuestionAnswer questionAnswer : questionAnswerList) {
 				QuestionAnswerModel questionAnswerModel = new QuestionAnswerModel();
 

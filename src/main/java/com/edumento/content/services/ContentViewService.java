@@ -96,12 +96,12 @@ public class ContentViewService {
 
 		Path uploadPath = fileUtil.createFilePathFromTask(task);
 		log.debug("upload {} is exist {}", uploadPath.toString(), Files.exists(uploadPath));
-		log.debug("upload {} is regular {}", uploadPath.toString(), Files.isRegularFile(uploadPath));
+		log.debug("upload {} is regular {}", uploadPath, Files.isRegularFile(uploadPath));
 		if (!Files.exists(uploadPath) || !Files.isRegularFile(uploadPath)) {
 			task.setExt(task.getExt().toUpperCase());
 			uploadPath = fileUtil.createFilePathFromTask(task);
 			log.debug("upload {} is exist {}", uploadPath.toString(), !Files.exists(uploadPath));
-			log.debug("upload {} is regular {}", uploadPath.toString(), !Files.isRegularFile(uploadPath));
+			log.debug("upload {} is regular {}", uploadPath, !Files.isRegularFile(uploadPath));
 			if (!Files.exists(uploadPath) || !Files.isRegularFile(uploadPath)) {
 				throw new FileNotFoundException();
 			}
@@ -228,7 +228,7 @@ public class ContentViewService {
 					Path orginalFolder = Paths.get(uploadPath.getParent().toString(), "original");
 					Path orginalPath = Paths.get(orginalFolder.toString(),
 							String.format("%s.%s", task.getFileName(), task.getExt()));
-					log.info(orginalPath.toString() + viewPath.toString());
+					log.info(orginalPath.toString() + viewPath);
 					if (Files.exists(orginalPath)) {
 						fileUtil.createShortcutFile(orginalPath.toString(),
 								Paths.get(fileUtil.createViewParentPathFromTask(task).toString(),

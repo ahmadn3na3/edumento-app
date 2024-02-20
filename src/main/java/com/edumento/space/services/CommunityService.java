@@ -77,8 +77,7 @@ public class CommunityService {
 		log.debug("get community for space {}", spaceId);
 
 		SpaceCommunityModel communityModel = new SpaceCommunityModel();
-		joinedRepository.getSpaceCommunity(spaceId).filter(joined -> (addCurrent ? true
-				: !joined.getUser().getId().equals(SecurityUtils.getCurrentUser().getId()))).forEach(joined -> {
+		joinedRepository.getSpaceCommunity(spaceId).filter(joined -> (addCurrent || !joined.getUser().getId().equals(SecurityUtils.getCurrentUser().getId()))).forEach(joined -> {
 					SpaceUserModel spaceUserModel = SpaceMapper.INSTANCE.userToSpaceUserModel(joined.getUser());
 
 					spaceUserModel.setFollow(userRelationRepository.countByUserUserNameAndFollowIdAndDeletedFalse(

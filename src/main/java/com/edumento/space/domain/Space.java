@@ -2,6 +2,7 @@ package com.edumento.space.domain;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -282,7 +283,7 @@ public class Space extends AbstractEntity {
 
     Space space = (Space) o;
 
-    if ((id != null ? !id.equals(space.id) : space.id != null) || !name.equals(space.name) || !category.equals(space.category)) {
+    if ((!Objects.equals(id, space.id)) || !name.equals(space.name) || !category.equals(space.category)) {
       return false;
     }
     return user.equals(space.user);
