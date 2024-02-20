@@ -1,6 +1,7 @@
 package com.edumento.category.domain;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import org.hibernate.annotations.DynamicInsert;
@@ -152,14 +153,10 @@ public class Category extends AbstractEntity {
 
     Category category = (Category) o;
 
-    if ((id != null ? !id.equals(category.id) : category.id != null) || !name.equals(category.name) || (organization != null
-        ? !organization.equals(category.organization)
-        : category.organization != null)) {
+    if ((!Objects.equals(id, category.id)) || !name.equals(category.name) || (!Objects.equals(organization, category.organization))) {
       return false;
     }
-    return foundation != null
-        ? foundation.equals(category.foundation)
-        : category.foundation == null;
+    return Objects.equals(foundation, category.foundation);
   }
 
   @Override

@@ -40,9 +40,6 @@ public class SimpleModel extends IdModel {
 		return true;
 	} else if (!super.equals(obj)) {
 		return false;
-	} else if (getClass() != obj.getClass()) {
-		return false;
-	}
-    return true;
+	} else return getClass() == obj.getClass();
   }
 }

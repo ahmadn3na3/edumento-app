@@ -1,5 +1,7 @@
 package com.edumento.core.model.messages;
 
+import java.util.Objects;
+
 /** Created by ayman on 22/01/17. */
 public class Target {
 
@@ -70,7 +72,7 @@ public class Target {
     if ((type != target.type) || (action != target.action)) {
 		return false;
 	}
-    return id != null ? id.equals(target.id) : target.id == null;
+    return Objects.equals(id, target.id);
   }
 
   @Override

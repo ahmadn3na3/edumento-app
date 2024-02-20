@@ -38,7 +38,7 @@ public class TimeLockNotificationHandler extends AbstractHandler {
         .findOneByUserNameAndDeletedFalse(notificationMessage.getUserName())
         .ifPresent(
             user -> {
-              Long timelockId = new Long((Integer) notificationMessage.getEntityId());
+              Long timelockId = Long.valueOf((Integer) notificationMessage.getEntityId());
               userRepository
                   .findByTimeLockIdAndDeletedFalse(timelockId)
                   .forEach(

@@ -23,7 +23,6 @@ public class AssessmentAutoSolvingRunnable implements Runnable {
 	private final UserAssessmentRepository userAssessmentRepository;
 
 	private final AssessmentService assessmentService;
-	//FIXME: set as finals
 	private final long assessmentId;
 	private final long userId;
 	private final long limitDuration;
@@ -38,14 +37,11 @@ public class AssessmentAutoSolvingRunnable implements Runnable {
 	}
 
 	@Override
-	//FIXME: Do not use string concat in logger
-	//FIXME: Use DEBUG/TRACE Level in detail
-
 	public void run() {
 		log.info("AssessmentAutoSolvingRunnable ::: Running Thread......");
-		log.info("AssessmentAutoSolvingRunnable ::: userId = " + userId);
-		log.info("AssessmentAutoSolvingRunnable ::: assessmentId = " + assessmentId);
-		log.info("AssessmentAutoSolvingRunnable ::: limitDuration = " + limitDuration);
+		log.debug("AssessmentAutoSolvingRunnable ::: userId = {}" , userId);
+		log.debug("AssessmentAutoSolvingRunnable ::: assessmentId= {}" , assessmentId);
+		log.debug("AssessmentAutoSolvingRunnable ::: limitDuration = {}", limitDuration);
 		Optional<UserAssessment> userAssessment = userAssessmentRepository
 				.findOneByUserIdAndAssessmentIdAndDeletedFalse(userId, assessmentId);
 		if (userAssessment.isPresent()) {
