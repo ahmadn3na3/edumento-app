@@ -7,12 +7,11 @@
   <mat-card-content>
     <div class="permissions">
       <h3>Permissions:</h3>
-      <mat-list>
-        <mat-list-item *ngFor="let permission of module.permissions">
-          <div mat-line><strong>{{ permission.name }}</strong></div>
-          <div mat-line>Type: {{ permission.type }}</div>
-        </mat-list-item>
-      </mat-list>
+      <mat-chip-set>
+        <mat-chip *ngFor="let permission of module.permissions" >
+          {{ permission.name }}
+        </mat-chip>
+      </mat-chip-set>	
     </div>
   </mat-card-content>
 </mat-card>

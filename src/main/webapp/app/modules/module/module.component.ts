@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list';
+import { MatChipsModule } from '@angular/material/chips';
 import { Module } from '../module';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, ActivatedRouteSnapshot, RouterModule } from '@angular/router';
@@ -11,7 +11,7 @@ import { ModuleService } from '../module.service';
 @Component({
 	selector: 'app-module',
 	standalone: true,
-	imports: [MatCardModule, MatIconModule, MatButtonModule, MatListModule, CommonModule, RouterModule],
+	imports: [MatCardModule, MatIconModule, MatButtonModule, MatChipsModule, CommonModule, RouterModule],
 	templateUrl: './module.component.html',
 	styleUrl: './module.component.css'
 })
