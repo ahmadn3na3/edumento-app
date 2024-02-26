@@ -1,0 +1,18 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ module.name }}</mat-card-title>
+    <mat-card-subtitle>{{ module.description }}</mat-card-subtitle>
+  </mat-card-header>
+  
+  <mat-card-content>
+    <div class="permissions">
+      <h3>Permissions:</h3>
+      <mat-list>
+        <mat-list-item *ngFor="let permission of module.permissions">
+          <div mat-line><strong>{{ permission.name }}</strong></div>
+          <div mat-line>Type: {{ permission.type }}</div>
+        </mat-list-item>
+      </mat-list>
+    </div>
+  </mat-card-content>
+</mat-card>

@@ -1,0 +1,29 @@
+
+<div class="table-container">
+
+	<table mat-table [dataSource]="dataSource" class="example-table"
+		matSort>
+		<!-- Number Column -->
+		<ng-container matColumnDef="id">
+		<th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>
+		<td mat-cell *matCellDef="let row">{{row.id}}</td>
+		</ng-container>
+
+		<!-- Title Column -->
+		<ng-container matColumnDef="name">
+		<th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+		<td mat-cell *matCellDef="let row"><a [routerLink]="'/modules/'+row.id" >{{row.name}}</a></td>
+		</ng-container>
+
+		<!-- State Column -->
+		<ng-container matColumnDef="description">
+		<th mat-header-cell *matHeaderCellDef mat-sort-header>Description</th>
+		<td mat-cell *matCellDef="let row">{{row.description}}</td>
+		</ng-container>
+
+		<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+		<tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+	</table>
+	<mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"
+		aria-label="Select page of users"></mat-paginator>
+</div>
