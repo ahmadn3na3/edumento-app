@@ -1,12 +1,12 @@
 package com.edumento.user.model.user;
 
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.edumento.core.constants.Gender;
 import com.edumento.core.constants.SpaceRole;
+import com.edumento.core.util.DateConverter;
 import com.edumento.user.domain.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -32,7 +32,7 @@ public class UserInfoModel {
 	private String activationKey;
 	private String country;
 	private String profession;
-	private ZonedDateTime birthDate;
+	private LocalDate birthDate;
 	private String image;
 	private String userStatus;
 	private String interests;
@@ -65,7 +65,7 @@ public class UserInfoModel {
 			image = user.getThumbnail();
 			userStatus = user.getUserStatus();
 			interests = user.getInterests();
-			birthDate = ZonedDateTime.ofInstant(user.getBirthDate().toInstant(), ZoneOffset.UTC);
+			birthDate = DateConverter.convertToLocalDate(user.getBirthDate());
 			notification = user.getNotification();
 			emailNotification = user.getMailNotification();
 			setAutoJoin(user.getAutoJoin());
@@ -185,11 +185,11 @@ public class UserInfoModel {
 		this.profession = profession;
 	}
 
-	public ZonedDateTime getBirthDate() {
+	public LocalDate getBirthDate() {
 		return birthDate;
 	}
 
-	public void setBirthDate(ZonedDateTime birthDate) {
+	public void setBirthDate(LocalDate birthDate) {
 		this.birthDate = birthDate;
 	}
 

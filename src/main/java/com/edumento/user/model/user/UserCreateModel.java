@@ -1,6 +1,6 @@
 package com.edumento.user.model.user;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDate;
 
 import com.edumento.core.constants.Gender;
 import com.edumento.user.constant.UserType;
@@ -38,7 +38,7 @@ public class UserCreateModel {
 
 	private UserType type = UserType.USER;
 
-	private ZonedDateTime birthDate;
+	private LocalDate birthDate;
 	private String profession;
 	private String country;
 	private String userStatus;
@@ -92,11 +92,11 @@ public class UserCreateModel {
 		this.type = type;
 	}
 
-	public ZonedDateTime getBirthDate() {
+	public LocalDate getBirthDate() {
 		return birthDate;
 	}
 
-	public void setBirthDate(ZonedDateTime birthDate) {
+	public void setBirthDate(LocalDate birthDate) {
 		this.birthDate = birthDate;
 	}
 
