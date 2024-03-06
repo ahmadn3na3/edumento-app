@@ -1,8 +1,11 @@
 package com.edumento.core.util;
 
+import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
+
+import org.apache.commons.lang3.time.DateUtils;
 
 /** Created by ahmad on 7/12/16. */
 public class DateConverter {
@@ -22,6 +25,22 @@ public class DateConverter {
 		if (!ZoneOffset.UTC.equals(zonedDateTime.getOffset())) {
 			instant = instant.atOffset(ZoneOffset.UTC).toInstant();
 		}
+		return Date.from(instant);
+	}
+
+	public static LocalDate convertToLocalDate(Date date) {
+		if (date == null) {
+			return null;
+		}
+
+		return LocalDate.ofInstant(date.toInstant(), ZoneOffset.UTC);
+	}
+
+	public static Date convertLocalDateToDate(LocalDate localDate) {
+		if (localDate == null) {
+			return null;
+		}
+		var instant = localDate.atStartOfDay(ZoneOffset.UTC).toInstant();
 		return Date.from(instant);
 	}
 }
