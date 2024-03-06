@@ -61,8 +61,7 @@ public class AuthenticateController {
 
 	@PostMapping("/authenticate")
 	public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginModel loginVM) {
-		var authenticationToken = new UsernamePasswordAuthenticationToken(
-				loginVM.username(), loginVM.password());
+		var authenticationToken = new UsernamePasswordAuthenticationToken(loginVM.username(), loginVM.password());
 
 		var authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 		SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -107,6 +106,13 @@ public class AuthenticateController {
             .claim("companyId",  Optional.ofNullable(userdetails.getOrganizationId()).orElse(-1L))
             .claim("foundationid", Optional.ofNullable(userdetails.getFoundationId()).orElse(-1L))
             .claim("type", userdetails.getType())
+            .claim("email", userdetails.getEmail())
+            .claim("image", Optional.ofNullable( userdetails.getImage()).orElse(""))
+            .claim("fullName", userdetails.getFullName())
+            .claim("accountNonExpired", userdetails.isAccountNonExpired())
+            .claim("accountNonLocked", userdetails.isAccountNonLocked())
+            .claim("credentialsNonExpired", userdetails.isCredentialsNonExpired())
+            .claim("enabled", userdetails.isEnabled())
             .build();
 
         var jwsHeader = JwsHeader.with(MacAlgorithm.HS512).build();
