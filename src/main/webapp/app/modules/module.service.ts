@@ -8,13 +8,7 @@ import { Module } from './module';
 	providedIn: 'root'
 })
 export class ModuleService {
-	getModule(id: any) {
-		return this.httpClient.get(`/api/module/${id}`, {
-			headers: new HttpHeaders({
-				'Authorization': `Bearer ${this.loginService.getToken()}`
-			})
-		}).pipe(map((response: any) => response.data)).pipe(map((modules: any) => modules));
-	}
+	
 
 	constructor(private httpClient: HttpClient, private loginService: LoginService) { }
 
@@ -30,4 +24,13 @@ export class ModuleService {
 			})
 		}));
 	}
+	
+	getModule(id: any) {
+		return this.httpClient.get(`/api/module/${id}`, {
+			headers: new HttpHeaders({
+				'Authorization': `Bearer ${this.loginService.getToken()}`
+			})
+		}).pipe(map((response: any) => response.data)).pipe(map((modules: any) => modules));
+	}
+	
 }

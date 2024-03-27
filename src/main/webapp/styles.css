@@ -3,6 +3,11 @@
 /*import material css*/ 
 
 @import "@angular/material/prebuilt-themes/indigo-pink.css";
+@use '@angular/material' as mat;
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+@include mat.all-component-themes($light-theme);
+.dark{
+	@include mat.all-component-themes($dark-theme);
+}

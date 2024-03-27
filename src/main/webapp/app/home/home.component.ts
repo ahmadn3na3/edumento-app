@@ -8,7 +8,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
-import { RouterOutlet } from '@angular/router';
+import { RouterLink, RouterOutlet } from '@angular/router';
 import { LoginService } from '../login/login.service';
 import { HttpClientModule } from '@angular/common/http';
 
@@ -25,6 +25,7 @@ import { HttpClientModule } from '@angular/common/http';
     MatIconModule,
     AsyncPipe,
     RouterOutlet,
+    RouterLink,
     HttpClientModule
   ],
 	providers: [
@@ -42,4 +43,8 @@ export class HomeComponent {
       map(result => result.matches),
       shareReplay()
     );
+    
+	logout() {
+		this.loginService.logout();
+	}
 }

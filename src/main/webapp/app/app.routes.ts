@@ -4,8 +4,9 @@ import { MainDashboardComponent } from './main-dashboard/main-dashboard.componen
 import { LoginService } from './login/login.service';
 import { ModulesComponent } from './modules/modules.component';
 import { inject } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
 import { ModuleComponent } from './modules/module/module.component';
+import { UsersComponent } from './users/users.component';
+import { UserComponent } from './users/user/user.component';
 
 export const routes: Routes = [
 	{
@@ -36,6 +37,18 @@ export const routes: Routes = [
 		component: ModuleComponent,
 		canActivate: [() => { return inject(LoginService).isLoggedIn(); }],
 		data: { title: 'Modules' }
+	},
+	{
+		path:'users',
+		component:UsersComponent,
+		canActivate: [() => { return inject(LoginService).isLoggedIn(); }],
+		data: { title: 'Users' }
+	},
+	{
+		path:'users/new',
+		component:UserComponent,
+		canActivate: [() => { return inject(LoginService).isLoggedIn(); }],
+		data: { title: 'New User' }
 	}
 
 

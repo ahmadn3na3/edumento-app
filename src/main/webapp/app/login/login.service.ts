@@ -31,7 +31,7 @@ export class LoginService {
 	logout() {
 		localStorage.removeItem('currentUser');
 		this.isLoggedInSubject.next(this.isLoggedIn());
-		this, this.router.navigate(['/login']);
+		this.router.navigate(['/login']);
 	}
 
 	// turn this into observable

@@ -5,3 +5,7 @@
 	justify-content: center;
 	height: 100%;
 }
+.parent-container mat-form-field {
+	width: 100%;
+	order: 1;
+}
