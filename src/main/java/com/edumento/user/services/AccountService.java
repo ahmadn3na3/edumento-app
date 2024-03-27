@@ -302,7 +302,7 @@ public class AccountService {
 		newUser.setActivationKey(RandomUtils.generateActivationKey());
 		newUser.setActivationDate(new Date());
 		newUser.setType(UserType.USER);
-		newUser.setBirthDate(DateConverter.convertZonedDateTimeToDate(userCreateModel.getBirthDate()));
+		newUser.setBirthDate(DateConverter.convertLocalDateToDate(userCreateModel.getBirthDate()));
 		newUser.setCountry(userCreateModel.getCountry());
 		newUser.setMobile(userCreateModel.getMobile());
 		newUser.setGender(userCreateModel.getGender().getValue());
@@ -576,7 +576,7 @@ public class AccountService {
 
 	private ResponseModel getUserUpdateResponseModel(UserCreateModel userUpdateModel, User user) {
 		log.debug("map user from user create model");
-		user.setBirthDate(DateConverter.convertZonedDateTimeToDate(userUpdateModel.getBirthDate()));
+		user.setBirthDate(DateConverter.convertLocalDateToDate(userUpdateModel.getBirthDate()));
 		user.setFullName(userUpdateModel.getFullName());
 		user.setCountry(userUpdateModel.getCountry());
 		user.setProfession(userUpdateModel.getProfession());
@@ -720,7 +720,7 @@ public class AccountService {
 		user.setStatus(true);
 		user.setFirstLogin(true);
 		user.setForceChangePassword(true);
-		user.setBirthDate(DateConverter.convertZonedDateTimeToDate(userCreateModel.getBirthDate()));
+		user.setBirthDate(DateConverter.convertLocalDateToDate(userCreateModel.getBirthDate()));
 		user.setCountry(userCreateModel.getCountry());
 		user.setGender(userCreateModel.getGender().getValue());
 		user.setProfession(userCreateModel.getProfession());
