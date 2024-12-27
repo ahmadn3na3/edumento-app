@@ -101,8 +101,8 @@ mint:
       content:
         path: /data/view
 
-  url: //content.mintplatform.net
-  viewurl: //static.mintplatform.net/view/
+  url: //content.edumento.net
+  viewurl: //static.edumento.net/view/
   app: http://10.1.0.6:8080/
   lockPass: 12345678    
 endpoints:

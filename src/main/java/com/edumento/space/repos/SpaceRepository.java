@@ -26,11 +26,11 @@ public interface SpaceRepository extends JpaRepository<Space, Long> {
 	Integer countByNameAndUserIdAndDeletedFalse(String name, Long userId);
 
 	@Query("""
-			Select s from Space s Where ((s.name like CONCAT('%',?1,'%'))\s\
-			or (s.description like CONCAT('%',?1,'%'))\s\
-			or (s.objective like CONCAT('%',?1,'%')))\s\
-			and s.isPrivate=false and s.deleted=false\s\
-			and s.category.organization is null and s.category.foundation is null\s""")
+			Select s from Space s Where ((s.name like CONCAT('%',?1,'%'))
+			or (s.description like CONCAT('%',?1,'%'))
+			or (s.objective like CONCAT('%',?1,'%')))
+			and s.isPrivate=false and s.deleted=false
+			and s.category.organization is null and s.category.foundation is null""")
 	Page<Space> searchForSpace(String name, Pageable pagingModel);
 
 	Stream<Space> findByIsPrivateFalseAndObjectiveContains(String tag);

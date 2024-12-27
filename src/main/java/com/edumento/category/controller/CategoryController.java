@@ -37,9 +37,10 @@ public class CategoryController extends AbstractController<CreateCategoryModel, 
 	@RequestMapping(method = RequestMethod.GET)
 	// @ApiOperation(value = "List Categories", notes = "this method is used to list
 	// categories")
-	public ResponseModel getAll(@RequestHeader(required = false) Integer page,
-			@RequestHeader(required = false) Integer size, @RequestHeader(required = false) Long foundationId,
-			@RequestHeader(required = false) Long organizationId, @RequestParam(required = false) String filter,
+	public ResponseModel getAll(@RequestHeader(required = false, defaultValue = "0") Integer page,
+			@RequestHeader(required = false, defaultValue = "100") Integer size,
+			@RequestHeader(required = false) Long foundationId, @RequestHeader(required = false) Long organizationId,
+			@RequestParam(required = false) String filter,
 			@RequestHeader(required = false, defaultValue = "NAME") SortField field,
 			@RequestHeader(required = false, defaultValue = "ASCENDING") SortDirection sortDirection,
 			@RequestHeader(required = false, defaultValue = "false") boolean all,

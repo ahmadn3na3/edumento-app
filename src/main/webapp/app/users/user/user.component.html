@@ -1,44 +1,86 @@
-<div class="continer">
+<div class="continer mx-aut0 p-3">
     <form [formGroup]="form">
-        <mat-form-field appearance="outline"> <mat-label>User
-        Name</mat-label> <input
-            matInput
-            type="text"
-            formControlName="username"
-        /></mat-form-field>
-        <mat-form-field appearance="outline"> <mat-label>Email</mat-label>
-        <input
-            matInput
-            type="email"
-            formControlName="email"
-        /></mat-form-field>
-        <mat-form-field appearance="outline"> <mat-label>Password</mat-label>
-        <input
-            matInput
-            type="password"
-            formControlName="password"
-        /></mat-form-field>
-        <mat-form-field appearance="outline"> <mat-label>First
-        Name</mat-label> <input
-            matInput
-            type="text"
-            formControlName="firstName"
-        /> </mat-form-field>
-        <mat-form-field appearance="outline"> <mat-label>Last
-        Name</mat-label> <input
-            matInput
-            type="text"
-            formControlName="lastName"
-        /> </mat-form-field>
-        <mat-form-field appearance="outline"> <mat-label>User
-        Type</mat-label> <mat-select formControlName="userType"> @for
-        (usertype of userTypes;track usertype) { <mat-option
-            [value]="usertype"
-        >{{usertype.replace("_"," ") | titlecase}}</mat-option> } </mat-select> </mat-form-field>
-        <mat-form-field appearance="outline"> <mat-label>Gender</mat-label>
-        <mat-select formControlName="gender"> @for
-        (gender of genders;track gender) { <mat-option
-            [value]="gender"
-        > {{gender | titlecase}} </mat-option> } </mat-select> </mat-form-field>
+        <div class="row">
+            <mat-form-field
+                appearance="outline"
+                class="col"
+            > <mat-label>Email</mat-label> <input
+                matInput
+                type="email"
+                formControlName="email"
+            /></mat-form-field>
+            <mat-form-field
+                appearance="outline"
+                class="col"
+            > <mat-label>Password</mat-label> <input
+                matInput
+                type="password"
+                formControlName="password"
+            /></mat-form-field>
+        </div>
+        <div class="row">
+            <mat-form-field
+                appearance="outline"
+                class="col"
+            > <mat-label>First Name</mat-label> <input
+                matInput
+                type="text"
+                formControlName="firstName"
+            /> </mat-form-field>
+            <mat-form-field
+                appearance="outline"
+                class="col"
+            > <mat-label>Last Name</mat-label> <input
+                matInput
+                type="text"
+                formControlName="lastName"
+            /> </mat-form-field>
+        </div>
+        <div class="row">
+            <mat-form-field
+                appearance="outline"
+                class="col"
+            > <mat-label>User Name</mat-label> <input
+                matInput
+                type="text"
+                formControlName="username"
+            /></mat-form-field>
+            <mat-form-field
+                appearance="outline"
+                class="col"
+            > <mat-label>User Type</mat-label> <mat-select
+                formControlName="userType"
+            > @for (usertype of userTypes;track usertype) { <mat-option
+                [value]="usertype"
+            >{{ usertype.replace("_", " ") | titlecase }}</mat-option> } </mat-select> </mat-form-field>
+        </div>
+        <div class="row">
+            <mat-form-field
+                appearance="outline"
+                class="col"
+            > <mat-label>Gender</mat-label> <mat-select
+                formControlName="gender"
+            > @for (gender of genders;track gender) { <mat-option
+                [value]="gender"
+            > {{ gender | titlecase }} </mat-option> } </mat-select> </mat-form-field>
+        </div>
+        <div class="row">
+            <div class="col">
+                <button
+                    type="submit"
+                    mat-flat-button
+                    color="primary"
+                    class="ms-3"
+                    (click)="saveUser()"
+                >Save</button>
+                <button
+                    type="button"
+                    mat-flat-button
+                    color="primary"
+                    class="ms-3"
+                    (click)="cancel()"
+                >Cancel</button>
+            </div>
+        </div>
     </form>
 </div>

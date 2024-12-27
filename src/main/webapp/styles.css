@@ -3,6 +3,9 @@
 /*import material css*/ 
 
 @import "@angular/material/prebuilt-themes/indigo-pink.css";
+@import "bootstrap/dist/css/bootstrap-grid.min.css";
+@import "bootstrap/dist/css/bootstrap-reboot.min.css";
+@import "bootstrap/dist/css/bootstrap-utilities.min.css";
 @use '@angular/material' as mat;
 
 html, body { height: 100%; }

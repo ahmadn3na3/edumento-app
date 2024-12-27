@@ -1,17 +1,17 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
-import { ModuleService } from "./module.service";
-import { MatTableDataSource, MatTableModule } from "@angular/material/table";
+import { CategoryService } from "./service/category.service";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
+import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
-import { Module } from "./module";
-import { LoginService } from "../login/login.service";
 import { MatButtonModule } from "@angular/material/button";
 import { RouterModule } from "@angular/router";
+import { Category } from "./model/category.model";
+import { LoginService } from "../login/login.service";
 
 @Component({
-    selector: "app-modules",
+    selector: "app-category",
     standalone: true,
     imports: [
         MatFormFieldModule,
@@ -22,12 +22,12 @@ import { RouterModule } from "@angular/router";
         MatButtonModule,
         RouterModule,
     ],
-    templateUrl: "./modules.component.html",
-    styleUrl: "./modules.component.css",
+    templateUrl: "./category.component.html",
+    styleUrl: "./category.component.css",
 })
-export class ModulesComponent implements OnInit {
-    dataSource: MatTableDataSource<Module>;
-    displayedColumns: string[] = ["id", "name", "description"];
+export class CategoryComponent implements OnInit {
+    dataSource: MatTableDataSource<Category>;
+    displayedColumns: string[] = ["id", "name", "nameAr"];
 
     @ViewChild(MatPaginator)
     paginator!: MatPaginator;
@@ -35,29 +35,29 @@ export class ModulesComponent implements OnInit {
     sort!: MatSort;
 
     constructor(
-        private moduleService: ModuleService,
+        private categoryService: CategoryService,
         private loginService: LoginService,
     ) {
         this.dataSource = new MatTableDataSource();
     }
 
     ngOnInit() {
-        this.moduleService.getModules().subscribe({
-            next: (data: Module[]) => {
+        this.categoryService.getCategories().subscribe({
+            next: (data: any) => {
                 this.dataSource.data = data;
                 this.dataSource.paginator = this.paginator;
                 this.dataSource.sort = this.sort;
             },
             error: (error) => {
                 if (error.status === 404) {
-                    console.log("No modules found");
+                    console.log("No categories found");
                 } else if (error.status === 401) {
                     this.loginService.logout();
                 }
                 console.error(error);
             },
             complete: () => {
-                console.log("Modules loaded");
+                console.log("categories loaded");
             },
         });
     }

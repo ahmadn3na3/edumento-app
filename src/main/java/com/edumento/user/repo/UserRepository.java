@@ -86,16 +86,16 @@ public interface UserRepository extends CrudRepository<User, Long>, JpaSpecifica
 	/** Created by A.Alsayed on 21/01/2019. */
 	/** this method is used for returning User's global ranking */
 	@Query(value = """
-			select results.rank from\s\
-			(select u.id As user_id, u.total_score,\s\
-			CASE\s\
-			WHEN @prev_value = u.total_score THEN @curRank\s\
-			WHEN @prev_value\\:=u.total_score THEN @curRank\\:=@curRank + 1\s\
-			ELSE @curRank\\:=@curRank + 1\s\
-			END AS rank\s\
-			from user u, (SELECT @curRank\\:=0) r, (SELECT @prev_value\\:=NULL) pv\s\
-			where u.deleted=false\s\
-			order by u.total_score desc) results\s\
+			select results.rank from
+			(select u.id As user_id, u.total_score,
+			CASE
+			WHEN @prev_value = u.total_score THEN @curRank
+			WHEN @prev_value\\:=u.total_score THEN @curRank\\:=@curRank + 1\
+			ELSE @curRank\\:=@curRank + 1
+			END AS rank
+			from user u, (SELECT @curRank\\:=0) r, (SELECT @prev_value\\:=NULL) pv
+			where u.deleted=false
+			order by u.total_score desc) results
 			where results.user_id = ?1""", nativeQuery = true)
 	Integer getUserGlobalRanking(Long userId);
 

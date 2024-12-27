@@ -74,34 +74,36 @@ public class ModuleService {
 	@Transactional()
 	public ResponseModel getPermissions() {
 
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, ResponseModel>() {
-			@Override
-			public ResponseModel apply(User user) {
-				final Map<String, Set<Byte>> permissionGroup = switch (user.getType()) {
-				case SUPER_ADMIN, SYSTEM_ADMIN -> permissionRepository
-										.findByTypeInAndDeletedFalse(
-												Arrays.asList(UserType.FOUNDATION_ADMIN, UserType.ADMIN, UserType.USER))
-										.stream()
-										.collect(Collectors.groupingBy(Permission::getKeyCode, HashMap::new,
-												Collectors.collectingAndThen(Collectors.toSet(),
-														new Function<Set<Permission>, Set<Byte>>() {
-															@Override
-															public Set<Byte> apply(Set<Permission> permissions) {
-																return permissions.stream()
-																		.map(new Function<Permission, Byte>() {
-																			@Override
-																			public Byte apply(Permission permission) {
-																				return permission.getCode().byteValue();
-																			}
-																		})
-																		.collect(Collectors.toSet());
-															}
-														})));
-				default -> throw new NotPermittedException("user type not allowed");
-				};
-				return ResponseModel.done(permissionGroup);
-			}
-		}).orElseThrow(NotPermittedException::new);
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+				.map(new Function<User, ResponseModel>() {
+					@Override
+					public ResponseModel apply(User user) {
+						final Map<String, Set<Byte>> permissionGroup = switch (user.getType()) {
+						case SUPER_ADMIN,
+								SYSTEM_ADMIN ->
+							permissionRepository
+									.findByTypeInAndDeletedFalse(
+											Arrays.asList(UserType.FOUNDATION_ADMIN, UserType.ADMIN, UserType.USER))
+									.stream()
+									.collect(Collectors.groupingBy(Permission::getKeyCode, HashMap::new,
+											Collectors.collectingAndThen(Collectors.toSet(),
+													new Function<Set<Permission>, Set<Byte>>() {
+														@Override
+														public Set<Byte> apply(Set<Permission> permissions) {
+															return permissions.stream()
+																	.map(new Function<Permission, Byte>() {
+																		@Override
+																		public Byte apply(Permission permission) {
+																			return permission.getCode().byteValue();
+																		}
+																	}).collect(Collectors.toSet());
+														}
+													})));
+						default -> throw new NotPermittedException("user type not allowed");
+						};
+						return ResponseModel.done(permissionGroup);
+					}
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	@Transactional
@@ -115,31 +117,28 @@ public class ModuleService {
 					objectMapper.getTypeFactory().constructCollectionType(ArrayList.class, ModuleModel.class));
 			log.debug("modules ===> {}", moduleModels);
 
-			moduleModels.forEach(new Consumer<ModuleModel>() {
-				@Override
-				public void accept(ModuleModel moduleModel) {
-					var module = moduleRepository.findOneByKeyCode(moduleModel.getKey());
-					if (module == null) {
-						addNewModule(moduleModel);
+			moduleModels.forEach(moduleModel -> {
+				var module = moduleRepository.findOneByKeyCode(moduleModel.getKey());
+				if (module == null) {
+					addNewModule(moduleModel);
 
-					} else {
-						log.debug("updating Module=>{} ", moduleModel.getName());
-						moduleModel.getPermissions().forEach(new Consumer<PermissionModel>() {
-							@Override
-							public void accept(PermissionModel permissionModel) {
-								var permission = new Permission(permissionModel.getName(), permissionModel.getKeyCode(),
-										permissionModel.getCode(), permissionModel.getType(), module);
-								var permissions = module.getPermissions();
-								log.trace("updating permission=>{} and key =>{}", permissionModel.getName(),
-										permissionModel.getKeyCode());
-								if (!permissions.contains(permission)) {
-									if (permissionRepository.findByName(permission.getName()) == null) {
-										permissionRepository.save(permission);
-									}
+				} else {
+					log.debug("updating Module=>{} ", moduleModel.getName());
+					moduleModel.getPermissions().forEach(new Consumer<PermissionModel>() {
+						@Override
+						public void accept(PermissionModel permissionModel) {
+							var permission = new Permission(permissionModel.getName(), permissionModel.getKeyCode(),
+									permissionModel.getCode(), permissionModel.getType(), module);
+							var permissions = module.getPermissions();
+							log.trace("updating permission=>{} and key =>{}", permissionModel.getName(),
+									permissionModel.getKeyCode());
+							if (!permissions.contains(permission)) {
+								if (permissionRepository.findByName(permission.getName()) == null) {
+									permissionRepository.save(permission);
 								}
 							}
-						});
-					}
+						}
+					});
 				}
 			});
 		} catch (IOException e) {
@@ -154,7 +153,8 @@ public class ModuleService {
 		moduleModel.getPermissions().forEach(new Consumer<PermissionModel>() {
 			@Override
 			public void accept(PermissionModel permissionModel) {
-				log.trace("updating permission=>{} and key =>{}", permissionModel.getName(), permissionModel.getKeyCode());
+				log.trace("updating permission=>{} and key =>{}", permissionModel.getName(),
+						permissionModel.getKeyCode());
 				if (permissionModel.getName() != null) {
 					module.getPermissions().add(new Permission(permissionModel.getName(), permissionModel.getKeyCode(),
 							permissionModel.getCode(), permissionModel.getType(), module));
