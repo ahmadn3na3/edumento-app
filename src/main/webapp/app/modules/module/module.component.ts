@@ -4,13 +4,13 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { Module } from '../module';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, ActivatedRouteSnapshot, RouterModule } from '@angular/router';
 import { ModuleService } from '../module.service';
 
 @Component({
     selector: 'app-module',
-    imports: [MatCardModule, MatIconModule, MatButtonModule, MatChipsModule, CommonModule, RouterModule],
+    imports: [MatCardModule, MatIconModule, MatButtonModule, MatChipsModule, RouterModule],
     templateUrl: './module.component.html',
     styleUrl: './module.component.css'
 })
