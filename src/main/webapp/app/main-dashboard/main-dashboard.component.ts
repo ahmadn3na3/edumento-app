@@ -9,18 +9,17 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 
 @Component({
-  selector: 'app-main-dashboard',
-  templateUrl: './main-dashboard.component.html',
-  styleUrl: './main-dashboard.component.css',
-  standalone: true,
-  imports: [
-    AsyncPipe,
-    MatGridListModule,
-    MatMenuModule,
-    MatIconModule,
-    MatButtonModule,
-    MatCardModule
-  ]
+    selector: 'app-main-dashboard',
+    templateUrl: './main-dashboard.component.html',
+    styleUrl: './main-dashboard.component.css',
+    imports: [
+        AsyncPipe,
+        MatGridListModule,
+        MatMenuModule,
+        MatIconModule,
+        MatButtonModule,
+        MatCardModule
+    ]
 })
 export class MainDashboardComponent {
   private breakpointObserver = inject(BreakpointObserver);

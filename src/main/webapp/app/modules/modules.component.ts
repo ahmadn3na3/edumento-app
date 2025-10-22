@@ -12,7 +12,6 @@ import { RouterModule } from "@angular/router";
 
 @Component({
     selector: "app-modules",
-    standalone: true,
     imports: [
         MatFormFieldModule,
         MatInputModule,
@@ -23,7 +22,7 @@ import { RouterModule } from "@angular/router";
         RouterModule,
     ],
     templateUrl: "./modules.component.html",
-    styleUrl: "./modules.component.css",
+    styleUrl: "./modules.component.css"
 })
 export class ModulesComponent implements OnInit {
     dataSource: MatTableDataSource<Module>;

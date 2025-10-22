@@ -12,7 +12,6 @@ import { LoginService } from "../login/login.service";
 
 @Component({
     selector: "app-category",
-    standalone: true,
     imports: [
         MatFormFieldModule,
         MatInputModule,
@@ -23,7 +22,7 @@ import { LoginService } from "../login/login.service";
         RouterModule,
     ],
     templateUrl: "./category.component.html",
-    styleUrl: "./category.component.css",
+    styleUrl: "./category.component.css"
 })
 export class CategoryComponent implements OnInit {
     dataSource: MatTableDataSource<Category>;

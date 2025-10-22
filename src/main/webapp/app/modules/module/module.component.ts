@@ -9,11 +9,10 @@ import { ActivatedRoute, ActivatedRouteSnapshot, RouterModule } from '@angular/r
 import { ModuleService } from '../module.service';
 
 @Component({
-	selector: 'app-module',
-	standalone: true,
-	imports: [MatCardModule, MatIconModule, MatButtonModule, MatChipsModule, CommonModule, RouterModule],
-	templateUrl: './module.component.html',
-	styleUrl: './module.component.css'
+    selector: 'app-module',
+    imports: [MatCardModule, MatIconModule, MatButtonModule, MatChipsModule, CommonModule, RouterModule],
+    templateUrl: './module.component.html',
+    styleUrl: './module.component.css'
 })
 export class ModuleComponent implements OnInit {
 

@@ -9,11 +9,10 @@ import { LoginService } from '../login/login.service';
 import { MatInputModule } from '@angular/material/input';
 
 @Component({
-	selector: 'app-users',
-	standalone: true,
-	imports: [MatTableModule, MatPaginatorModule, MatSortModule, MatFormFieldModule,MatInputModule],
-	templateUrl: './users.component.html',
-	styleUrl: './users.component.css'
+    selector: 'app-users',
+    imports: [MatTableModule, MatPaginatorModule, MatSortModule, MatFormFieldModule, MatInputModule],
+    templateUrl: './users.component.html',
+    styleUrl: './users.component.css'
 })
 export class UsersComponent {
 	displayedColumns: string[] = ['id', 'fullName', 'username', 'email'];

@@ -13,28 +13,26 @@ import { LoginService } from '../login/login.service';
 import {} from '@angular/common/http';
 
 @Component({
-  selector: 'app-home',
-  templateUrl: './home.component.html',
-  styleUrl: './home.component.css',
-  standalone: true,
-  imports: [
-    MatToolbarModule,
-    MatButtonModule,
-    MatSidenavModule,
-    MatListModule,
-    MatIconModule,
-    AsyncPipe,
-    RouterOutlet,
-    RouterLink,
-    
-// TODO: `HttpClientModule` should not be imported into a component directly.
-// Please refactor the code to add `provideHttpClient()` call to the provider list in the
-// application bootstrap logic and remove the `HttpClientModule` import from this component.
-HttpClientModule
-  ],
-	providers: [
-		LoginService
-	]
+    selector: 'app-home',
+    templateUrl: './home.component.html',
+    styleUrl: './home.component.css',
+    imports: [
+        MatToolbarModule,
+        MatButtonModule,
+        MatSidenavModule,
+        MatListModule,
+        MatIconModule,
+        AsyncPipe,
+        RouterOutlet,
+        RouterLink,
+        // TODO: `HttpClientModule` should not be imported into a component directly.
+        // Please refactor the code to add `provideHttpClient()` call to the provider list in the
+        // application bootstrap logic and remove the `HttpClientModule` import from this component.
+        HttpClientModule
+    ],
+    providers: [
+        LoginService
+    ]
 })
 export class HomeComponent {
   private breakpointObserver = inject(BreakpointObserver);

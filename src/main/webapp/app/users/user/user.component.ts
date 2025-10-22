@@ -9,11 +9,10 @@ import { CommonModule, Location } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({
-	selector: 'app-user',
-	standalone: true,
-	imports: [MatFormFieldModule, MatInputModule, ReactiveFormsModule, MatSelectModule,CommonModule,MatButtonModule],
-	templateUrl: './user.component.html',
-	styleUrl: './user.component.css'
+    selector: 'app-user',
+    imports: [MatFormFieldModule, MatInputModule, ReactiveFormsModule, MatSelectModule, CommonModule, MatButtonModule],
+    templateUrl: './user.component.html',
+    styleUrl: './user.component.css'
 })
 export class UserComponent {
 	userTypes = Object.keys(UserType);
