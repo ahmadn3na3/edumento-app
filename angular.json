@@ -5,9 +5,7 @@
 	"projects": {
 		"edumento": {
 			"projectType": "application",
-			"schematics": {
-				
-			},
+			"schematics": {},
 			"root": "",
 			"sourceRoot": "src/main/webapp",
 			"prefix": "app",
@@ -27,9 +25,12 @@
 							"src/main/webapp/assets"
 						],
 						"styles": [
-              "@angular/material/prebuilt-themes/indigo-pink.css",
-              "src/main/webapp/styles.css"
-            ],
+							"@angular/material/prebuilt-themes/indigo-pink.css",
+							"bootstrap/dist/css/bootstrap-grid.min.css",
+							"bootstrap/dist/css/bootstrap-reboot.min.css",
+							"bootstrap/dist/css/bootstrap-utilities.min.css",
+							"src/main/webapp/styles.css"
+						],
 						"scripts": []
 					},
 					"configurations": {
@@ -90,13 +91,19 @@
 							"src/main/webapp/assets"
 						],
 						"styles": [
-              "@angular/material/prebuilt-themes/indigo-pink.css",
-              "src/main/webapp/styles.css"
-            ],
+							"@angular/material/prebuilt-themes/indigo-pink.css",
+							"bootstrap/dist/css/bootstrap-grid.min.css",
+							"bootstrap/dist/css/bootstrap-reboot.min.css",
+							"bootstrap/dist/css/bootstrap-utilities.min.css",
+							"src/main/webapp/styles.css"
+						],
 						"scripts": []
 					}
 				}
 			}
 		}
-	}
+  },
+  "cli": {
+    "analytics": false
+  }
 }
