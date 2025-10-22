@@ -10,7 +10,7 @@ import { Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { LoginService } from '../login/login.service';
-import { HttpClientModule } from '@angular/common/http';
+import {} from '@angular/common/http';
 
 @Component({
   selector: 'app-home',
@@ -26,7 +26,11 @@ import { HttpClientModule } from '@angular/common/http';
     AsyncPipe,
     RouterOutlet,
     RouterLink,
-    HttpClientModule
+    
+// TODO: `HttpClientModule` should not be imported into a component directly.
+// Please refactor the code to add `provideHttpClient()` call to the provider list in the
+// application bootstrap logic and remove the `HttpClientModule` import from this component.
+HttpClientModule
   ],
 	providers: [
 		LoginService
