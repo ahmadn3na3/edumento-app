@@ -13,8 +13,7 @@ public class CreateCategoryModel {
 	private String color;
 	private String image;
 	private String thumbnail;
-	private Long organizationId;
-	private Long foundationId;
+
 	private Long parentId;
 	private LinkedList<Chapter> chapters = new LinkedList<>();
 	private LinkedList<Grade> grades = new LinkedList<>();
@@ -67,22 +66,6 @@ public class CreateCategoryModel {
 		this.thumbnail = thumbnail;
 	}
 
-	public Long getOrganizationId() {
-		return organizationId;
-	}
-
-	public void setOrganizationId(Long organizationId) {
-		this.organizationId = organizationId;
-	}
-
-	public Long getFoundationId() {
-		return foundationId;
-	}
-
-	public void setFoundationId(Long foundationId) {
-		this.foundationId = foundationId;
-	}
-
 	public Long getParentId() {
 		return parentId;
 	}
@@ -110,8 +93,7 @@ public class CreateCategoryModel {
 	@Override
 	public String toString() {
 		return "CreateCategoryModel{" + "name='" + name + '\'' + ", color='" + color + '\'' + ", image='" + image + '\''
-				+ ", thumbnail='" + thumbnail + '\'' + ", organizationId=" + organizationId + ", foundationId="
-				+ foundationId + ", chapters=" + chapters + '}';
+				+ ", thumbnail='" + thumbnail + '\'' + ", chapters=" + chapters + '}';
 	}
 
 	@Override

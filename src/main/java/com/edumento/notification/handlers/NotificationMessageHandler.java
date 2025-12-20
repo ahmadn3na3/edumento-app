@@ -11,14 +11,14 @@ import com.edumento.notification.handlers.impl.DiscussionHadler;
 import com.edumento.notification.handlers.impl.DiscussionReplyHandler;
 import com.edumento.notification.handlers.impl.PermissionHandler;
 import com.edumento.notification.handlers.impl.QuestionHandler;
-import com.edumento.notification.handlers.impl.RoleNotificationHandler;
+
 import com.edumento.notification.handlers.impl.SpaceNotificationHandler;
 import com.edumento.notification.handlers.impl.TimeLockNotificationHandler;
 import com.edumento.notification.handlers.impl.UserHandler;
 
 /** Created by ayman on 01/03/17. */
 @Component
-//@RabbitListener(queues = "notificationqueue")
+// @RabbitListener(queues = "notificationqueue")
 public class NotificationMessageHandler {
 
 	@Autowired
@@ -27,14 +27,14 @@ public class NotificationMessageHandler {
 	@Autowired
 	UserHandler userHandler;
 
-//	@Autowired
-//	AnnotationHandler annotationHandler;
+	// @Autowired
+	// AnnotationHandler annotationHandler;
 
 	@Autowired
 	AnnotationRelplyHandler annotationRelplyHandler;
 
-//	@Autowired
-//	AnnouncementHandler announcementHandler;
+	// @Autowired
+	// AnnouncementHandler announcementHandler;
 
 	@Autowired
 	DiscussionHadler discussionHadler;
@@ -44,9 +44,6 @@ public class NotificationMessageHandler {
 
 	@Autowired
 	QuestionHandler questionHandler;
-
-	@Autowired
-	RoleNotificationHandler roleNotificationHandler;
 
 	@Autowired
 	TimeLockNotificationHandler timeLockNotificationHandler;

@@ -4,8 +4,6 @@ import static com.edumento.core.constants.notification.Actions.FOLLOW;
 
 import java.util.function.Consumer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +24,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /** Created by ayman on 04/07/17. */
 @Component
 public class UserHandler extends AbstractHandler {
-	private static final Logger logger = LoggerFactory.getLogger(UserHandler.class);
 
 	@Autowired
 	public UserHandler(UserRepository userRepository, AmqNotifier amqNotifier, MailService mailService,
@@ -37,11 +34,11 @@ public class UserHandler extends AbstractHandler {
 	@Override
 	protected void handleNonCRUDAction(BaseMessage notificationMessage) {
 		switch (notificationMessage.getEntityAction().getAction()) {
-		case FOLLOW:
-			onFollow(notificationMessage);
-			break;
-		default:
-			break;
+			case FOLLOW:
+				onFollow(notificationMessage);
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -61,7 +58,8 @@ public class UserHandler extends AbstractHandler {
 			public void accept(User user) {
 				if (user.getNotification()) {
 					if (user.getMailNotification()) {
-						mailService.sendNotificationMail(notificationMessage, userFollowMessage.getUserInfoMessage(), true,
+						mailService.sendNotificationMail(notificationMessage, userFollowMessage.getUserInfoMessage(),
+								true,
 								true);
 					}
 				}
@@ -73,15 +71,15 @@ public class UserHandler extends AbstractHandler {
 	protected void onCreate(BaseMessage notificationMessage) {
 		var userInfoMessage = mapJsonObject(notificationMessage, UserInfoMessage.class);
 		switch (notificationMessage.getEntityAction()) {
-		case USER_REGISTER:
-			mailService.sendActivationEmail(userInfoMessage);
-			break;
-		case USER_CREATE:
-			mailService.sendCreationEmail(userInfoMessage);
-			break;
+			case USER_REGISTER:
+				mailService.sendActivationEmail(userInfoMessage);
+				break;
+			case USER_CREATE:
+				mailService.sendCreationEmail(userInfoMessage);
+				break;
 
-		default:
-			break;
+			default:
+				break;
 		}
 	}
 
@@ -89,15 +87,15 @@ public class UserHandler extends AbstractHandler {
 	protected void onUpdate(BaseMessage notificationMessage) {
 		var userInfoMessage = mapJsonObject(notificationMessage, UserInfoMessage.class);
 		switch (notificationMessage.getEntityAction()) {
-		case USER_REACTIVATE:
-			mailService.sendActivationEmail(userInfoMessage);
-			break;
-		case USER_FORGETPASSOWORD:
-			mailService.sendPasswordResetMail(userInfoMessage);
-			break;
+			case USER_REACTIVATE:
+				mailService.sendActivationEmail(userInfoMessage);
+				break;
+			case USER_FORGETPASSOWORD:
+				mailService.sendPasswordResetMail(userInfoMessage);
+				break;
 
-		default:
-			break;
+			default:
+				break;
 		}
 	}
 }

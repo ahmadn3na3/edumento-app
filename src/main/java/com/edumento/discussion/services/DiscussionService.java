@@ -83,45 +83,52 @@ public class DiscussionService {
 	public ResponseModel createNewDiscussion(DiscussionCreateModel discussionCreatModel) {
 		log.debug("Create new discussion with model {}", discussionCreatModel);
 
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, ResponseModel>() {
-			@Override
-			public ResponseModel apply(User user) {
-				var space = spaceRepository.findById(discussionCreatModel.getSpaceId()).orElseThrow(NotFoundException::new);
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+				.map(new Function<User, ResponseModel>() {
+					@Override
+					public ResponseModel apply(User user) {
+						var space = spaceRepository.findById(discussionCreatModel.getSpaceId())
+								.orElseThrow(NotFoundException::new);
 
-				return joinedRepository.findOneBySpaceIdAndUserIdAndDeletedFalse(space.getId(), user.getId())
-						.map(new Function<Joined, ResponseModel>() {
-							@Override
-							public ResponseModel apply(Joined joinedSpace) {
-								if (Arrays.asList(SpaceRole.OWNER, SpaceRole.CO_OWNER, SpaceRole.EDITOR, SpaceRole.COLLABORATOR)
-										.contains(joinedSpace.getSpaceRole())) {
-									var discussion = new Discussion();
-									discussion.setTitle(discussionCreatModel.getTitle());
-									discussion.setBody(discussionCreatModel.getBody());
-									discussion.setResourceUrl(discussionCreatModel.getResourceUrl());
-									discussion.setOwnerId(user.getId());
-									discussion.setSpaceId(space.getId());
-									discussion.setUserName(user.getFullName());
-									discussion.setThumbnail(user.getThumbnail());
-									discussion.setType(discussionCreatModel.getType());
-									discussion.setContentId(discussionCreatModel.getContentId());
-									discussionRepository.save(discussion);
-									log.debug("discussion created successfully with id {}", discussion.getId());
-									joinedSpace.setDiscussionsCount(
-											discussionRepository.countBySpaceIdAndTypeAndOwnerIdAndDeletedFalse(space.getId(),
-													DiscussionType.DISCUSSION, user.getId()));
-									joinedRepository.save(joinedSpace);
-									return ResponseModel.done(null,
-											new DiscussionMessage(discussion.getId(), discussion.getTitle(), space.getId(),
-													space.getName(), space.getCategory().getName(),
-													new From(SecurityUtils.getCurrentUser()), discussion.getResourceUrl(),
-													discussion.getBody(), discussion.getType()));
-								} else {
-									throw new NotPermittedException();
-								}
-							}
-						}).orElseThrow(NotFoundException::new);
-			}
-		}).orElseThrow(NotPermittedException::new);
+						return joinedRepository.findOneBySpaceIdAndUserIdAndDeletedFalse(space.getId(), user.getId())
+								.map(new Function<Joined, ResponseModel>() {
+									@Override
+									public ResponseModel apply(Joined joinedSpace) {
+										if (Arrays
+												.asList(SpaceRole.OWNER, SpaceRole.CO_OWNER, SpaceRole.EDITOR,
+														SpaceRole.COLLABORATOR)
+												.contains(joinedSpace.getSpaceRole())) {
+											var discussion = new Discussion();
+											discussion.setTitle(discussionCreatModel.getTitle());
+											discussion.setBody(discussionCreatModel.getBody());
+											discussion.setResourceUrl(discussionCreatModel.getResourceUrl());
+											discussion.setOwnerId(user.getId());
+											discussion.setSpaceId(space.getId());
+											discussion.setUserName(user.getFullName());
+											discussion.setThumbnail(user.getThumbnail());
+											discussion.setType(discussionCreatModel.getType());
+											discussion.setContentId(discussionCreatModel.getContentId());
+											discussionRepository.save(discussion);
+											log.debug("discussion created successfully with id {}", discussion.getId());
+											joinedSpace.setDiscussionsCount(
+													discussionRepository.countBySpaceIdAndTypeAndOwnerIdAndDeletedFalse(
+															space.getId(),
+															DiscussionType.DISCUSSION, user.getId()));
+											joinedRepository.save(joinedSpace);
+											return ResponseModel.done(null,
+													new DiscussionMessage(discussion.getId(), discussion.getTitle(),
+															space.getId(),
+															space.getName(), null,
+															new From(SecurityUtils.getCurrentUser()),
+															discussion.getResourceUrl(),
+															discussion.getBody(), discussion.getType()));
+										} else {
+											throw new NotPermittedException();
+										}
+									}
+								}).orElseThrow(NotFoundException::new);
+					}
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	@Auditable(EntityAction.DISCUSSION_COMMENT_UPDATE)
@@ -163,60 +170,72 @@ public class DiscussionService {
 				.map(new Function<User, ResponseModel>() {
 					@Override
 					public ResponseModel apply(User user) {
-						return discussionRepository.findOneByIdAndDeletedFalse(id).map(new Function<Discussion, ResponseModel>() {
-							@Override
-							public ResponseModel apply(Discussion discussion) {
-								return joinedRepository
-										.findOneBySpaceIdAndUserIdAndDeletedFalse(discussion.getSpaceId(), user.getId()).map(new Function<Joined, ResponseModel>() {
-											@Override
-											public ResponseModel apply(Joined joined) {
-												if (joined.getSpaceRole() == SpaceRole.VIEWER) {
-													throw new NotPermittedException();
-												}
-												if (discussion.getType() == DiscussionType.INQUIRY) {
-													if (!discussion.getOwnerId().equals(user.getId()) && !Arrays
-															.asList(SpaceRole.CO_OWNER, SpaceRole.OWNER).contains(joined.getSpaceRole())) {
-														throw new NotPermittedException();
+						return discussionRepository.findOneByIdAndDeletedFalse(id)
+								.map(new Function<Discussion, ResponseModel>() {
+									@Override
+									public ResponseModel apply(Discussion discussion) {
+										return joinedRepository
+												.findOneBySpaceIdAndUserIdAndDeletedFalse(discussion.getSpaceId(),
+														user.getId())
+												.map(new Function<Joined, ResponseModel>() {
+													@Override
+													public ResponseModel apply(Joined joined) {
+														if (joined.getSpaceRole() == SpaceRole.VIEWER) {
+															throw new NotPermittedException();
+														}
+														if (discussion.getType() == DiscussionType.INQUIRY) {
+															if (!discussion.getOwnerId().equals(user.getId()) && !Arrays
+																	.asList(SpaceRole.CO_OWNER, SpaceRole.OWNER)
+																	.contains(joined.getSpaceRole())) {
+																throw new NotPermittedException();
+															}
+														} else if (discussion.getType() == null) {
+															discussion.setType(DiscussionType.DISCUSSION);
+														}
+														var comment = commentService.createComment(discussion.getId(),
+																user, commentCreateModel,
+																CommentType.DISCUSSION, discussion.getSpaceId());
+														discussion.getComments().add(comment);
+														// TODO: To be removed
+														List<Comment> unUpdateComment = discussion.getComments()
+																.stream()
+																.filter(new Predicate<Comment>() {
+																	@Override
+																	public boolean test(Comment c) {
+																		return c != null && c.getSpaceId() == null;
+																	}
+																}).map(new Function<Comment, Comment>() {
+																	@Override
+																	public Comment apply(Comment com) {
+																		com.setSpaceId(discussion.getSpaceId());
+																		com.setType(CommentType.DISCUSSION);
+																		return com;
+																	}
+																}).collect(Collectors.toList());
+														commentRepository.saveAll(unUpdateComment);
+														///////////////////////////////////////////////
+														discussion.setLastModifiedDate(new Date());
+														discussion.setLastModifiedBy(user.getUserName());
+														discussionRepository.save(discussion);
+														joined.setDiscussionCommentsCount(
+																commentRepository
+																		.countByUserIdAndSpaceIdAndTypeAndDeletedFalse(
+																				user.getId(),
+																				discussion.getSpaceId(),
+																				CommentType.DISCUSSION));
+														joinedRepository.save(joined);
+														return ResponseModel.done((Object) comment.getId(),
+																new DiscussionMessage(discussion.getId(),
+																		discussion.getTitle(),
+																		discussion.getSpaceId(),
+																		joined.getSpace().getName(),
+																		null,
+																		new From(SecurityUtils.getCurrentUser()),
+																		discussion.getType()));
 													}
-												} else if (discussion.getType() == null) {
-													discussion.setType(DiscussionType.DISCUSSION);
-												}
-												var comment = commentService.createComment(discussion.getId(), user, commentCreateModel,
-														CommentType.DISCUSSION, discussion.getSpaceId());
-												discussion.getComments().add(comment);
-												// TODO: To be removed
-												List<Comment> unUpdateComment = discussion.getComments().stream()
-														.filter(new Predicate<Comment>() {
-															@Override
-															public boolean test(Comment c) {
-																return c != null && c.getSpaceId() == null;
-															}
-														}).map(new Function<Comment, Comment>() {
-															@Override
-															public Comment apply(Comment com) {
-																com.setSpaceId(discussion.getSpaceId());
-																com.setType(CommentType.DISCUSSION);
-																return com;
-															}
-														}).collect(Collectors.toList());
-												commentRepository.saveAll(unUpdateComment);
-												///////////////////////////////////////////////
-												discussion.setLastModifiedDate(new Date());
-												discussion.setLastModifiedBy(user.getUserName());
-												discussionRepository.save(discussion);
-												joined.setDiscussionCommentsCount(
-														commentRepository.countByUserIdAndSpaceIdAndTypeAndDeletedFalse(user.getId(),
-																discussion.getSpaceId(), CommentType.DISCUSSION));
-												joinedRepository.save(joined);
-												return ResponseModel.done((Object) comment.getId(),
-														new DiscussionMessage(discussion.getId(), discussion.getTitle(),
-																discussion.getSpaceId(), joined.getSpace().getName(),
-																joined.getSpace().getCategory().getName(),
-																new From(SecurityUtils.getCurrentUser()), discussion.getType()));
-											}
-										}).orElseThrow(NotPermittedException::new);
-							}
-						})
+												}).orElseThrow(NotPermittedException::new);
+									}
+								})
 								.orElseThrow(new Supplier<NotFoundException>() {
 									@Override
 									public NotFoundException get() {
@@ -244,14 +263,17 @@ public class DiscussionService {
 													@Override
 													public ResponseModel apply(Discussion discussion) {
 														return joinedRepository
-																.findOneBySpaceIdAndUserIdAndDeletedFalse(discussion.getSpaceId(), user.getId())
+																.findOneBySpaceIdAndUserIdAndDeletedFalse(
+																		discussion.getSpaceId(), user.getId())
 																.map(new Function<Joined, ResponseModel>() {
 																	@Override
 																	public ResponseModel apply(Joined joined) {
-																		if (SpaceRole.VIEWER.equals(joined.getSpaceRole())) {
+																		if (SpaceRole.VIEWER
+																				.equals(joined.getSpaceRole())) {
 																			throw new NotPermittedException();
 																		}
-																		return commentService.toggleCommentLike(id, user);
+																		return commentService.toggleCommentLike(id,
+																				user);
 																	}
 																}).orElseThrow(NotFoundException::new);
 													}
@@ -274,32 +296,38 @@ public class DiscussionService {
 				.map(new Function<User, ResponseModel>() {
 					@Override
 					public ResponseModel apply(User user) {
-						return discussionRepository.findOneByIdAndDeletedFalse(id).map(new Function<Discussion, ResponseModel>() {
-							@Override
-							public ResponseModel apply(Discussion discussion) {
-								return joinedRepository
-										.findOneBySpaceIdAndUserIdAndDeletedFalse(discussion.getSpaceId(), user.getId()).map(new Function<Joined, ResponseModel>() {
-											@Override
-											public ResponseModel apply(Joined joined) {
-												if (discussion.getOwnerId().equals(user.getId())
-														|| SpaceRole.OWNER.equals(joined.getSpaceRole())
-														|| SpaceRole.CO_OWNER.equals(joined.getSpaceRole())) {
-													discussionRepository.delete(discussion);
+						return discussionRepository.findOneByIdAndDeletedFalse(id)
+								.map(new Function<Discussion, ResponseModel>() {
+									@Override
+									public ResponseModel apply(Discussion discussion) {
+										return joinedRepository
+												.findOneBySpaceIdAndUserIdAndDeletedFalse(discussion.getSpaceId(),
+														user.getId())
+												.map(new Function<Joined, ResponseModel>() {
+													@Override
+													public ResponseModel apply(Joined joined) {
+														if (discussion.getOwnerId().equals(user.getId())
+																|| SpaceRole.OWNER.equals(joined.getSpaceRole())
+																|| SpaceRole.CO_OWNER.equals(joined.getSpaceRole())) {
+															discussionRepository.delete(discussion);
 
-													commentService.deleteCommentbyParent(discussion.getId());
-													joined.setDiscussionsCount(
-															discussionRepository.countBySpaceIdAndTypeAndOwnerIdAndDeletedFalse(
-																	discussion.getSpaceId(), DiscussionType.DISCUSSION, user.getId()));
-													joinedRepository.save(joined);
-													log.debug("Discussion with id {} successfully deleted", id);
-													return ResponseModel.done();
-												} else {
-													throw new NotPermittedException();
-												}
-											}
-										}).orElseThrow(NotFoundException::new);
-							}
-						}).orElseThrow(NotFoundException::new);
+															commentService.deleteCommentbyParent(discussion.getId());
+															joined.setDiscussionsCount(
+																	discussionRepository
+																			.countBySpaceIdAndTypeAndOwnerIdAndDeletedFalse(
+																					discussion.getSpaceId(),
+																					DiscussionType.DISCUSSION,
+																					user.getId()));
+															joinedRepository.save(joined);
+															log.debug("Discussion with id {} successfully deleted", id);
+															return ResponseModel.done();
+														} else {
+															throw new NotPermittedException();
+														}
+													}
+												}).orElseThrow(NotFoundException::new);
+									}
+								}).orElseThrow(NotFoundException::new);
 					}
 				})
 				.orElseThrow(NotFoundException::new);
@@ -313,31 +341,36 @@ public class DiscussionService {
 				.map(new Function<User, PageResponseModel>() {
 					@Override
 					public PageResponseModel apply(User user) {
-						return spaceRepository.findOneByIdAndDeletedFalse(spaceId).map(new Function<Space, PageResponseModel>() {
-							@Override
-							public PageResponseModel apply(Space space) {
-								if (!SecurityUtils.isCurrentUserInRole(UserType.ADMIN.name())) {
-									var joined = joinedRepository.findOneBySpaceIdAndUserIdAndDeletedFalse(spaceId, user.getId())
-											.orElseThrow(NotPermittedException::new);
-									if (joined.getSpaceRole() == SpaceRole.VIEWER) {
-										throw new NotPermittedException();
-									}
-								}
-
-								Page<DiscussionSummaryModel> page = discussionRepository
-										.findBySpaceIdAndTypeAndDeletedFalseOrderByCreationDateDesc(spaceId, type, pageRequest)
-										.map(new Function<Discussion, DiscussionSummaryModel>() {
-											@Override
-											public DiscussionSummaryModel apply(Discussion discussion) {
-												DiscussionSummaryModel discussionSummaryModel = new DiscussionDetailedModel();
-												mapDiscussionSummary(discussion, discussionSummaryModel);
-												return discussionSummaryModel;
+						return spaceRepository.findOneByIdAndDeletedFalse(spaceId)
+								.map(new Function<Space, PageResponseModel>() {
+									@Override
+									public PageResponseModel apply(Space space) {
+										if (!SecurityUtils.isCurrentUserInRole(UserType.SUPER_ADMIN.name())
+												&& !SecurityUtils.isCurrentUserInRole(UserType.SYSTEM_ADMIN.name())) {
+											var joined = joinedRepository
+													.findOneBySpaceIdAndUserIdAndDeletedFalse(spaceId, user.getId())
+													.orElseThrow(NotPermittedException::new);
+											if (joined.getSpaceRole() == SpaceRole.VIEWER) {
+												throw new NotPermittedException();
 											}
-										});
-								return PageResponseModel.done(page.getContent(), page.getTotalPages(), page.getNumber(),
-										page.getTotalElements());
-							}
-						}).orElseThrow(NotFoundException::new);
+										}
+
+										Page<DiscussionSummaryModel> page = discussionRepository
+												.findBySpaceIdAndTypeAndDeletedFalseOrderByCreationDateDesc(spaceId,
+														type, pageRequest)
+												.map(new Function<Discussion, DiscussionSummaryModel>() {
+													@Override
+													public DiscussionSummaryModel apply(Discussion discussion) {
+														DiscussionSummaryModel discussionSummaryModel = new DiscussionDetailedModel();
+														mapDiscussionSummary(discussion, discussionSummaryModel);
+														return discussionSummaryModel;
+													}
+												});
+										return PageResponseModel.done(page.getContent(), page.getTotalPages(),
+												page.getNumber(),
+												page.getTotalElements());
+									}
+								}).orElseThrow(NotFoundException::new);
 					}
 				}).orElseThrow(NotPermittedException::new);
 	}
@@ -350,38 +383,42 @@ public class DiscussionService {
 				.map(new Function<User, ResponseModel>() {
 					@Override
 					public ResponseModel apply(User user) {
-						return discussionRepository.findOneByIdAndDeletedFalse(id).map(new Function<Discussion, ResponseModel>() {
-							@Override
-							public ResponseModel apply(Discussion discussion) {
-								return joinedRepository
-										.findOneBySpaceIdAndUserIdAndDeletedFalse(discussion.getSpaceId(), user.getId()).map(new Function<Joined, ResponseModel>() {
-											@Override
-											public ResponseModel apply(Joined joined) {
-												if (joined.getSpaceRole() != SpaceRole.VIEWER) {
-													var discussionDetailedModel = new DiscussionDetailedModel();
-													mapDiscussionSummary(discussion, discussionDetailedModel);
+						return discussionRepository.findOneByIdAndDeletedFalse(id)
+								.map(new Function<Discussion, ResponseModel>() {
+									@Override
+									public ResponseModel apply(Discussion discussion) {
+										return joinedRepository
+												.findOneBySpaceIdAndUserIdAndDeletedFalse(discussion.getSpaceId(),
+														user.getId())
+												.map(new Function<Joined, ResponseModel>() {
+													@Override
+													public ResponseModel apply(Joined joined) {
+														if (joined.getSpaceRole() != SpaceRole.VIEWER) {
+															var discussionDetailedModel = new DiscussionDetailedModel();
+															mapDiscussionSummary(discussion, discussionDetailedModel);
 
-													List<Comment> comments = discussion.getComments().stream()
-															.filter(new Predicate<Comment>() {
-																@Override
-																public boolean test(Comment comment) {
-																	return !comment.isDeleted();
-																}
-															}).collect(Collectors.toList());
+															List<Comment> comments = discussion.getComments().stream()
+																	.filter(new Predicate<Comment>() {
+																		@Override
+																		public boolean test(Comment comment) {
+																			return !comment.isDeleted();
+																		}
+																	}).collect(Collectors.toList());
 
-													var commentViewList = CommentMapper.INSTANCE.mapComments(comments);
-													if (null != commentViewList) {
-														discussionDetailedModel.setComments(commentViewList);
+															var commentViewList = CommentMapper.INSTANCE
+																	.mapComments(comments);
+															if (null != commentViewList) {
+																discussionDetailedModel.setComments(commentViewList);
+															}
+															log.debug("discussion with id {} returned", id);
+															return ResponseModel.done(discussionDetailedModel);
+														} else {
+															throw new NotPermittedException();
+														}
 													}
-													log.debug("discussion with id {} returned", id);
-													return ResponseModel.done(discussionDetailedModel);
-												} else {
-													throw new NotPermittedException();
-												}
-											}
-										}).orElseThrow(NotFoundException::new);
-							}
-						}).orElseThrow(NotFoundException::new);
+												}).orElseThrow(NotFoundException::new);
+									}
+								}).orElseThrow(NotFoundException::new);
 					}
 				})
 				.orElseThrow(NotFoundException::new);
@@ -391,37 +428,28 @@ public class DiscussionService {
 	@Deprecated
 	public ResponseModel getUpdates(Long spaceId, Date since) {
 		log.debug("Get discussions updates details space id : {} , since {}", spaceId, since);
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, ResponseModel>() {
-			@Override
-			public ResponseModel apply(User user) {
-				if (spaceRepository.findOneByIdAndDeletedFalse(spaceId) != null) {
-					var discussionUpdatesResponseModel = new DiscussionUpdatesResponseModel();
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+				.map(new Function<User, ResponseModel>() {
+					@Override
+					public ResponseModel apply(User user) {
+						if (spaceRepository.findOneByIdAndDeletedFalse(spaceId) != null) {
+							var discussionUpdatesResponseModel = new DiscussionUpdatesResponseModel();
 
-					discussionUpdatesResponseModel.setDeletedDiscussions(discussionRepository
-							.findBySpaceIdAndDeletedTrueAndDeletedDateAfter(spaceId, since).stream().map(new Function<Discussion, DiscussionSummaryModel>() {
-								@Override
-								public DiscussionSummaryModel apply(Discussion discussion) {
-									var discussionSummaryModel = new DiscussionSummaryModel();
-									mapDiscussionSummary(discussion, discussionSummaryModel);
-									return discussionSummaryModel;
-								}
-							}).collect(Collectors.toList()));
-					log.debug("Updates: deleted discussion");
+							discussionUpdatesResponseModel.setDeletedDiscussions(discussionRepository
+									.findBySpaceIdAndDeletedTrueAndDeletedDateAfter(spaceId, since).stream()
+									.map(new Function<Discussion, DiscussionSummaryModel>() {
+										@Override
+										public DiscussionSummaryModel apply(Discussion discussion) {
+											var discussionSummaryModel = new DiscussionSummaryModel();
+											mapDiscussionSummary(discussion, discussionSummaryModel);
+											return discussionSummaryModel;
+										}
+									}).collect(Collectors.toList()));
+							log.debug("Updates: deleted discussion");
 
-					discussionUpdatesResponseModel.setNewDiscussions(discussionRepository
-							.findBySpaceIdAndLastModifiedDateIsNullAndDeletedFalseAndCreationDateAfter(spaceId, since)
-							.stream().map(new Function<Discussion, DiscussionSummaryModel>() {
-								@Override
-								public DiscussionSummaryModel apply(Discussion discussion) {
-									var discussionSummaryModel = new DiscussionSummaryModel();
-									mapDiscussionSummary(discussion, discussionSummaryModel);
-									return discussionSummaryModel;
-								}
-							}).collect(Collectors.toList()));
-					log.debug("Updates: new discussion");
-
-					discussionUpdatesResponseModel.setUpdatedDiscussions(
-							discussionRepository.findBySpaceIdAndDeletedFalseAndLastModifiedDateAfter(spaceId, since)
+							discussionUpdatesResponseModel.setNewDiscussions(discussionRepository
+									.findBySpaceIdAndLastModifiedDateIsNullAndDeletedFalseAndCreationDateAfter(spaceId,
+											since)
 									.stream().map(new Function<Discussion, DiscussionSummaryModel>() {
 										@Override
 										public DiscussionSummaryModel apply(Discussion discussion) {
@@ -430,14 +458,27 @@ public class DiscussionService {
 											return discussionSummaryModel;
 										}
 									}).collect(Collectors.toList()));
-					log.debug("Updates: updated discussion");
+							log.debug("Updates: new discussion");
 
-					return ResponseModel.done(discussionUpdatesResponseModel);
-				} else {
-					throw new NotFoundException("space");
-				}
-			}
-		}).orElseThrow(NotFoundException::new);
+							discussionUpdatesResponseModel.setUpdatedDiscussions(
+									discussionRepository
+											.findBySpaceIdAndDeletedFalseAndLastModifiedDateAfter(spaceId, since)
+											.stream().map(new Function<Discussion, DiscussionSummaryModel>() {
+												@Override
+												public DiscussionSummaryModel apply(Discussion discussion) {
+													var discussionSummaryModel = new DiscussionSummaryModel();
+													mapDiscussionSummary(discussion, discussionSummaryModel);
+													return discussionSummaryModel;
+												}
+											}).collect(Collectors.toList()));
+							log.debug("Updates: updated discussion");
+
+							return ResponseModel.done(discussionUpdatesResponseModel);
+						} else {
+							throw new NotFoundException("space");
+						}
+					}
+				}).orElseThrow(NotFoundException::new);
 	}
 
 	@Auditable(EntityAction.DISCUSSION_COMMENT_DELETE)
@@ -456,20 +497,28 @@ public class DiscussionService {
 													@Override
 													public ResponseModel apply(Discussion discussion) {
 														return joinedRepository
-																.findOneBySpaceIdAndUserIdAndDeletedFalse(discussion.getSpaceId(), user.getId())
+																.findOneBySpaceIdAndUserIdAndDeletedFalse(
+																		discussion.getSpaceId(), user.getId())
 																.map(new Function<Joined, ResponseModel>() {
 																	@Override
 																	public ResponseModel apply(Joined joinedSpace) {
 																		if (comment.getUserId().equals(user.getId())
-																				|| SpaceRole.CO_OWNER.equals(joinedSpace.getSpaceRole())
-																				|| SpaceRole.OWNER.equals(joinedSpace.getSpaceRole())
-																				|| discussion.getOwnerId().equals(user.getId())) {
+																				|| SpaceRole.CO_OWNER.equals(
+																						joinedSpace.getSpaceRole())
+																				|| SpaceRole.OWNER.equals(
+																						joinedSpace.getSpaceRole())
+																				|| discussion.getOwnerId()
+																						.equals(user.getId())) {
 																			discussion.getComments().remove(comment);
 																			commentService.deleteComment(id);
 																			discussionRepository.save(discussion);
-																			joinedSpace.setDiscussionCommentsCount(commentRepository
-																					.countByUserIdAndSpaceIdAndTypeAndDeletedFalse(user.getId(),
-																							discussion.getSpaceId(), CommentType.DISCUSSION));
+																			joinedSpace.setDiscussionCommentsCount(
+																					commentRepository
+																							.countByUserIdAndSpaceIdAndTypeAndDeletedFalse(
+																									user.getId(),
+																									discussion
+																											.getSpaceId(),
+																									CommentType.DISCUSSION));
 																			joinedRepository.save(joinedSpace);
 																			return ResponseModel.done();
 																		} else {
@@ -495,16 +544,17 @@ public class DiscussionService {
 				.map(new Function<User, ResponseModel>() {
 					@Override
 					public ResponseModel apply(User user) {
-						return commentRepository.findOneByIdAndDeletedFalse(id).map(new Function<Comment, ResponseModel>() {
-							@Override
-							public ResponseModel apply(Comment comment) {
-								if (comment.getUserId().equals(user.getId())) {
-									return commentService.updateComment(id, body);
-								} else {
-									throw new NotPermittedException();
-								}
-							}
-						}).orElseThrow(NotFoundException::new);
+						return commentRepository.findOneByIdAndDeletedFalse(id)
+								.map(new Function<Comment, ResponseModel>() {
+									@Override
+									public ResponseModel apply(Comment comment) {
+										if (comment.getUserId().equals(user.getId())) {
+											return commentService.updateComment(id, body);
+										} else {
+											throw new NotPermittedException();
+										}
+									}
+								}).orElseThrow(NotFoundException::new);
 					}
 				}).orElseThrow(NotFoundException::new);
 	}

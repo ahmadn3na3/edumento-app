@@ -16,43 +16,32 @@ public class CurrentUserDetail extends User {
 	private final String fullName;
 	private final String email;
 	private final String image;
-	private final Long organizationId;
-	private final Long foundationId;
+
 	private final UserType type;
 	private String currentClientId;
 	private String chatId;
 
 	public CurrentUserDetail(Long id, String username, String password,
-			Collection<? extends GrantedAuthority> authorities, String fullName, String image, String email, Long orgId,
-			Long foundId, UserType type, String chatId) {
-		this(id, username, password, true, true, true, true, authorities, fullName, email, image, orgId, foundId, type,
+			Collection<? extends GrantedAuthority> authorities, String fullName, String image, String email,
+			UserType type, String chatId) {
+		this(id, username, password, true, true, true, true, authorities, fullName, email, image, type,
 				chatId);
 	}
 
 	public CurrentUserDetail(Long id, String username, String password, boolean enabled, boolean accountNonExpired,
 			boolean credentialsNonExpired, boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities,
-			String fullName, String email, String image, Long orgId, Long foundId, UserType type, String chatId) {
+			String fullName, String email, String image, UserType type, String chatId) {
 		super(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities);
 		this.id = id;
 		this.fullName = fullName;
 		this.email = email;
 		this.image = image;
-		organizationId = orgId;
-		foundationId = foundId;
 		this.type = type;
 		setChatId(chatId);
 	}
 
 	public Long getId() {
 		return id;
-	}
-
-	public Long getOrganizationId() {
-		return organizationId;
-	}
-
-	public Long getFoundationId() {
-		return foundationId;
 	}
 
 	public UserType getType() {

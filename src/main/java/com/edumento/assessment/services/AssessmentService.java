@@ -78,12 +78,12 @@ import com.edumento.core.configuration.notifications.Message;
 import com.edumento.core.constants.AssessmentStatus;
 import com.edumento.core.constants.AssessmentType;
 import com.edumento.core.constants.Code;
+import com.edumento.core.constants.notification.EntityAction;
 import com.edumento.core.constants.ContentStatus;
 import com.edumento.core.constants.ContentType;
 import com.edumento.core.constants.Services;
 import com.edumento.core.constants.SortField;
 import com.edumento.core.constants.SpaceRole;
-import com.edumento.core.constants.notification.EntityAction;
 import com.edumento.core.exception.InvalidException;
 import com.edumento.core.exception.MintException;
 import com.edumento.core.exception.NotFoundException;
@@ -109,12 +109,13 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Created by ayman on 13/06/16. */
 @Service
-@Slf4j
 public class AssessmentService {
+	private final Logger log = LoggerFactory.getLogger(AssessmentService.class);
 	private final QuestionAnswerRepository questionAnswerRepository;
 	private final AssessmentRepository assessmentRepository;
 	private final AssessmentQuestionRepository assessmentQuestionRepository;
@@ -341,32 +342,33 @@ public class AssessmentService {
 		assessmentRepository.save(assessment);
 
 		switch (assesmentCreateModel.getAssessmentType()) {
-		case ASSIGNMENT, QUIZ, PRACTICE, CHALLENGE -> {
-			if (assesmentCreateModel.getAssessmentType() == AssessmentType.PRACTICE
-					|| assesmentCreateModel.getAssessmentType() == AssessmentType.CHALLENGE) {
-				assessment.setPublishDate(assessment.getCreationDate());
+			case ASSIGNMENT, QUIZ, PRACTICE, CHALLENGE -> {
+				if (assesmentCreateModel.getAssessmentType() == AssessmentType.PRACTICE
+						|| assesmentCreateModel.getAssessmentType() == AssessmentType.CHALLENGE) {
+					assessment.setPublishDate(assessment.getCreationDate());
+				}
+				mapAndSaveQuestion(assesmentCreateModel, assessment);
 			}
-			mapAndSaveQuestion(assesmentCreateModel, assessment);
-		}
-		case WORKSHEET -> {
-			if (assesmentCreateModel.getWorkSheetContentId() != null
-					&& assesmentCreateModel.getWorkSheetContentId() != 0) {
-				var content = contentRepository.getReferenceById(assesmentCreateModel.getWorkSheetContentId());
-				if (content.getType() != ContentType.WORKSHEET
-						|| content.getType() == ContentType.WORKSHEET && content.getStatus() != ContentStatus.READY) {
+			case WORKSHEET -> {
+				if (assesmentCreateModel.getWorkSheetContentId() != null
+						&& assesmentCreateModel.getWorkSheetContentId() != 0) {
+					var content = contentRepository.getReferenceById(assesmentCreateModel.getWorkSheetContentId());
+					if (content.getType() != ContentType.WORKSHEET
+							|| content.getType() == ContentType.WORKSHEET
+									&& content.getStatus() != ContentStatus.READY) {
 
-					return ResponseModel.error(Code.INVALID, "error.worksheet.content.invalid");
+						return ResponseModel.error(Code.INVALID, "error.worksheet.content.invalid");
+					}
+					assessment.setContent(content);
+					if (assesmentCreateModel.getTotalAssessmentPoints() == null
+							|| assesmentCreateModel.getTotalAssessmentPoints() == 0) {
+						return ResponseModel.error(Code.INVALID, "error.assessment.totalpoints");
+					}
+					assessment.setTotalPoints(assesmentCreateModel.getTotalAssessmentPoints());
 				}
-				assessment.setContent(content);
-				if (assesmentCreateModel.getTotalAssessmentPoints() == null
-						|| assesmentCreateModel.getTotalAssessmentPoints() == 0) {
-					return ResponseModel.error(Code.INVALID, "error.assessment.totalpoints");
-				}
-				assessment.setTotalPoints(assesmentCreateModel.getTotalAssessmentPoints());
 			}
-		}
-		default -> {
-		}
+			default -> {
+			}
 		}
 
 		assessmentRepository.save(assessment);
@@ -377,7 +379,7 @@ public class AssessmentService {
 				new AssessementsInfoMessage(assessment.getId(), assessment.getTitle(), assessment.getAssessmentType(),
 						new From(user.getId(), user.getFullName(), user.getThumbnail(), null),
 						assessment.getSpace().getId(), assessment.getStartDateTime(), assessment.getDueDate(),
-						space.getName(), space.getCategory().getName(),
+						space.getName(), null,
 						challengee != null ? challengee.getId() : null));
 
 	}
@@ -560,7 +562,8 @@ public class AssessmentService {
 
 	private void getChallengeUserAssessments(Assessment assessment, ChallengeSummaryModel challengeSummaryModel) {
 		List<ChallengeesGrade> opponents = userAssessmentRepository
-				.findByAssessmentIdAndDeletedFalseOrderByTotalGradeAsc(assessment.getId()).map(new Function<UserAssessment, ChallengeesGrade>() {
+				.findByAssessmentIdAndDeletedFalseOrderByTotalGradeAsc(assessment.getId())
+				.map(new Function<UserAssessment, ChallengeesGrade>() {
 					@Override
 					public ChallengeesGrade apply(UserAssessment userAssessment) {
 						var grade = new ChallengeesGrade();
@@ -597,7 +600,8 @@ public class AssessmentService {
 	private List<ChallengeesGrade> getChallengeOppenentGrades(Assessment assessment) {
 		log.info("calling getChallengeOppenentGrades inside function........" + assessment.getId());
 		List<ChallengeesGrade> opponents = userAssessmentRepository
-				.findByAssessmentIdAndDeletedFalseOrderByTotalGradeAsc(assessment.getId()).map(new Function<UserAssessment, ChallengeesGrade>() {
+				.findByAssessmentIdAndDeletedFalseOrderByTotalGradeAsc(assessment.getId())
+				.map(new Function<UserAssessment, ChallengeesGrade>() {
 					@Override
 					public ChallengeesGrade apply(UserAssessment userAssessment) {
 						log.info("calling userAssessment........" + userAssessment);
@@ -676,7 +680,8 @@ public class AssessmentService {
 					.filter(new Predicate<AssessmentListModel>() {
 						@Override
 						public boolean test(AssessmentListModel assessmentListModel) {
-							return ((assessmentListModel.getAssessmentType() != AssessmentType.PRACTICE) || Objects.equals(assessmentListModel.getOwner(), user.getId()));
+							return ((assessmentListModel.getAssessmentType() != AssessmentType.PRACTICE)
+									|| Objects.equals(assessmentListModel.getOwner(), user.getId()));
 						}
 					})
 					.collect(Collectors.toSet()));
@@ -709,7 +714,8 @@ public class AssessmentService {
 			@Override
 			public AssessmentListModel apply(Assessment assessment) {
 				var assessmentListModel = new AssessmentListModel(assessment, userAssessmentRepository
-						.findByAssessmentIdAndDeletedFalse(assessment.getId()).collect(Collectors.toList()), currentUserId);
+						.findByAssessmentIdAndDeletedFalse(assessment.getId()).collect(Collectors.toList()),
+						currentUserId);
 				assessmentListModel.setNumberOfQuestions(
 						assessmentQuestionRepository.countByAssessmentIdAndDeletedFalse(assessmentListModel.getId()));
 				return assessmentListModel;
@@ -781,8 +787,10 @@ public class AssessmentService {
 					}
 
 					var joined = joinedRepository.findOneBySpaceIdAndUserIdAndSpaceRoleInAndDeletedFalse(
-							assessment.getSpace().getId(), SecurityUtils.getCurrentUser().getId(), SpaceRole.COLLABORATOR,
-							SpaceRole.CO_OWNER, SpaceRole.EDITOR, SpaceRole.OWNER).orElseThrow(NotPermittedException::new);
+							assessment.getSpace().getId(), SecurityUtils.getCurrentUser().getId(),
+							SpaceRole.COLLABORATOR,
+							SpaceRole.CO_OWNER, SpaceRole.EDITOR, SpaceRole.OWNER)
+							.orElseThrow(NotPermittedException::new);
 
 					var assessmentQuestions = assessmentQuestionRepository
 							.findByAssessmentAndDeletedFalse(assessment);
@@ -923,61 +931,61 @@ public class AssessmentService {
 						}
 
 						switch (assessment.getAssessmentType()) {
-						case ASSIGNMENT:
-						case QUIZ:
-						case PRACTICE:
-						case CHALLENGE:
-							var isChallengeFinished = false;
-							var assessmentQuestions = assessmentQuestionRepository
-									.findByAssessmentAndDeletedFalse(assessment);
-							if (AssessmentType.PRACTICE.equals(assessment.getAssessmentType())
-									|| AssessmentType.CHALLENGE.equals(assessment.getAssessmentType())) {
-								assessmentQuestions.forEach(new Consumer<AssessmentQuestion>() {
-									@Override
-									public void accept(AssessmentQuestion assessmentQuestion) {
-										assessmentQuestion.setQuestionWeight(1);
+							case ASSIGNMENT:
+							case QUIZ:
+							case PRACTICE:
+							case CHALLENGE:
+								var isChallengeFinished = false;
+								var assessmentQuestions = assessmentQuestionRepository
+										.findByAssessmentAndDeletedFalse(assessment);
+								if (AssessmentType.PRACTICE.equals(assessment.getAssessmentType())
+										|| AssessmentType.CHALLENGE.equals(assessment.getAssessmentType())) {
+									assessmentQuestions.forEach(new Consumer<AssessmentQuestion>() {
+										@Override
+										public void accept(AssessmentQuestion assessmentQuestion) {
+											assessmentQuestion.setQuestionWeight(1);
+										}
+									});
+									if (AssessmentType.CHALLENGE.equals(assessment.getAssessmentType())) {
+										/** changes by A.Alsayed 20-02-2019 */
+										// check challenge status using owner and opponent.
+										isChallengeFinished = checkChallengeStatus(assessment.getId(), user.getId());
+										if (isChallengeFinished) {
+											assessment.setAssessmentStatus(AssessmentStatus.FINISHED);
+										}
+									} else {
+										assessment.setAssessmentStatus(userAssessmentModel.getAssessmentStatus());
 									}
-								});
-								if (AssessmentType.CHALLENGE.equals(assessment.getAssessmentType())) {
-									/** changes by A.Alsayed 20-02-2019 */
-									// check challenge status using owner and opponent.
-									isChallengeFinished = checkChallengeStatus(assessment.getId(), user.getId());
-									if (isChallengeFinished) {
-										assessment.setAssessmentStatus(AssessmentStatus.FINISHED);
+									assessmentQuestionRepository.saveAll(assessmentQuestions);
+									assessmentRepository.save(assessment);
+								}
+
+								grade(userAssessmentModel, userAssessment, assessmentQuestions, assessment, user);
+
+								break;
+							case WORKSHEET:
+								if (!assessment.getOwner().getId().equals(user.getId())
+										&& userAssessmentModel.getUserWorkSheetAnswerModel() != null) {
+									userAssessment.setWorkSheetAnswerModel(AssessmentsMapper.INSTANCE
+											.cloneToNewModel(userAssessmentModel.getUserWorkSheetAnswerModel()));
+									userAssessmentModel.setFullGrade(assessment.getTotalPoints());
+									userAssessment.setAssessmentStatus(AssessmentStatus.NOT_EVALUATED);
+								} else if (assessment.getOwner().getId().equals(user.getId())
+										&& userAssessmentModel.getOwnerWorkSheetAnswerModel() != null) {
+									userAssessment.setOwnerWorkSheetAnswerModel(AssessmentsMapper.INSTANCE
+											.cloneToNewModel(userAssessmentModel.getOwnerWorkSheetAnswerModel()));
+									userAssessment.setTotalGrade(userAssessmentModel.getTotalGrade());
+									if (assessment.getTotalPoints() > 0 && null != assessment.getTotalPoints()) {
+										userAssessment.setPercentage(userAssessment.getTotalGrade()
+												/ assessment.getTotalPoints().floatValue() * 100);
 									}
+									userAssessment.setAssessmentStatus(AssessmentStatus.EVALUATED);
 								} else {
-									assessment.setAssessmentStatus(userAssessmentModel.getAssessmentStatus());
+									throw new MintException(Code.INVALID);
 								}
-								assessmentQuestionRepository.saveAll(assessmentQuestions);
-								assessmentRepository.save(assessment);
-							}
-
-							grade(userAssessmentModel, userAssessment, assessmentQuestions, assessment, user);
-
-							break;
-						case WORKSHEET:
-							if (!assessment.getOwner().getId().equals(user.getId())
-									&& userAssessmentModel.getUserWorkSheetAnswerModel() != null) {
-								userAssessment.setWorkSheetAnswerModel(AssessmentsMapper.INSTANCE
-										.cloneToNewModel(userAssessmentModel.getUserWorkSheetAnswerModel()));
-								userAssessmentModel.setFullGrade(assessment.getTotalPoints());
-								userAssessment.setAssessmentStatus(AssessmentStatus.NOT_EVALUATED);
-							} else if (assessment.getOwner().getId().equals(user.getId())
-									&& userAssessmentModel.getOwnerWorkSheetAnswerModel() != null) {
-								userAssessment.setOwnerWorkSheetAnswerModel(AssessmentsMapper.INSTANCE
-										.cloneToNewModel(userAssessmentModel.getOwnerWorkSheetAnswerModel()));
-								userAssessment.setTotalGrade(userAssessmentModel.getTotalGrade());
-								if (assessment.getTotalPoints() > 0 && null != assessment.getTotalPoints()) {
-									userAssessment.setPercentage(userAssessment.getTotalGrade()
-											/ assessment.getTotalPoints().floatValue() * 100);
-								}
-								userAssessment.setAssessmentStatus(AssessmentStatus.EVALUATED);
-							} else {
-								throw new MintException(Code.INVALID);
-							}
-							break;
-						default:
-							throw new InvalidException("error.assessment.type");
+								break;
+							default:
+								throw new InvalidException("error.assessment.type");
 						}
 						userAssessmentRepository.save(userAssessment);
 
@@ -1013,7 +1021,7 @@ public class AssessmentService {
 										assessment.getAssessmentType(), new From(SecurityUtils.getCurrentUser()),
 										assessment.getSpace().getId(), assessment.getStartDateTime(),
 										assessment.getDueDate(), assessment.getSpace().getName(),
-										assessment.getSpace().getCategory().getName(), userAssessment.getAssessmentStatus(),
+										null, userAssessment.getAssessmentStatus(),
 										user.equals(assessment.getOwner()), new UserInfoMessage(user1),
 										new UserInfoMessage(assessment.getOwner())));
 					}
@@ -1171,7 +1179,8 @@ public class AssessmentService {
 						.map(new Function<QuestionAnswer, QuestionAnswer>() {
 							@Override
 							public QuestionAnswer apply(QuestionAnswer questionAnswer1) {
-								questionAnswer1.setUserAnswer(userPracticeModel.getQuestionAnswerModels().getUserAnswer());
+								questionAnswer1
+										.setUserAnswer(userPracticeModel.getQuestionAnswerModels().getUserAnswer());
 								questionAnswer1.setGrade(userPracticeModel.getQuestionAnswerModels().getGrade());
 								return questionAnswer1;
 							}
@@ -1179,8 +1188,10 @@ public class AssessmentService {
 							@Override
 							public QuestionAnswer get() {
 								QuestionAnswer questionAnswer1 = new QuestionAnswer();
-								questionAnswer1.setUserAnswer(userPracticeModel.getQuestionAnswerModels().getUserAnswer());
-								questionAnswer1.setQuestionId(userPracticeModel.getQuestionAnswerModels().getQuestionId());
+								questionAnswer1
+										.setUserAnswer(userPracticeModel.getQuestionAnswerModels().getUserAnswer());
+								questionAnswer1
+										.setQuestionId(userPracticeModel.getQuestionAnswerModels().getQuestionId());
 								questionAnswer1.setUserId(SecurityUtils.getCurrentUser().getId());
 								questionAnswer1.setGrade(userPracticeModel.getQuestionAnswerModels().getGrade());
 								return questionAnswer1;
@@ -1370,54 +1381,9 @@ public class AssessmentService {
 								Collections.singletonList(userAssessment), userId);
 						userAssessmentGetModel.getAssessmentQuestionCreateModels().clear();
 						switch (assessment.getAssessmentType()) {
-						case ASSIGNMENT:
-						case QUIZ:
-						case CHALLENGE:
-							assessment.getAssessmentQuestions().stream()
-									.filter(new Predicate<AssessmentQuestion>() {
-										@Override
-										public boolean test(AssessmentQuestion assessmentQuestion) {
-											return !assessmentQuestion.isDeleted();
-										}
-									})
-									.forEach(new Consumer<AssessmentQuestion>() {
-										@Override
-										public void accept(AssessmentQuestion assessmentQuestion) {
-											var questionAnswerGetModel = mapQuestionAnswerGetModel(
-													assessmentQuestion);
-											userAssessment.getQuestionAnswerList().stream()
-													.filter(new Predicate<QuestionAnswer>() {
-														@Override
-														public boolean test(QuestionAnswer questionAnswer) {
-															return questionAnswer.getQuestionId()
-																	.equals(questionAnswerGetModel.getId());
-														}
-													})
-													.findFirst().ifPresent(new Consumer<QuestionAnswer>() {
-														@Override
-														public void accept(QuestionAnswer questionAnswer) {
-															questionAnswerGetModel.setUserAnswer(questionAnswer.getUserAnswer());
-															questionAnswerGetModel.setGrade(questionAnswer.getGrade());
-														}
-													});
-											userAssessmentGetModel.getAssessmentQuestionCreateModels()
-													.add(questionAnswerGetModel);
-										}
-									});
-							break;
-						case WORKSHEET:
-							if (userAssessment.getWorkSheetAnswerModel() != null) {
-								userAssessmentGetModel.setUserWorkSheetAnswerModel(AssessmentsMapper.INSTANCE
-										.cloneToNewModel(userAssessment.getWorkSheetAnswerModel()));
-							}
-							if (userAssessment.getOwnerWorkSheetAnswerModel() != null) {
-								userAssessmentGetModel.setOwnerWorkSheetAnswerModel(AssessmentsMapper.INSTANCE
-										.cloneToNewModel(userAssessment.getOwnerWorkSheetAnswerModel()));
-							}
-							userAssessmentGetModel.setTotalGrade(userAssessment.getTotalGrade());
-							break;
-						case PRACTICE:
-							if (assessment.getOwner().getId().equals(SecurityUtils.getCurrentUser().getId())) {
+							case ASSIGNMENT:
+							case QUIZ:
+							case CHALLENGE:
 								assessment.getAssessmentQuestions().stream()
 										.filter(new Predicate<AssessmentQuestion>() {
 											@Override
@@ -1443,18 +1409,67 @@ public class AssessmentService {
 															public void accept(QuestionAnswer questionAnswer) {
 																questionAnswerGetModel
 																		.setUserAnswer(questionAnswer.getUserAnswer());
-																questionAnswerGetModel.setGrade(0.0f);
+																questionAnswerGetModel
+																		.setGrade(questionAnswer.getGrade());
 															}
 														});
 												userAssessmentGetModel.getAssessmentQuestionCreateModels()
 														.add(questionAnswerGetModel);
-												userAssessmentGetModel.setLimitDuration(userAssessment.getDuration());
 											}
 										});
-							} else {
-								throw new NotPermittedException();
-							}
-							break;
+								break;
+							case WORKSHEET:
+								if (userAssessment.getWorkSheetAnswerModel() != null) {
+									userAssessmentGetModel.setUserWorkSheetAnswerModel(AssessmentsMapper.INSTANCE
+											.cloneToNewModel(userAssessment.getWorkSheetAnswerModel()));
+								}
+								if (userAssessment.getOwnerWorkSheetAnswerModel() != null) {
+									userAssessmentGetModel.setOwnerWorkSheetAnswerModel(AssessmentsMapper.INSTANCE
+											.cloneToNewModel(userAssessment.getOwnerWorkSheetAnswerModel()));
+								}
+								userAssessmentGetModel.setTotalGrade(userAssessment.getTotalGrade());
+								break;
+							case PRACTICE:
+								if (assessment.getOwner().getId().equals(SecurityUtils.getCurrentUser().getId())) {
+									assessment.getAssessmentQuestions().stream()
+											.filter(new Predicate<AssessmentQuestion>() {
+												@Override
+												public boolean test(AssessmentQuestion assessmentQuestion) {
+													return !assessmentQuestion.isDeleted();
+												}
+											})
+											.forEach(new Consumer<AssessmentQuestion>() {
+												@Override
+												public void accept(AssessmentQuestion assessmentQuestion) {
+													var questionAnswerGetModel = mapQuestionAnswerGetModel(
+															assessmentQuestion);
+													userAssessment.getQuestionAnswerList().stream()
+															.filter(new Predicate<QuestionAnswer>() {
+																@Override
+																public boolean test(QuestionAnswer questionAnswer) {
+																	return questionAnswer.getQuestionId()
+																			.equals(questionAnswerGetModel.getId());
+																}
+															})
+															.findFirst().ifPresent(new Consumer<QuestionAnswer>() {
+																@Override
+																public void accept(QuestionAnswer questionAnswer) {
+																	questionAnswerGetModel
+																			.setUserAnswer(
+																					questionAnswer.getUserAnswer());
+																	questionAnswerGetModel.setGrade(0.0f);
+																}
+															});
+													userAssessmentGetModel.getAssessmentQuestionCreateModels()
+															.add(questionAnswerGetModel);
+													userAssessmentGetModel
+															.setLimitDuration(userAssessment.getDuration());
+												}
+											});
+								} else {
+									throw new NotPermittedException();
+								}
+								break;
 						}
 						return ResponseModel.done(userAssessmentGetModel);
 					}
@@ -1472,7 +1487,8 @@ public class AssessmentService {
 	@Auditable(EntityAction.ASSESSMENT_UPDATE)
 	public ResponseModel updateAssessmentStatus(Long assessmentId, AssessmentStatus assessmentStatus) {
 		return assessmentRepository.findOneByIdAndDeletedFalseAndOwnerIdAndAssessmentTypeIn(assessmentId,
-				SecurityUtils.getCurrentUser().getId(), AssessmentType.PRACTICE).map(new Function<Assessment, ResponseModel>() {
+				SecurityUtils.getCurrentUser().getId(), AssessmentType.PRACTICE)
+				.map(new Function<Assessment, ResponseModel>() {
 					@Override
 					public ResponseModel apply(Assessment assessment) {
 						assessment.setAssessmentStatus(assessmentStatus);
@@ -1615,17 +1631,18 @@ public class AssessmentService {
 					}
 					questionAnswerModel.setGrade(0f);
 					switch (assessmentQuestion.getQuestionType()) {
-					case TRUE_FALSE -> gradeTrueFalseQuestion(questionAnswerModel, assessmentQuestion);
-					case SINGLE_CHOICE -> gradeSingleChoiceQuestion(questionAnswerModel, assessmentQuestion);
-					case MATCHING -> gradeMatchingQuestion(questionAnswerModel, assessmentQuestion);
-					case MULTIPLE_CHOICES -> gradeMultipleChoicesQuestion(questionAnswerModel, assessmentQuestion);
-					case SEQUENCE -> gradeSequenceQuestion(questionAnswerModel, assessmentQuestion);
-					case COMPLETE -> gradeCompleteQuestion(questionAnswerModel, assessmentQuestion);
-					case ESSAY -> {
-						if (!user.getId().equals(assessment.getOwner().getId())) {
-							userAssessment.setAssessmentStatus(AssessmentStatus.NOT_EVALUATED);
+						case TRUE_FALSE -> gradeTrueFalseQuestion(questionAnswerModel, assessmentQuestion);
+						case SINGLE_CHOICE, IMAGE_CHOICE ->
+							gradeSingleChoiceQuestion(questionAnswerModel, assessmentQuestion);
+						case MATCHING -> gradeMatchingQuestion(questionAnswerModel, assessmentQuestion);
+						case MULTIPLE_CHOICES -> gradeMultipleChoicesQuestion(questionAnswerModel, assessmentQuestion);
+						case SEQUENCE -> gradeSequenceQuestion(questionAnswerModel, assessmentQuestion);
+						case COMPLETE -> gradeCompleteQuestion(questionAnswerModel, assessmentQuestion);
+						case ESSAY, SINGLE_LINE -> {
+							if (!user.getId().equals(assessment.getOwner().getId())) {
+								userAssessment.setAssessmentStatus(AssessmentStatus.NOT_EVALUATED);
+							}
 						}
-					}
 					}
 
 					totalGrade += questionAnswerModel.getGrade();

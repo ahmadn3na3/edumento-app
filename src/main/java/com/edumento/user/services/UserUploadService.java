@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.edumento.core.configuration.MintProperties;
@@ -16,7 +14,6 @@ import com.edumento.core.model.ResponseModel;
 /** Created by ahmad on 5/29/16. */
 @Service
 public class UserUploadService {
-	private final Logger log = LoggerFactory.getLogger(UserUploadService.class);
 
 	private final MintProperties mintProperties;
 

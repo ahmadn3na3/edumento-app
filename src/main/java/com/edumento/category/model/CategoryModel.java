@@ -1,14 +1,10 @@
 package com.edumento.category.model;
 
-import com.edumento.b2b.model.organization.SimpleOrganizationModel;
 import com.edumento.core.model.SimpleModel;
 
-/** Created by ahmad on 3/13/16. */
 public class CategoryModel extends CreateCategoryModel {
 
 	private Long id;
-	private SimpleOrganizationModel organization;
-	private SimpleModel foundation;
 	private SimpleModel parentCategory;
 
 	public Long getId() {
@@ -17,22 +13,6 @@ public class CategoryModel extends CreateCategoryModel {
 
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	public SimpleOrganizationModel getOrganization() {
-		return organization;
-	}
-
-	public void setOrganization(SimpleOrganizationModel organization) {
-		this.organization = organization;
-	}
-
-	public SimpleModel getFoundation() {
-		return foundation;
-	}
-
-	public void setFoundation(SimpleModel foundation) {
-		this.foundation = foundation;
 	}
 
 	public SimpleModel getParentCategory() {
@@ -45,7 +25,7 @@ public class CategoryModel extends CreateCategoryModel {
 
 	@Override
 	public String toString() {
-		return "CategoryModel{" + "id=" + id + ", organization=" + organization + ", foundation=" + foundation + "} "
+		return "CategoryModel{" + "id=" + id + "} "
 				+ super.toString();
 	}
 

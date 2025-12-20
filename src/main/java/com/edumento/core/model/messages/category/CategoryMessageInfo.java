@@ -5,33 +5,14 @@ import com.edumento.core.model.messages.From;
 
 public class CategoryMessageInfo extends SimpleModel {
 
-	private Long organizationId;
-	private Long foundationId;
 	private From from;
 
 	public CategoryMessageInfo() {
 	}
 
-	public CategoryMessageInfo(Long id, String name, Long organizationId, Long foundationId, From from) {
+	public CategoryMessageInfo(Long id, String name, From from) {
 		super(id, name);
-		this.organizationId = organizationId;
-		this.foundationId = foundationId;
-	}
-
-	public Long getOrganizationId() {
-		return organizationId;
-	}
-
-	public void setOrganizationId(Long organizationId) {
-		this.organizationId = organizationId;
-	}
-
-	public Long getFoundationId() {
-		return foundationId;
-	}
-
-	public void setFoundationId(Long foundationId) {
-		this.foundationId = foundationId;
+		this.from = from;
 	}
 
 	public From getFrom() {

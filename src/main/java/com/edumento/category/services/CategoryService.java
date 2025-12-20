@@ -1,9 +1,8 @@
 package com.edumento.category.services;
 
 import java.io.IOException;
-import java.util.Comparator;
+
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -19,11 +18,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.edumento.b2b.domain.Foundation;
-import com.edumento.b2b.domain.Organization;
-import com.edumento.b2b.model.organization.SimpleOrganizationModel;
-import com.edumento.b2b.repo.FoundationRepository;
-import com.edumento.b2b.repo.OrganizationRepository;
 import com.edumento.category.domain.Category;
 import com.edumento.category.domain.CategoryGradesAndChapter;
 import com.edumento.category.model.CategoryModel;
@@ -35,24 +29,21 @@ import com.edumento.core.configuration.auditing.Auditable;
 import com.edumento.core.configuration.notifications.Message;
 import com.edumento.core.constants.Code;
 import com.edumento.core.constants.Services;
-import com.edumento.core.constants.SpaceRole;
+
 import com.edumento.core.constants.notification.EntityAction;
 import com.edumento.core.exception.ExistException;
-import com.edumento.core.exception.InvalidException;
+
 import com.edumento.core.exception.MintException;
 import com.edumento.core.exception.NotFoundException;
 import com.edumento.core.exception.NotPermittedException;
 import com.edumento.core.model.PageResponseModel;
 import com.edumento.core.model.ResponseModel;
-import com.edumento.core.model.SimpleModel;
+
 import com.edumento.core.model.messages.From;
 import com.edumento.core.model.messages.category.CategoryMessageInfo;
 import com.edumento.core.security.SecurityUtils;
-import com.edumento.core.util.PermissionCheck;
-import com.edumento.space.model.space.response.SpaceListingModel;
-import com.edumento.space.repos.JoinedRepository;
+
 import com.edumento.space.repos.SpaceRepository;
-import com.edumento.space.services.SpaceService;
 import com.edumento.user.constant.UserType;
 import com.edumento.user.repo.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -69,34 +60,20 @@ public class CategoryService {
 
 	private final UserRepository userRepository;
 
-	private final OrganizationRepository organizationRepository;
-
-	private final FoundationRepository foundationRepository;
-
 	private final SpaceRepository spaceRepository;
 
 	private final CategoryGradesAndChapterRepository categoryGradesAndChapterRepository;
-
-	private final JoinedRepository joinedRepository;
-
-	private final SpaceService spaceService;
 
 	@Value("${mint.url}")
 	private String url;
 
 	@Autowired
 	public CategoryService(CategoryRepository categoryRepository, UserRepository userRepository,
-			OrganizationRepository organizationRepository, FoundationRepository foundationRepository,
-			SpaceRepository spaceRepository, CategoryGradesAndChapterRepository categoryGradesAndChapterRepository,
-			JoinedRepository joinedRepository, SpaceService spaceService) {
+			SpaceRepository spaceRepository, CategoryGradesAndChapterRepository categoryGradesAndChapterRepository) {
 		this.categoryRepository = categoryRepository;
 		this.userRepository = userRepository;
-		this.organizationRepository = organizationRepository;
-		this.foundationRepository = foundationRepository;
 		this.spaceRepository = spaceRepository;
 		this.categoryGradesAndChapterRepository = categoryGradesAndChapterRepository;
-		this.joinedRepository = joinedRepository;
-		this.spaceService = spaceService;
 	}
 
 	@Transactional
@@ -106,170 +83,40 @@ public class CategoryService {
 	public ResponseModel createCategory(CreateCategoryModel createCategoryModel) {
 		log.debug("Create category with model {}", createCategoryModel);
 		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(user -> {
-			if (createCategoryModel.getOrganizationId() == null && createCategoryModel.getFoundationId() == null) {
-				if (user.getType() == UserType.SUPER_ADMIN || user.getType() == UserType.SYSTEM_ADMIN) {
-					if (categoryRepository.findOneByNameAndOrganizationIsNullAndFoundationIsNullAndDeletedFalse(
-							createCategoryModel.getName()).isPresent()) {
-						throw new ExistException("error.category.exist");
-					}
-					var category = new Category();
-					category.setName(createCategoryModel.getName());
-					category.setImage(createCategoryModel.getImage());
-					category.setNameAr(createCategoryModel.getNameAr());
-					category.setThumbnail(createCategoryModel.getThumbnail());
-					categoryRepository.saveAndFlush(category);
-					var categoryMessageInfo = new CategoryMessageInfo(category.getId(), category.getName(), null, null,
-							new From(SecurityUtils.getCurrentUser()));
-					return ResponseModel.done(categoryMessageInfo);
-				}
-				throw new NotPermittedException();
-			} else {
-
-				var foundation = createCategoryModel.getFoundationId() != null
-						? foundationRepository.findById(createCategoryModel.getFoundationId()).orElse(null)
-						: null;
-				var organization = createCategoryModel.getOrganizationId() != null
-						? organizationRepository.findById(createCategoryModel.getOrganizationId()).orElse(null)
-						: null;
-
-				if (foundation == null && organization == null) {
-					throw new NotFoundException("organization or foundation");
-				}
-				if (foundation != null && organization != null && !organization.getFoundation().equals(foundation)) {
-					throw new InvalidException("organization");
-				}
-				if (organization != null && foundation == null) {
-					foundation = organization.getFoundation();
-				}
-
-				if (categoryRepository
-						.findOneByNameAndOrganizationAndDeletedFalse(createCategoryModel.getName(), organization)
-						.isPresent()
-						|| categoryRepository.findOneByNameAndFoundationAndOrganizationIsNullAndDeletedFalse(
-								createCategoryModel.getName(), foundation).isPresent()) {
-					log.warn("category named {} Exist", createCategoryModel.getName());
+			if (user.getType() == UserType.SUPER_ADMIN || user.getType() == UserType.SYSTEM_ADMIN) {
+				if (categoryRepository.findOneByNameAndDeletedFalse(
+						createCategoryModel.getName()).isPresent()) {
 					throw new ExistException("error.category.exist");
 				}
-
-				// PermissionCheck.checkUserForFoundationAndOrgOperation(
-				// user,
-				// createCategoryModel.getOrganizationId(),
-				// createCategoryModel.getFoundationId());
 				var category = new Category();
 				category.setName(createCategoryModel.getName());
-				category.setNameAr(createCategoryModel.getNameAr());
 				category.setImage(createCategoryModel.getImage());
+				category.setNameAr(createCategoryModel.getNameAr());
 				category.setThumbnail(createCategoryModel.getThumbnail());
-				category.setFoundation(foundation);
-				category.setOrganization(organization);
-				categoryRepository.save(category);
-				var categoryGradesAndChapter = new CategoryGradesAndChapter();
-				categoryGradesAndChapter.setCategoryId(category.getId());
-				categoryGradesAndChapter.setUserId(user.getId());
-				if (!createCategoryModel.getGrades().isEmpty()) {
-					categoryGradesAndChapter.setGrades(createCategoryModel.getGrades());
-				}
-				if (!createCategoryModel.getChapters().isEmpty()) {
-					categoryGradesAndChapter.setChapters(createCategoryModel.getChapters());
-				}
-				categoryGradesAndChapterRepository.save(categoryGradesAndChapter);
 				categoryRepository.saveAndFlush(category);
 				var categoryMessageInfo = new CategoryMessageInfo(category.getId(), category.getName(),
-						category.getOrganization() == null ? null : category.getOrganization().getId(),
-						category.getFoundation().getId(), new From(SecurityUtils.getCurrentUser()));
-				return ResponseModel.done(null, categoryMessageInfo);
+						new From(SecurityUtils.getCurrentUser()));
+				return ResponseModel.done(categoryMessageInfo);
 			}
+			throw new NotPermittedException();
 		}).orElseThrow(NotPermittedException::new);
 	}
 
 	@Transactional(readOnly = true)
 	@PreAuthorize("hasAuthority('CATEGORY_READ')")
-	public ResponseModel getCategories(PageRequest page, Long foundationId, Long organizationId, String filter,
-			boolean all, String lang) {
+	public ResponseModel getCategories(PageRequest page, String filter, boolean all, String lang) {
 		log.debug("get categories");
 
-		var user = SecurityUtils.getCurrentUser();
-
-		Specification<Category> byFoundation = null;
-		Specification<Category> byOrganization = null;
 		Specification<Category> name = null;
 		Specification<Category> deletedFalse = (root, query, cb) -> cb.equal(root.get("deleted"), Boolean.FALSE);
-
-		if (foundationId != null) {
-			var foundation = foundationRepository.findById(foundationId).orElseThrow(NotFoundException::new);
-
-			byFoundation = (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("foundation"),
-					foundation);
-		} else if (!all) {
-			byFoundation = (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.isNull(root.get("foundation"));
-		}
-
-		if (organizationId != null) {
-			var organization = organizationRepository.findById(organizationId).orElseThrow(NotFoundException::new);
-
-			byOrganization = (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("organization"),
-					organization);
-		} else if (!all) {
-			byOrganization = (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.isNull(root.get("organization"));
-		}
 
 		if (filter != null) {
 			name = (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder
 					.like(criteriaBuilder.lower(root.get("name")), "%" + filter.toLowerCase() + "%");
 		}
-		switch (user.getType()) {
-		case SUPER_ADMIN, SYSTEM_ADMIN:
-			break;
-		case FOUNDATION_ADMIN:
-			var foundation = foundationRepository.findById(user.getFoundationId()).orElseThrow(NotFoundException::new);
-
-			byFoundation = (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("foundation"),
-					foundation);
-
-			break;
-
-		case ADMIN:
-			foundation = foundationRepository.findById(user.getFoundationId()).orElseThrow(NotFoundException::new);
-
-			byFoundation = (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("foundation"),
-					foundation);
-			var organization = organizationRepository.findById(user.getOrganizationId())
-					.orElseThrow(NotFoundException::new);
-
-			byOrganization = (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("organization"),
-					organization);
-			if (all) {
-				byOrganization = (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.or(
-						criteriaBuilder.equal(root.get("organization"), organization),
-						criteriaBuilder.isNull(root.get("organization")));
-			}
-			break;
-		default:
-			if (user.getOrganizationId() != null) {
-				foundation = foundationRepository.findById(user.getFoundationId()).orElseThrow(NotFoundException::new);
-
-				byFoundation = (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("foundation"),
-						foundation);
-				organization = organizationRepository.findById(user.getOrganizationId())
-						.orElseThrow(NotFoundException::new);
-
-				byOrganization = (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder
-						.equal(root.get("organization"), organization);
-			} else if (user.getFoundationId() != null) {
-				foundation = foundationRepository.findById(user.getFoundationId()).orElseThrow(NotFoundException::new);
-
-				byFoundation = (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("foundation"),
-						foundation);
-
-			} else {
-				byFoundation = (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.isNull(root.get("foundation"));
-				byOrganization = (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder
-						.isNull(root.get("organization"));
-			}
-		}
 
 		Page<CategoryModel> categoryModels = categoryRepository
-				.findAll(Specification.where(name).and(byFoundation).and(byOrganization).and(deletedFalse), page)
+				.findAll(Specification.where(name).and(deletedFalse), page)
 				.map(category -> getCategoryModel(category, "en"));
 		return PageResponseModel.done(categoryModels.getContent(), categoryModels.getTotalPages(),
 				categoryModels.getNumber(), categoryModels.getTotalElements());
@@ -286,7 +133,7 @@ public class CategoryService {
 	@Transactional(readOnly = true)
 	@PreAuthorize("hasAuthority('CATEGORY_READ') and hasAuthority('SYSTEM_ADMIN')")
 	public ResponseModel getCloudCategories() {
-		return ResponseModel.done(categoryRepository.findByOrganizationIsNullAndFoundationIsNullAndDeletedFalse()
+		return ResponseModel.done(categoryRepository.findByDeletedFalse()
 				.map(category -> getCategoryModel(category, "en")).collect(Collectors.toSet()));
 	}
 
@@ -299,25 +146,8 @@ public class CategoryService {
 		log.debug("update category: {}", createCategoryModel);
 		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
 				.map(user -> categoryRepository.findById(id).map(category -> {
-					PermissionCheck.checkUserForFoundationAndOrgOperation(user,
-							category.getOrganization() != null ? category.getOrganization().getId() : null,
-							category.getFoundation() != null ? category.getFoundation().getId() : null);
 					if (!createCategoryModel.getName().equals(category.getName())) {
-						if (category.getOrganization() != null) {
-							if (categoryRepository.findOneByNameAndOrganizationAndDeletedFalse(
-									createCategoryModel.getName(), category.getOrganization()).isPresent()) {
-								log.warn("category named {} not Exist", category.getName());
-								throw new ExistException();
-							}
-						}
-						if (category.getFoundation() != null) {
-							if (categoryRepository.findOneByNameAndFoundationAndOrganizationIsNullAndDeletedFalse(
-									createCategoryModel.getName(), category.getFoundation()).isPresent()) {
-								log.warn("category named {} not Exist", category.getName());
-								throw new ExistException();
-							}
-						}
-						if (categoryRepository.findOneByNameAndOrganizationIsNullAndFoundationIsNullAndDeletedFalse(
+						if (categoryRepository.findOneByNameAndDeletedFalse(
 								createCategoryModel.getName()).isPresent()) {
 							log.warn("category named {} not Exist", category.getName());
 							throw new ExistException();
@@ -344,8 +174,6 @@ public class CategoryService {
 					log.debug("category named {} and id {} updated", category.getName(), category.getId());
 					categoryRepository.saveAndFlush(category);
 					var categoryMessageInfo = new CategoryMessageInfo(category.getId(), category.getName(),
-							category.getOrganization() == null ? null : category.getOrganization().getId(),
-							category.getFoundation() == null ? null : category.getFoundation().getId(),
 							new From(SecurityUtils.getCurrentUser()));
 					return ResponseModel.done(null, categoryMessageInfo);
 				}).orElseThrow(NotFoundException::new)).orElseThrow(NotPermittedException::new);
@@ -370,9 +198,7 @@ public class CategoryService {
 		log.debug("Delete category with id {}", id);
 		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
 				.map(user -> categoryRepository.findById(id).map(category -> {
-					PermissionCheck.checkUserForFoundationAndOrgOperation(user,
-							category.getOrganization() != null ? category.getOrganization().getId() : null,
-							category.getFoundation() != null ? category.getFoundation().getId() : null);
+
 					if (spaceRepository.countByCategoryAndDeletedFalse(category) > 0) {
 						throw new MintException(Code.INVALID, "error.category.spaces");
 					}
@@ -380,79 +206,9 @@ public class CategoryService {
 					categoryRepository.flush();
 					log.debug("category {} deleted", id);
 					var categoryMessageInfo = new CategoryMessageInfo(category.getId(), category.getName(),
-							category.getOrganization() == null ? null : category.getOrganization().getId(),
-							category.getFoundation() == null ? null : category.getFoundation().getId(),
 							new From(SecurityUtils.getCurrentUser()));
 					return ResponseModel.done(null, categoryMessageInfo);
 				}).orElseThrow(NotFoundException::new)).orElseThrow(NotPermittedException::new);
-	}
-
-	@Transactional
-	@Auditable(EntityAction.CATEGORY_DELETE)
-	@PreAuthorize("hasAuthority('CATEGORY_DELETE') AND hasAuthority('ADMIN')")
-	public void deleteInOrganization(Organization organization) {
-		log.debug("Delete category in organization {}", organization.getId());
-		List<Category> categories = categoryRepository.findByOrganizationAndDeletedFalse(organization)
-				.collect(Collectors.toList());
-		if (!categories.isEmpty()) {
-			categoryRepository.deleteAll(categories);
-			log.debug("{} catrgories deleted", categories.size());
-		}
-	}
-
-	@Transactional
-	@Auditable(EntityAction.CATEGORY_DELETE)
-	@PreAuthorize("hasAuthority('CATEGORY_DELETE') AND hasAuthority('ADMIN')")
-	public void deleteInFoundation(Foundation foundation) {
-		log.debug("Delete category in foundation {}", foundation.getId());
-		List<Category> categories = categoryRepository.findByFoundationAndDeletedFalse(foundation)
-				.collect(Collectors.toList());
-		if (!categories.isEmpty()) {
-			categoryRepository.deleteAll(categories);
-			log.debug("{} catrgories deleted", categories.size());
-		}
-	}
-
-	@Transactional(readOnly = true)
-	@PreAuthorize("hasAuthority('CATEGORY_READ')")
-	public ResponseModel getSpacesByCategory(Long id, PageRequest pageRequest, String lang, Boolean owned) {
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
-				.map(user -> categoryRepository.findById(id).map(category -> {
-					if (user.getType() == UserType.USER) {
-						Page<SpaceListingModel> spaceListingModels = joinedRepository
-								.findByUserAndSpaceCategoryIdAndDeletedFalse(user, category.getId(), pageRequest)
-								.map(joined -> {
-									if (owned && joined.getSpaceRole() != SpaceRole.OWNER) {
-										return null;
-									}
-									return spaceService.getUpdatesForSpaces(joined, null, lang);
-								});
-						return PageResponseModel.done(spaceListingModels.getContent(),
-								spaceListingModels.getTotalPages(), spaceListingModels.getNumber(),
-								spaceListingModels.getTotalElements());
-					}
-					PermissionCheck.checkUserForFoundationAndOrgOperation(user,
-							category.getOrganization() != null ? category.getOrganization().getId() : null,
-							category.getFoundation() != null ? category.getFoundation().getId() : null);
-					return ResponseModel.done(spaceRepository.findByCategoryAndDeletedFalse(category)
-							.map(space -> new SimpleModel(space.getId(), space.getName())).collect(Collectors.toSet()));
-				}).orElseThrow(NotFoundException::new)).orElseThrow(NotPermittedException::new);
-	}
-
-	@Transactional(readOnly = true)
-	@PreAuthorize("hasAuthority('CATEGORY_READ')")
-	public ResponseModel getCategoriesByOrganization(Organization organization) {
-		return ResponseModel.done(categoryRepository.findByOrganizationAndDeletedFalse(organization)
-				.map(category -> getCategoryModel(category, "en"))
-				.sorted(Comparator.comparing(CreateCategoryModel::getName)).collect(Collectors.toList()));
-	}
-
-	@Transactional(readOnly = true)
-	@PreAuthorize("hasAuthority('CATEGORY_READ')")
-	public ResponseModel getCategoriesByFoundation(Foundation foundation) {
-		return ResponseModel.done(categoryRepository.findByFoundationAndDeletedFalse(foundation)
-				.map(category -> getCategoryModel(category, "en"))
-				.sorted(Comparator.comparing(CreateCategoryModel::getName)).collect(Collectors.toList()));
 	}
 
 	private CategoryModel getCategoryModel(Category category, String lang) {
@@ -474,19 +230,13 @@ public class CategoryService {
 				&& !category.getThumbnail().startsWith("http://") && !category.getThumbnail().startsWith("//")) {
 			categoryModel.setThumbnail(url + category.getThumbnail());
 		}
-		if (category.getFoundation() != null) {
-			categoryModel.setFoundation(new SimpleOrganizationModel(category.getFoundation().getId(),
-					category.getFoundation().getName(), category.getFoundation().getCode()));
-			if (category.getOrganization() != null) {
-				categoryModel.setOrganization(new SimpleOrganizationModel(category.getOrganization().getId(),
-						category.getOrganization().getName(), category.getOrganization().getOrgId()));
-			}
-		}
-//		var categoryGradesAndChapter = categoryGradesAndChapterRepository.findByCategoryId(category.getId());
-//		if (categoryGradesAndChapter != null) {
-//			categoryModel.getGrades().addAll(categoryGradesAndChapter.getGrades());
-//			categoryModel.getChapters().addAll(categoryGradesAndChapter.getChapters());
-//		}
+
+		// var categoryGradesAndChapter =
+		// categoryGradesAndChapterRepository.findByCategoryId(category.getId());
+		// if (categoryGradesAndChapter != null) {
+		// categoryModel.getGrades().addAll(categoryGradesAndChapter.getGrades());
+		// categoryModel.getChapters().addAll(categoryGradesAndChapter.getChapters());
+		// }
 		return categoryModel;
 	}
 
@@ -502,7 +252,7 @@ public class CategoryService {
 
 		createCategoryModels.forEach(createCategoryModel -> {
 			var categoryOptional = categoryRepository
-					.findOneByNameAndOrganizationIsNullAndFoundationIsNullAndDeletedFalse(
+					.findOneByNameAndDeletedFalse(
 							createCategoryModel.getName());
 			if (!categoryOptional.isPresent()) {
 				var category = new Category();

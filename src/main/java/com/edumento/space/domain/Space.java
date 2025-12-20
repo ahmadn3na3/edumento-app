@@ -7,7 +7,8 @@ import java.util.Objects;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-import com.edumento.category.domain.Category;
+// Removed Category import
+
 import com.edumento.content.domain.Content;
 import com.edumento.core.domain.AbstractEntity;
 import com.edumento.user.domain.User;
@@ -63,9 +64,7 @@ public class Space extends AbstractEntity {
 	@Column(length = 600)
 	private String description;
 
-	@ManyToOne
-	@JoinColumn(name = "category_id", nullable = false, foreignKey = @ForeignKey(name = "FK_SPACE_CATEGORY"))
-	private Category category;
+	// Removed category field
 
 	@ManyToOne
 	@JoinColumn(name = "owner_id", nullable = false, foreignKey = @ForeignKey(name = "FK_SPACE_OWNER"))
@@ -176,14 +175,6 @@ public class Space extends AbstractEntity {
 		this.paid = paid;
 	}
 
-	public Category getCategory() {
-		return category;
-	}
-
-	public void setCategory(Category category) {
-		this.category = category;
-	}
-
 	public User getUser() {
 		return user;
 	}
@@ -283,7 +274,8 @@ public class Space extends AbstractEntity {
 
 		var space = (Space) o;
 
-		if (!Objects.equals(id, space.id) || !name.equals(space.name) || !category.equals(space.category)) {
+		if (!Objects.equals(id, space.id) || !name.equals(space.name)) {
+
 			return false;
 		}
 		return user.equals(space.user);
@@ -293,7 +285,7 @@ public class Space extends AbstractEntity {
 	public int hashCode() {
 		var result = id != null ? id.hashCode() : 0;
 		result = 31 * result + name.hashCode();
-		result = 31 * result + category.hashCode();
+
 		return 31 * result + user.hashCode();
 	}
 }

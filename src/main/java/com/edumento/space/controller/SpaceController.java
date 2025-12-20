@@ -192,14 +192,6 @@ public class SpaceController extends AbstractController<SpaceCreateModel, Long> 
 		return spaceService.getUserBySpaceID(id);
 	}
 
-	@RequestMapping(path = "/{id}/groups", method = RequestMethod.GET)
-	// @ApiOperation(value = "get spaces groups ", notes = "this method is used to
-	// list all groups in
-	// a given space ")
-	public ResponseModel getSpaceGroups(@PathVariable Long id) {
-		return spaceService.getGroupsBySpaceId(id);
-	}
-
 	@Deprecated
 	@RequestMapping(path = "/updates", method = RequestMethod.POST)
 	public ResponseModel getSpaceUpdates(@RequestBody @Validated DateModel dateModel) {

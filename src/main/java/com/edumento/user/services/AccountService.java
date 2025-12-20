@@ -4,23 +4,15 @@ import static org.springframework.data.jpa.domain.Specification.where;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.slf4j.Logger;
@@ -32,48 +24,31 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.edumento.assessment.model.leaderboard.LeaderboardModel;
-import com.edumento.assessment.model.leaderboard.UserSpaceRankingModel;
-import com.edumento.b2b.domain.Foundation;
-import com.edumento.b2b.domain.Groups;
-import com.edumento.b2b.domain.Organization;
-import com.edumento.b2b.domain.Role;
-import com.edumento.b2b.domain.TimeLockException;
-import com.edumento.b2b.model.timelock.TimeModel;
-import com.edumento.b2b.repo.FoundationRepository;
-import com.edumento.b2b.repo.GroupsRepository;
-import com.edumento.b2b.repo.OrganizationRepository;
-import com.edumento.b2b.repo.RoleRepository;
-import com.edumento.b2b.services.GroupService;
-import com.edumento.b2b.services.RoleService;
+import com.edumento.b2c.domain.CloudPackage;
 import com.edumento.b2c.repos.CloudPackageRepository;
 import com.edumento.core.configuration.auditing.Auditable;
 import com.edumento.core.configuration.notifications.Message;
 import com.edumento.core.constants.Code;
-import com.edumento.core.constants.LockStatus;
 import com.edumento.core.constants.PackageType;
 import com.edumento.core.constants.Services;
 import com.edumento.core.constants.SpaceRole;
-import com.edumento.core.constants.WeekDay;
 import com.edumento.core.constants.notification.EntityAction;
 import com.edumento.core.exception.ExistException;
+
 import com.edumento.core.exception.MintException;
 import com.edumento.core.exception.NotFoundException;
 import com.edumento.core.exception.NotPermittedException;
 import com.edumento.core.model.ResponseModel;
-import com.edumento.core.model.SimpleModel;
 import com.edumento.core.model.messages.user.UserInfoMessage;
 import com.edumento.core.security.SecurityUtils;
 import com.edumento.core.util.DateConverter;
 import com.edumento.core.util.RandomUtils;
-import com.edumento.space.domain.Joined;
-import com.edumento.space.repos.JoinedRepository;
+
 import com.edumento.user.constant.UserType;
 import com.edumento.user.domain.Permission;
 import com.edumento.user.domain.User;
 import com.edumento.user.model.account.ChangePasswordModel;
-import com.edumento.user.model.account.FoundationRegesiterAccountModel;
-import com.edumento.user.model.account.FoundationRegesiterAccountWithEncodePasswordModel;
+
 import com.edumento.user.model.account.RegesiterAccountModel;
 import com.edumento.user.model.user.UserCreateModel;
 import com.edumento.user.model.user.UserInfoModel;
@@ -97,38 +72,17 @@ public class AccountService {
 
 	private final PasswordEncoder passwordEncoder;
 
-	private final RoleRepository roleRepository;
-
-	private final FoundationRepository foundationRepository;
-
-	private final OrganizationRepository organizationRepository;
-
 	private final CloudPackageRepository cloudPackageRepository;
 
 	private final PermissionRepository permissionRepository;
-	private final RoleService roleService;
-	private final GroupService groupService;
 
-	@Autowired
-	GroupsRepository groupsRepository;
-
-	private final JoinedRepository joinedRepository;
-
-	@Autowired
-	public AccountService(PasswordEncoder passwordEncoder, FoundationRepository foundationRepository,
-			RoleRepository roleRepository, OrganizationRepository organizationRepository, UserRepository userRepository,
-			CloudPackageRepository cloudPackageRepository, PermissionRepository permissionRepository,
-			GroupService groupService, RoleService roleService, JoinedRepository joinedRepository) {
+	public AccountService(PasswordEncoder passwordEncoder,
+			UserRepository userRepository,
+			CloudPackageRepository cloudPackageRepository, PermissionRepository permissionRepository) {
 		this.passwordEncoder = passwordEncoder;
-		this.foundationRepository = foundationRepository;
-		this.roleRepository = roleRepository;
-		this.organizationRepository = organizationRepository;
 		this.userRepository = userRepository;
 		this.cloudPackageRepository = cloudPackageRepository;
 		this.permissionRepository = permissionRepository;
-		this.roleService = roleService;
-		this.groupService = groupService;
-		this.joinedRepository = joinedRepository;
 	}
 
 	@Transactional
@@ -258,8 +212,8 @@ public class AccountService {
 		return userRepository.findOneByResetKeyAndDeletedFalse(code).map(new Function<User, ResponseModel>() {
 			@Override
 			public ResponseModel apply(User user) {
-				if (ZonedDateTime.now(ZoneOffset.UTC)
-						.isAfter(ZonedDateTime.ofInstant(user.getResetDate().toInstant(), ZoneOffset.UTC).plusHours(24))) {
+				if (ZonedDateTime.now(ZoneOffset.UTC).isAfter(
+						ZonedDateTime.ofInstant(user.getResetDate().toInstant(), ZoneOffset.UTC).plusHours(24))) {
 					log.warn("code {} is invalid ", code);
 					throw new MintException(Code.INVALID, "error.reset.code");
 				}
@@ -307,7 +261,7 @@ public class AccountService {
 		newUser.setMobile(userCreateModel.getMobile());
 		newUser.setGender(userCreateModel.getGender().getValue());
 
-		var cloudPackage = cloudPackageRepository.findByPackageTypeAndNameAndDeletedFalse(PackageType.STANDARD,
+		CloudPackage cloudPackage = cloudPackageRepository.findByPackageTypeAndNameAndDeletedFalse(PackageType.STANDARD,
 				PackageType.STANDARD.name());
 		if (userCreateModel.getPackageId() != null && !userCreateModel.getPackageId().equals(0L)) {
 			cloudPackage = cloudPackageRepository.findById(userCreateModel.getPackageId())
@@ -333,8 +287,7 @@ public class AccountService {
 					public ResponseModel apply(User u) {
 						return getUserUpdateResponseModel(userUpdateModel, u);
 					}
-				})
-				.orElseThrow(new Supplier<NotFoundException>() {
+				}).orElseThrow(new Supplier<NotFoundException>() {
 					@Override
 					public NotFoundException get() {
 						return new NotFoundException("user");
@@ -345,28 +298,29 @@ public class AccountService {
 	@Transactional
 	@Auditable(EntityAction.USER_UPDATE)
 	public ResponseModel changePassword(ChangePasswordModel password) {
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, ResponseModel>() {
-			@Override
-			public ResponseModel apply(User u) {
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+				.map(new Function<User, ResponseModel>() {
+					@Override
+					public ResponseModel apply(User u) {
 
-				if (!passwordEncoder.matches(password.getOldPassword(), u.getPassword())) {
-					throw new MintException(Code.INVALID, "error.password.old.invalid");
-				}
+						if (!passwordEncoder.matches(password.getOldPassword(), u.getPassword())) {
+							throw new MintException(Code.INVALID, "error.password.old.invalid");
+						}
 
-				var encryptedPassword = passwordEncoder.encode(password.getPassword());
-				u.setPassword(encryptedPassword);
-				u.setFirstLogin(Boolean.FALSE);
-				u.setForceChangePassword(Boolean.FALSE);
-				userRepository.save(u);
-				log.debug("Changed password for User: {}", u);
-				return ResponseModel.done();
-			}
-		}).orElseThrow(new Supplier<NotFoundException>() {
-			@Override
-			public NotFoundException get() {
-				return new NotFoundException("user");
-			}
-		});
+						var encryptedPassword = passwordEncoder.encode(password.getPassword());
+						u.setPassword(encryptedPassword);
+						u.setFirstLogin(Boolean.FALSE);
+						u.setForceChangePassword(Boolean.FALSE);
+						userRepository.save(u);
+						log.debug("Changed password for User: {}", u);
+						return ResponseModel.done();
+					}
+				}).orElseThrow(new Supplier<NotFoundException>() {
+					@Override
+					public NotFoundException get() {
+						return new NotFoundException("user");
+					}
+				});
 	}
 
 	@Transactional(readOnly = true)
@@ -406,7 +360,7 @@ public class AccountService {
 		if (includePermission) {
 			if (user.getType() == UserType.SYSTEM_ADMIN || user.getType() == UserType.SUPER_ADMIN) {
 				permissionRepository.findByTypeInAndDeletedFalse(
-						Arrays.asList(UserType.SYSTEM_ADMIN, UserType.FOUNDATION_ADMIN, UserType.ADMIN, UserType.USER))
+						Arrays.asList(UserType.SYSTEM_ADMIN, UserType.SUPER_ADMIN, UserType.USER))
 						.forEach(new Consumer<Permission>() {
 							@Override
 							public void accept(Permission permission) {
@@ -416,10 +370,11 @@ public class AccountService {
 								} else if ((Integer
 										.valueOf(userInfoModel.getPermissions().get(permission.getKeyCode()).toString())
 										.byteValue() & val) != val) {
-									userInfoModel.getPermissions().put(permission.getKeyCode(),
-											Integer.valueOf(
-													userInfoModel.getPermissions().get(permission.getKeyCode()).toString())
-													.byteValue() | val);
+									userInfoModel.getPermissions()
+											.put(permission.getKeyCode(),
+													Integer.valueOf(userInfoModel.getPermissions()
+															.get(permission.getKeyCode()).toString()).byteValue()
+															| val);
 								}
 							}
 						});
@@ -433,56 +388,17 @@ public class AccountService {
 						} else if ((Integer.valueOf(userInfoModel.getPermissions().get(key).toString()).byteValue()
 								& val) != val) {
 							userInfoModel.getPermissions().put(key,
-									Integer.valueOf(userInfoModel.getPermissions().get(key).toString()).byteValue() | val);
+									Integer.valueOf(userInfoModel.getPermissions().get(key).toString()).byteValue()
+											| val);
 						}
 					}
 				});
-
-			} else {
-				Supplier<Stream<Permission>> streamSupplier = new Supplier<Stream<Permission>>() {
-					@Override
-					public Stream<Permission> get() {
-						return permissionRepository
-								.findByModuleInAndDeletedFalse(user.getFoundation().getFoundationPackage().getModules());
-					}
-				};
-				user.getRoles()
-						.forEach(new Consumer<Role>() {
-							@Override
-							public void accept(Role role) {
-								role.getPermission()
-										.forEach(new BiConsumer<String, Byte>() {
-											@Override
-											public void accept(String key, Byte value) {
-												streamSupplier.get()
-														.filter(new Predicate<Permission>() {
-															@Override
-															public boolean test(Permission permission) {
-																return permission.getKeyCode().equalsIgnoreCase(key);
-															}
-														}).findFirst()
-														.ifPresent(new Consumer<Permission>() {
-															@Override
-															public void accept(Permission permission) {
-																byte val = value;
-																if (!userInfoModel.getPermissions().containsKey(key)) {
-																	userInfoModel.getPermissions().put(key, val);
-																} else if (((byte) userInfoModel.getPermissions().get(key) & val) != val) {
-																	userInfoModel.getPermissions().put(key,
-																			(byte) userInfoModel.getPermissions().get(key) | val);
-																}
-															}
-														});
-											}
-										});
-							}
-						});
 			}
+
 			Arrays.stream(SpaceRole.values()).forEach(new Consumer<SpaceRole>() {
 				@Override
 				public void accept(SpaceRole spaceRole) {
-					var objectMap = userInfoModel.getSpaceRolePermission().getOrDefault(spaceRole,
-							new HashMap<>());
+					var objectMap = userInfoModel.getSpaceRolePermission().getOrDefault(spaceRole, new HashMap<>());
 					spaceRole.getPermissions().forEach(new BiConsumer<String, Byte>() {
 						@Override
 						public void accept(String k, Byte v) {
@@ -497,81 +413,7 @@ public class AccountService {
 				}
 			});
 		}
-
-		if (user.getTimeLock() != null && !user.getTimeLock().isDeleted() && includePermission) {
-			var date = Calendar.getInstance();
-			var weekDay = WeekDay.valueOf(date.get(Calendar.DAY_OF_WEEK));
-			getTimeLockWeek(user, userInfoModel, date.getTime(), weekDay, false);
-		}
 		return userInfoModel;
-	}
-
-	private void getTimeLockWeek(User user, UserModel userInfoModel, Date date, WeekDay currentDay, boolean next) {
-		final boolean[] isException = { false };
-		log.debug("time lock date to validate {}", date);
-		var calendar = Calendar.getInstance();
-		calendar.setTimeInMillis(date.getTime());
-		calendar.set(Calendar.HOUR, 0);
-		calendar.set(Calendar.MINUTE, 0);
-		calendar.set(Calendar.SECOND, 0);
-		calendar.set(Calendar.MILLISECOND, 0);
-		if (next) {
-			calendar.add(Calendar.DAY_OF_MONTH, 1);
-			if (calendar.get(Calendar.DAY_OF_WEEK) == currentDay.getDay()) {
-				return;
-			}
-		}
-		var weekDay = String.format("%1$td-%1$tm-%1$tY", calendar);
-		if (calendar.getTimeInMillis() >= user.getTimeLock().getFromDate().getTime()
-				&& calendar.getTimeInMillis() <= user.getTimeLock().getToDate().getTime()) {
-
-			user.getTimeLock().getTimeLockExceptions().stream()
-					.filter(new Predicate<TimeLockException>() {
-						@Override
-						public boolean test(TimeLockException e) {
-							return calendar.getTimeInMillis() >= e.getFromDate().getTime()
-									&& calendar.getTimeInMillis() <= e.getToDate().getTime();
-						}
-					})
-					.forEach(new Consumer<TimeLockException>() {
-						@Override
-						public void accept(TimeLockException e) {
-							if (e.getLockStatus() == LockStatus.LOCK) {
-								if (weekDay != null) {
-									var timeModels = userInfoModel.getDayModels().getOrDefault(weekDay,
-											new ArrayList<>());
-									timeModels.add(new TimeModel(e.getFromTime(), e.getToTime()));
-								}
-							} else {
-								userInfoModel.getDayModels().put(weekDay, Collections.emptyList());
-							}
-							isException[0] = true;
-						}
-					});
-			if (!isException[0]) {
-				user.getTimeLock().getDays().entrySet().stream()
-						.filter(new Predicate<Entry<WeekDay, String>>() {
-							@Override
-							public boolean test(Entry<WeekDay, String> entry) {
-								return entry.getKey() == WeekDay.valueOf(calendar.get(Calendar.DAY_OF_WEEK));
-							}
-						})
-						.findFirst().ifPresent(new Consumer<Entry<WeekDay, String>>() {
-							@Override
-							public void accept(Entry<WeekDay, String> weekDayStringEntry) {
-								userInfoModel.getDayModels().put(weekDay,
-										Arrays.stream(weekDayStringEntry.getValue().split(",")).map(new Function<String, TimeModel>() {
-											@Override
-											public TimeModel apply(String s) {
-												var time = s.split(">");
-												return new TimeModel(time[0], time[1]);
-											}
-										}).collect(Collectors.toList()));
-							}
-						});
-			}
-		}
-		getTimeLockWeek(user, userInfoModel, calendar.getTime(), currentDay, true);
 	}
 
 	private ResponseModel getUserUpdateResponseModel(UserCreateModel userUpdateModel, User user) {
@@ -600,12 +442,8 @@ public class AccountService {
 		log.debug("search for user by specification", userSearchModel);
 
 		Specification<User> byUserType = null;
-		Specification<User> byRoleId = null;
-		Specification<User> byOrganization = null;
-		Specification<User> byFoundation = null;
 
-		if (userSearchModel.getUserType() == null && userSearchModel.getFoundationId() == null
-				&& userSearchModel.getRoleId() == null && userSearchModel.getOrganizationId() == null) {
+		if (userSearchModel.getUserType() == null) {
 			return ResponseModel.done(StreamSupport.stream(userRepository.findAll().spliterator(), false)
 					.map(UserModel::new).collect(Collectors.toList()));
 		} else {
@@ -613,164 +451,11 @@ public class AccountService {
 				byUserType = UserSpecifications.hasUserType(userSearchModel.getUserType());
 			}
 
-			if (userSearchModel.getRoleId() != null) {
-				var rol = roleRepository.findOneByIdAndDeletedFalse(userSearchModel.getRoleId());
-				if (rol.isPresent()) {
-					byRoleId = UserSpecifications.hasRole(rol.get());
-				} else {
-					log.warn("role {} not found", userSearchModel.getRoleId());
-					throw new NotFoundException("role");
-				}
-			}
-
-			if (userSearchModel.getOrganizationId() != null) {
-				var org = organizationRepository
-						.findOneByIdAndDeletedFalse(userSearchModel.getOrganizationId());
-				if (org.isPresent()) {
-					byOrganization = UserSpecifications.inOrganization(org.get());
-				} else {
-					log.warn("organization {} not found", userSearchModel.getOrganizationId());
-					throw new NotFoundException("organization");
-				}
-			}
-
-			if (userSearchModel.getFoundationId() != null) {
-				var foundationIns = foundationRepository
-						.findOneByIdAndDeletedFalse(userSearchModel.getFoundationId());
-				if (foundationIns.isPresent()) {
-					byFoundation = UserSpecifications.inFoundation(foundationIns.get());
-				} else {
-					log.warn("foundation {} not found", userSearchModel.getFoundationId());
-					throw new NotFoundException("role");
-				}
-			}
-
 			return ResponseModel.done(userRepository
-					.findAll(where(byUserType).and(byRoleId).and(byOrganization).and(byFoundation)
+					.findAll(where(byUserType)
 							.and(UserSpecifications.notDeleted()))
 					.stream().map(UserModel::new).collect(Collectors.toList()));
 		}
-	}
-
-	@Transactional
-	@Message(entityAction = EntityAction.USER_CREATE, services = Services.NOTIFICATIONS)
-	public ResponseModel createUser(FoundationRegesiterAccountModel userCreateModel) {
-
-		Foundation foundation = null;
-		Organization organization = null;
-		Map<String, String> exist = new HashMap<>();
-
-		if (userCreateModel.getFoundationId() != null) {
-		}
-		foundation = foundationRepository.findById(userCreateModel.getFoundationId()).orElse(null);
-
-		if (userCreateModel.getOrganizationId() != null) {
-			organization = organizationRepository.findById(userCreateModel.getOrganizationId()).orElse(null);
-		}
-
-		if (organization != null && foundation != null
-				&& !foundation.getId().equals(organization.getFoundation().getId())) {
-			throw new NotPermittedException();
-		}
-
-		if (organization == null && foundation == null) {
-			throw new MintException(Code.INVALID, "organization");
-		}
-
-		if (organization != null && foundation == null) {
-			throw new NotPermittedException();
-		}
-
-		if (organization != null && organization.getActive() != null && organization.getActive() != Boolean.TRUE) {
-			throw new MintException(Code.INVALID, "error.organization.active");
-		}
-
-		var userName = userCreateModel.getUsername();
-
-		if (userRepository.findOneByUserNameAndDeletedFalse(userCreateModel.getUsername()).isPresent()) {
-			throw new ExistException(userCreateModel.getUsername());
-		}
-		if (userRepository.findOneByEmailAndDeletedFalse(userCreateModel.getEmail()).isPresent()) {
-			throw new ExistException(userCreateModel.getEmail());
-		}
-
-		if (!exist.isEmpty()) {
-			log.warn("user {} already exist", exist);
-			throw new ExistException(exist);
-		}
-
-		var user = new User();
-		user.setUserName(userName);
-		user.setFullName(userCreateModel.getFullName());
-		user.setEmail(userCreateModel.getEmail());
-		user.setLangKey(userCreateModel.getLang());
-		user.setType(userCreateModel.getType());
-		user.setThumbnail(userCreateModel.getImage());
-		String password = null;
-		String encryptedPassword;
-		if (userCreateModel instanceof FoundationRegesiterAccountWithEncodePasswordModel) {
-			encryptedPassword = ((FoundationRegesiterAccountWithEncodePasswordModel) userCreateModel).getPassword();
-		} else {
-			password = RandomUtils.generatePassword();
-			encryptedPassword = passwordEncoder.encode(password);
-		}
-		user.setPassword(encryptedPassword);
-		user.setResetKey(RandomUtils.generateResetKey());
-		user.setResetDate(DateConverter.convertZonedDateTimeToDate(ZonedDateTime.now(ZoneOffset.UTC)));
-		user.setStatus(true);
-		user.setFirstLogin(true);
-		user.setForceChangePassword(true);
-		user.setBirthDate(DateConverter.convertLocalDateToDate(userCreateModel.getBirthDate()));
-		user.setCountry(userCreateModel.getCountry());
-		user.setGender(userCreateModel.getGender().getValue());
-		user.setProfession(userCreateModel.getProfession());
-		user.setStartDate(user.getCreationDate());
-		user.setMobile(userCreateModel.getMobile());
-		user.setUserStatus(userCreateModel.getUserStatus());
-		user.setInterests(userCreateModel.getInterests());
-		if (organization != null) {
-			user.setEndDate(organization.getEndDate());
-			user.setOrganization(organization);
-		} else {
-			user.setEndDate(foundation.getEndDate());
-		}
-		user.setFoundation(foundation);/** Created by ahmad on 2/17/16. */
-
-		user.setSchool(userCreateModel.getSchool());
-		userRepository.save(user);
-
-		if (userCreateModel.getRoleId() != null) {
-			roleService.assignToRole(userCreateModel.getRoleId(), Collections.singletonList(user.getId()));
-		}
-
-		if (userCreateModel.getGroupId() != null) {
-			groupService.assginToGroup(Collections.singletonList(user.getId()), userCreateModel.getGroupId());
-		}
-
-		log.debug("Created Information for User: {}", user);
-		return ResponseModel.done(user.getId(),
-				new UserInfoMessage(user, password != null ? password : encryptedPassword));
-	}
-
-	@Transactional(readOnly = true)
-	public ResponseModel getFoundationGroups(Long foundationLong) {
-		return ResponseModel.done(groupsRepository.findByFoundationIdAndDeletedFalse(foundationLong)
-				.map(new Function<Groups, SimpleModel>() {
-					@Override
-					public SimpleModel apply(Groups groups) {
-						return new SimpleModel(groups.getId(), groups.getName());
-					}
-				}).collect(Collectors.toList()));
-	}
-
-	@Transactional
-	public ResponseModel changeGrade(Long fromId, Long toId) {
-		if (SecurityUtils.getCurrentUser().getFoundationId() == null) {
-			throw new NotPermittedException();
-		}
-		groupService.removefromGroup(Collections.singletonList(SecurityUtils.getCurrentUser().getId()), fromId);
-		groupService.assginToGroup(Collections.singletonList(SecurityUtils.getCurrentUser().getId()), toId);
-		return ResponseModel.done();
 	}
 
 	/** created by A.Alsayed 16-01-2019 */
@@ -779,36 +464,39 @@ public class AccountService {
 	public ResponseModel getUserLevelAndPoints() {
 		// 1. get current logged-in user:
 		// ==============================
-		var userDetail = SecurityUtils.getCurrentUser();
-		if (userDetail != null) {
-			// 2. from joined table, get sum of space total grades for logged-in user:
-			var userScorePoints = userRepository.getUserTotalScore(userDetail.getId());
+		// var userDetail = SecurityUtils.getCurrentUser();
+		// if (userDetail != null) {
+		// // 2. from joined table, get sum of space total grades for logged-in user:
+		// var userScorePoints = userRepository.getUserTotalScore(userDetail.getId());
+		//
+		// userScorePoints = userScorePoints != null ? userScorePoints : 0.0f;
+		//
+		// // 3. calculate user level:
+		// var userlevel = (int) (userScorePoints.floatValue() / 100);
+		// userScorePoints = userScorePoints % 100;
+		//
+		// return ResponseModel.done(new LeaderboardModel(userDetail.getUsername(),
+		// userlevel, userScorePoints));
+		// } else {
+		throw new NotPermittedException();
+		// }
 
-			userScorePoints = userScorePoints != null ? userScorePoints : 0.0f;
-
-			// 3. calculate user level:
-			var userlevel = (int) (userScorePoints.floatValue() / 100);
-			userScorePoints = userScorePoints % 100;
-
-			return ResponseModel.done(new LeaderboardModel(userDetail.getUsername(), userlevel, userScorePoints));
-		} else {
-			throw new NotPermittedException();
-		}
 	}
 
 	/** created by A.Alsayed 21-01-2019 */
 	/** this method is used for User's global ranking */
 	@Transactional
 	public ResponseModel getUserGlobalRanking() {
-		// 1. get current logged-in user:
-		// ==============================
-		var userDetail = SecurityUtils.getCurrentUser();
-		if (userDetail != null) {
-			// 2. from joined table, get global ranking for logged-in user:
-			return ResponseModel.done(userRepository.getUserGlobalRanking(userDetail.getId()));
-		} else {
-			throw new NotPermittedException();
-		}
+		// // 1. get current logged-in user:
+		// // ==============================
+		// var userDetail = SecurityUtils.getCurrentUser();
+		// if (userDetail != null) {
+		// // 2. from joined table, get global ranking for logged-in user:
+		// return
+		// ResponseModel.done(userRepository.getUserGlobalRanking(userDetail.getId()));
+		// } else {
+		throw new NotPermittedException();
+		// }
 	}
 
 	/** created by A.Alsayed 21-01-2019 */
@@ -817,30 +505,34 @@ public class AccountService {
 	public ResponseModel getUserSpaceRanking() {
 		// 1. get current logged-in user:
 		// ==============================
-		var userDetail = SecurityUtils.getCurrentUser();
-		if (userDetail != null) {
-			// 2.get all user spaces:
-			Set<Joined> joineds = joinedRepository.findByUserIdAndDeletedFalse(userDetail.getId())
-					.collect(Collectors.toSet());
-			List<UserSpaceRankingModel> userSpaceRanking = new ArrayList<>();
-			if (joineds != null && !joineds.isEmpty()) {
-				// 3. for each space, get user rank in this space:
-				joineds.forEach(new Consumer<Joined>() {
-					@Override
-					public void accept(Joined joindObj) {
-						var rank = joinedRepository.getUserSpaceRank(joindObj.getSpace().getId(), userDetail.getId());
-						var countAllUsersInSpace = joinedRepository
-								.countBySpaceIdAndDeletedFalse(joindObj.getSpace().getId());
-						userSpaceRanking.add(
-								new UserSpaceRankingModel(joindObj.getSpace().getName(), joindObj.getSpace().getThumbnail(),
-										rank != null ? rank : 0, countAllUsersInSpace != null ? countAllUsersInSpace : 0));
-					}
-				});
-			}
-			return ResponseModel.done(userSpaceRanking);
-		} else {
-			throw new NotPermittedException();
-		}
+		// var userDetail = SecurityUtils.getCurrentUser();
+		// if (userDetail != null) {
+		// // 2.get all user spaces:
+		// Set<Joined> joineds =
+		// joinedRepository.findByUserIdAndDeletedFalse(userDetail.getId())
+		// .collect(Collectors.toSet());
+		// List<UserSpaceRankingModel> userSpaceRanking = new ArrayList<>();
+		// if (joineds != null && !joineds.isEmpty()) {
+		// // 3. for each space, get user rank in this space:
+		// joineds.forEach(new Consumer<Joined>() {
+		// @Override
+		// public void accept(Joined joindObj) {
+		// var rank = joinedRepository.getUserSpaceRank(joindObj.getSpace().getId(),
+		// userDetail.getId());
+		// var countAllUsersInSpace = joinedRepository
+		// .countBySpaceIdAndDeletedFalse(joindObj.getSpace().getId());
+		// userSpaceRanking.add(
+		// new UserSpaceRankingModel(joindObj.getSpace().getName(),
+		// joindObj.getSpace().getThumbnail(),
+		// rank != null ? rank : 0, countAllUsersInSpace != null ? countAllUsersInSpace
+		// : 0));
+		// }
+		// });
+		// }
+		// return ResponseModel.done(userSpaceRanking);
+		// } else {
+		throw new NotPermittedException();
+		// }
 	}
 
 	/** Created by A.Alsayed on 14/03/2019. */
@@ -849,17 +541,32 @@ public class AccountService {
 	public ResponseModel getTopUsersRanking() {
 		// 1. get current logged-in user:
 		// ==============================
-		var userDetail = SecurityUtils.getCurrentUser();
-		if (userDetail != null) {
-			// 2. from joined table, get global ranking for logged-in user:
-			return ResponseModel.done(userRepository.getTopUsersRanking());
-		} else {
-			throw new NotPermittedException();
-		}
+		// var userDetail = SecurityUtils.getCurrentUser();
+		// if (userDetail != null) {
+		// // 2. from joined table, get global ranking for logged-in user:
+		// return ResponseModel.done(userRepository.getTopUsersRanking());
+		// } else {
+		throw new NotPermittedException();
+		// }
+
 	}
 
 	public ResponseModel encodePasseword(String password) {
 		return ResponseModel.done((Object) passwordEncoder.encode(password));
 	}
 
+	@Transactional
+	@jakarta.annotation.PostConstruct
+	protected void userInitializer() {
+		userRepository.findOneByUserNameAndDeletedFalse("admin").orElseGet(() -> {
+			var user2 = new User();
+			user2.setUserName("admin");
+			user2.setFullName("mint adminstraor");
+			user2.setType(UserType.SUPER_ADMIN);
+			user2.setEmail("admin@edu-tek.net");
+			user2.setStatus(Boolean.TRUE);
+			user2.setPassword(passwordEncoder.encode("P@ssw0rd"));
+			return userRepository.save(user2);
+		});
+	}
 }

@@ -11,11 +11,8 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import com.edumento.assessment.domain.Assessment;
-import com.edumento.b2b.domain.Foundation;
-import com.edumento.b2b.domain.Groups;
-import com.edumento.b2b.domain.Organization;
-import com.edumento.b2b.domain.Role;
-import com.edumento.b2b.domain.TimeLock;
+// Removed B2B imports
+
 import com.edumento.b2c.domain.CloudPackage;
 import com.edumento.content.domain.Content;
 import com.edumento.core.domain.AbstractEntity;
@@ -26,11 +23,9 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -122,20 +117,7 @@ public class User extends AbstractEntity {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date endDate;
 
-	@ManyToOne
-	@JoinColumn(name = "organization", foreignKey = @ForeignKey(name = "FK_USER_ORGANIZATIO"))
-	private Organization organization;
-
-	@ManyToOne
-	@JoinColumn(name = "foundation_id", foreignKey = @ForeignKey(name = "FK_USER_FOUNDATION"))
-	private Foundation foundation;
-
-	@ManyToOne
-	@JoinColumn(name = "time_lock", foreignKey = @ForeignKey(name = "FK_USER_TIME_LOCAK"))
-	private TimeLock timeLock;
-
-	@ManyToMany(mappedBy = "users")
-	private List<Groups> groups = new ArrayList<>();
+	// Removed B2B relationships
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
 	private List<Space> spaces = new ArrayList<>();
@@ -143,8 +125,7 @@ public class User extends AbstractEntity {
 	@OneToMany(mappedBy = "owner")
 	private List<Content> contents = new ArrayList<>();
 
-	@ManyToMany(mappedBy = "users")
-	private Set<Role> roles = new HashSet<>();
+	// Removed roles
 
 	/** Created by A.Alsayed on 04/01/19. */
 	// new field will be used for the challenge task:
@@ -152,9 +133,7 @@ public class User extends AbstractEntity {
 	@ManyToMany(mappedBy = "challengees")
 	private Set<Assessment> assessments = new HashSet<>();
 
-	@ManyToOne
-	@JoinColumn(name = "cloud_package_id", foreignKey = @ForeignKey(name = "FK_USER_PACkAGE"))
-	private CloudPackage cloudPackage;
+	// Removed CloudPackage
 
 	@Column
 	private Boolean notification = Boolean.TRUE;
@@ -177,6 +156,9 @@ public class User extends AbstractEntity {
 	 */
 	@Column
 	private Float totalScore = 0.0f;
+
+	@ManyToOne
+	private CloudPackage cloudPackage;
 
 	public static User of(Long id) {
 		var user = new User();
@@ -392,14 +374,6 @@ public class User extends AbstractEntity {
 		this.endDate = endDate;
 	}
 
-	public Set<Role> getRoles() {
-		return roles;
-	}
-
-	public void setRoles(Set<Role> roles) {
-		this.roles = roles;
-	}
-
 	public Boolean getNotification() {
 		return notification;
 	}
@@ -440,60 +414,12 @@ public class User extends AbstractEntity {
 		this.totalScore = totalScore;
 	}
 
-	/**
-	 * @return the organization
-	 */
-	public Organization getOrganization() {
-		return organization;
+	public CloudPackage getCloudPackage() {
+		return cloudPackage;
 	}
 
-	/**
-	 * @param organization the organization to set
-	 */
-	public void setOrganization(Organization organization) {
-		this.organization = organization;
-	}
-
-	/**
-	 * @return the foundation
-	 */
-	public Foundation getFoundation() {
-		return foundation;
-	}
-
-	/**
-	 * @param foundation the foundation to set
-	 */
-	public void setFoundation(Foundation foundation) {
-		this.foundation = foundation;
-	}
-
-	/**
-	 * @return the timeLock
-	 */
-	public TimeLock getTimeLock() {
-		return timeLock;
-	}
-
-	/**
-	 * @param timeLock the timeLock to set
-	 */
-	public void setTimeLock(TimeLock timeLock) {
-		this.timeLock = timeLock;
-	}
-
-	/**
-	 * @return the groups
-	 */
-	public List<Groups> getGroups() {
-		return groups;
-	}
-
-	/**
-	 * @param groups the groups to set
-	 */
-	public void setGroups(List<Groups> groups) {
-		this.groups = groups;
+	public void setCloudPackage(CloudPackage cloudPackage) {
+		this.cloudPackage = cloudPackage;
 	}
 
 	/**
@@ -536,20 +462,6 @@ public class User extends AbstractEntity {
 	 */
 	public void setAssessments(Set<Assessment> assessments) {
 		this.assessments = assessments;
-	}
-
-	/**
-	 * @return the cloudPackage
-	 */
-	public CloudPackage getCloudPackage() {
-		return cloudPackage;
-	}
-
-	/**
-	 * @param cloudPackage the cloudPackage to set
-	 */
-	public void setCloudPackage(CloudPackage cloudPackage) {
-		this.cloudPackage = cloudPackage;
 	}
 
 	@Override

@@ -45,18 +45,18 @@ public class AmqNotifier {
 	private int timeToLive;
 
 	@Autowired
-	public AmqNotifier(MessageSource messageSource) {
-//		this.jmsTemplate = jmsTemplate;
-//		this.jmsTemplate.setMessageConverter(mappingJackson2MessageConverter);
-//		this.jmsTemplate.setDeliveryMode(deliveryMode);
-//		this.jmsTemplate.setMessageTimestampEnabled(true);
-		notificationRepository = notificationRepository;
+	public AmqNotifier(MessageSource messageSource, NotificationRepository notificationRepository) {
+		// this.jmsTemplate = jmsTemplate;
+		// this.jmsTemplate.setMessageConverter(mappingJackson2MessageConverter);
+		// this.jmsTemplate.setDeliveryMode(deliveryMode);
+		// this.jmsTemplate.setMessageTimestampEnabled(true);
+		this.notificationRepository = notificationRepository;
 		this.messageSource = messageSource;
 	}
 
 	@Deprecated
 	public NotificationMessage saveMessage(User user, BaseNotificationMessage baseNotificationMessage) {
-		return saveMessage(user, baseNotificationMessage, null, null);
+		return saveMessage(user, baseNotificationMessage, null, (Object[]) null);
 	}
 
 	@Deprecated
@@ -93,19 +93,21 @@ public class AmqNotifier {
 
 	public List<NotificationMessage> saveAll(List<UserInfoMessage> userInfoMessageList,
 			BaseNotificationMessage baseNotificationMessage, String message, String body, Object... objects) {
-		List<NotificationMessage> notificationMessages = userInfoMessageList.stream().map(new Function<UserInfoMessage, NotificationMessage>() {
-			@Override
-			public NotificationMessage apply(UserInfoMessage user) {
-				var amqNotificationMessage = new NotificationMessage(baseNotificationMessage);
-				amqNotificationMessage.setUserId(user.getId());
-				if (message != null && !message.isEmpty()) {
-					amqNotificationMessage.setMessage(
-							messageSource.getMessage(message, objects, message, Locale.forLanguageTag(user.getLang())));
-				}
-				amqNotificationMessage.setBody(body);
-				return amqNotificationMessage;
-			}
-		}).collect(Collectors.toList());
+		List<NotificationMessage> notificationMessages = userInfoMessageList.stream()
+				.map(new Function<UserInfoMessage, NotificationMessage>() {
+					@Override
+					public NotificationMessage apply(UserInfoMessage user) {
+						var amqNotificationMessage = new NotificationMessage(baseNotificationMessage);
+						amqNotificationMessage.setUserId(user.getId());
+						if (message != null && !message.isEmpty()) {
+							amqNotificationMessage.setMessage(
+									messageSource.getMessage(message, objects, message,
+											Locale.forLanguageTag(user.getLang())));
+						}
+						amqNotificationMessage.setBody(body);
+						return amqNotificationMessage;
+					}
+				}).collect(Collectors.toList());
 		save(notificationMessages).forEach(new Consumer<Notification>() {
 			@Override
 			public void accept(Notification notification) {
@@ -130,10 +132,10 @@ public class AmqNotifier {
 	@Async
 	public void send(NotificationMessage notificationMessage) {
 		if (enablePushNotification) {
-//			jmsTemplate.convertAndSend(notificationMessage, message1 -> {
-//				message1.setLongProperty("userId", notificationMessage.getUserId());
-//				return message1;
-//			});
+			// jmsTemplate.convertAndSend(notificationMessage, message1 -> {
+			// message1.setLongProperty("userId", notificationMessage.getUserId());
+			// return message1;
+			// });
 		}
 		logger.info("Message Sent : {}", notificationMessage.toString());
 	}
@@ -165,7 +167,8 @@ public class AmqNotifier {
 					@Override
 					public Notification apply(NotificationMessage notificationMessage) {
 						return new Notification(notificationMessage.getUserId(),
-								notificationMessage.getMessage(), notificationMessage.getBody(), notificationMessage.getDate(),
+								notificationMessage.getMessage(), notificationMessage.getBody(),
+								notificationMessage.getDate(),
 								notificationMessage.getNotificationCategory(), notificationMessage.getFrom(),
 								notificationMessage.getTarget());
 					}

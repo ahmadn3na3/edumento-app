@@ -7,7 +7,6 @@ import static com.edumento.core.constants.notification.EntityType.CATEGORY;
 
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +23,7 @@ import com.edumento.notification.components.AmqNotifier;
 import com.edumento.notification.handlers.AbstractHandler;
 import com.edumento.notification.service.MailService;
 import com.edumento.user.constant.UserType;
-import com.edumento.user.domain.User;
+
 import com.edumento.user.repo.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -69,39 +68,10 @@ public class CategoryNotificationHandler extends AbstractHandler {
 				MessageCategory.APP, categoryMessageInfo.getFrom(),
 				new Target(CATEGORY, categoryMessageInfo.getId().toString(), action));
 
-		List<UserInfoMessage> userInfoMessages;
-		if (null != categoryMessageInfo.getOrganizationId()) {
-			logger.debug("handle organization category");
-			userInfoMessages = userRepository
-					.findByOrganizationIdAndDeletedFalse(categoryMessageInfo.getOrganizationId())
-					.filter(new Predicate<User>() {
-						@Override
-						public boolean test(User user) {
-							return UserType.USER.equals(user.getType());
-						}
-					}).map(UserInfoMessage::new)
-					.collect(Collectors.toList());
-
-		} else if (null != categoryMessageInfo.getFoundationId()) {
-			userInfoMessages = userRepository.findByFoundationIdAndDeletedFalse(categoryMessageInfo.getFoundationId())
-					.filter(new Predicate<User>() {
-						@Override
-						public boolean test(User user) {
-							return UserType.USER.equals(user.getType());
-						}
-					}).map(UserInfoMessage::new)
-					.collect(Collectors.toList());
-
-		} else {
-			userInfoMessages = userRepository.findByOrganizationIsNullAndFoundationIsNullAndDeletedFalse()
-					.filter(new Predicate<User>() {
-						@Override
-						public boolean test(User user) {
-							return UserType.USER.equals(user.getType());
-						}
-					}).map(UserInfoMessage::new)
-					.collect(Collectors.toList());
-		}
+		List<UserInfoMessage> userInfoMessages = userRepository.findByDeletedFalse()
+				.filter(user -> UserType.USER.equals(user.getType()))
+				.map(UserInfoMessage::new)
+				.collect(Collectors.toList());
 
 		amqNotifier.sendAll(amqNotifier.saveAll(userInfoMessages, baseNotificationMessage, null, null));
 	}

@@ -2,12 +2,13 @@ package com.edumento.content.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 
 import com.edumento.content.domain.Content;
 import com.edumento.content.models.ContentModel;
 
-@Mapper
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ContentMapper {
 	ContentMapper INSTANCE = Mappers.getMapper(ContentMapper.class);
 

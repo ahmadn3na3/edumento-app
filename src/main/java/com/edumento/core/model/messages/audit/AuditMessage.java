@@ -12,8 +12,7 @@ public class AuditMessage implements Serializable {
 	private String userName;
 	private EntityAction auditValue;
 	private Date auditDate;
-	private Long orgId;
-	private Long foundationId;
+
 	private String clientId;
 	private Map<String, String> data;
 
@@ -21,14 +20,12 @@ public class AuditMessage implements Serializable {
 		auditDate = new Date();
 	}
 
-	public AuditMessage(Long id, String userName, Long orgId, Long foundationId, EntityAction auditValue,
+	public AuditMessage(Long id, String userName, EntityAction auditValue,
 			Map<String, String> data) {
 		this();
 		this.id = id;
 		this.userName = userName;
 		this.auditValue = auditValue;
-		this.orgId = orgId;
-		this.foundationId = foundationId;
 		this.data = data;
 	}
 
@@ -70,22 +67,6 @@ public class AuditMessage implements Serializable {
 
 	public void setAuditDate(Date auditDate) {
 		this.auditDate = auditDate;
-	}
-
-	public Long getOrgId() {
-		return orgId;
-	}
-
-	public void setOrgId(Long orgId) {
-		this.orgId = orgId;
-	}
-
-	public Long getFoundationId() {
-		return foundationId;
-	}
-
-	public void setFoundationId(Long foundationId) {
-		this.foundationId = foundationId;
 	}
 
 	public String getClientId() {

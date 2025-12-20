@@ -6,14 +6,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.MessageSource;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -23,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.edumento.b2b.domain.Role;
 import com.edumento.core.security.CurrentUserDetail;
 import com.edumento.core.util.PermissionCheck;
 import com.edumento.user.constant.UserType;
@@ -39,14 +36,11 @@ public class EDumentoUserDetailsService implements UserDetailsService {
 	private final Logger log;
 	private final PermissionRepository permissionRepository;
 	private final UserRepository userRepository;
-	private final MessageSource messageSource;
 
-	public EDumentoUserDetailsService(PermissionRepository permissionRepository, UserRepository userRepository,
-			MessageSource messageSource) {
+	public EDumentoUserDetailsService(PermissionRepository permissionRepository, UserRepository userRepository) {
 		log = LoggerFactory.getLogger(UserDetailsService.class);
 		this.permissionRepository = permissionRepository;
 		this.userRepository = userRepository;
-		this.messageSource = messageSource;
 	}
 
 	@Override
@@ -74,118 +68,43 @@ public class EDumentoUserDetailsService implements UserDetailsService {
 			locale = Locale.ENGLISH;
 		}
 		if (Boolean.FALSE.equals(user.getStatus())) {
-			if (user.getOrganization() != null || user.getFoundation() != null) {
-				var message = messageSource.getMessage("error.account.disable.b2b", null, "account not active",
-						locale);
-				throw new UserDisabledException(message);
-			}
-			if (user.getCloudPackage() != null && user.getFirstLogin() == Boolean.FALSE) {
-				var message = messageSource.getMessage("error.account.disable.b2c", null, "account not active",
-						locale);
-				throw new UserDisabledException(message);
-			}
 			throw new UserNotActivatedException("User " + lowercaseLogin + " was not activated");
 		}
 		Set<String> permissions = new HashSet<>();
 		var permissionList = permissionRepository.findAll();
+
 		switch (user.getType()) {
-		case SUPER_ADMIN:
-			permissionList.forEach(new Consumer<Permission>() {
-				@Override
-				public void accept(Permission permission) {
-					permissions.add(permission.getName());
-				}
-			});
-			permissions.add(UserType.SUPER_ADMIN.getAuthority());
-			permissions.add(UserType.SYSTEM_ADMIN.getAuthority());
-			permissions.add(UserType.FOUNDATION_ADMIN.getAuthority());
-			permissions.add(UserType.ADMIN.getAuthority());
-			break;
-		case SYSTEM_ADMIN:
-			permissionRepository
-					.findByTypeInAndDeletedFalse(Arrays.asList(UserType.SYSTEM_ADMIN, UserType.FOUNDATION_ADMIN,
-							UserType.ADMIN, UserType.USER))
-					.forEach(new Consumer<Permission>() {
-						@Override
-						public void accept(Permission permission) {
-							permissions.add(permission.getName());
-						}
-					});
-			permissions.add(UserType.SYSTEM_ADMIN.getAuthority());
-			permissions.add(UserType.FOUNDATION_ADMIN.getAuthority());
-			permissions.add(UserType.ADMIN.getAuthority());
-			break;
-		case USER:
-			if (user.getCloudPackage() != null) {
-				user.getCloudPackage().getPermission().forEach(new BiConsumer<String, Byte>() {
+			case SUPER_ADMIN:
+				permissionList.forEach(new Consumer<Permission>() {
 					@Override
-					public void accept(String s, Byte o) {
-						permissions.addAll(get(permissionList, s, o));
+					public void accept(Permission permission) {
+						permissions.add(permission.getName());
 					}
 				});
-			} else {
-				user.getRoles().stream().forEach(
-						new Consumer<Role>() {
+				permissions.add(UserType.SUPER_ADMIN.getAuthority());
+				permissions.add(UserType.SYSTEM_ADMIN.getAuthority());
+				break;
+			case SYSTEM_ADMIN:
+				permissionRepository
+						.findByTypeInAndDeletedFalse(Arrays.asList(UserType.SYSTEM_ADMIN, UserType.USER))
+						.forEach(new Consumer<Permission>() {
 							@Override
-							public void accept(Role role) {
-								role.getPermission().forEach(new BiConsumer<String, Byte>() {
-									@Override
-									public void accept(String s, Byte o) {
-										permissions.addAll(get(permissionList, s, o));
-									}
-								});
+							public void accept(Permission permission) {
+								permissions.add(permission.getName());
 							}
 						});
-			}
-			break;
-		case FOUNDATION_ADMIN:
-			permissions.add(UserType.ADMIN.getAuthority());
-			permissions.add(UserType.FOUNDATION_ADMIN.getAuthority());
-			user.getRoles().stream().forEach(
-					new Consumer<Role>() {
-						@Override
-						public void accept(Role role) {
-							role.getPermission().forEach(new BiConsumer<String, Byte>() {
-								@Override
-								public void accept(String s, Byte o) {
-									permissions.addAll(get(permissionList, s, o));
-								}
-							});
-						}
-					});
-			break;
-		case ADMIN:
-			user.getRoles().stream().forEach(
-					new Consumer<Role>() {
-						@Override
-						public void accept(Role role) {
-							role.getPermission().forEach(new BiConsumer<String, Byte>() {
-								@Override
-								public void accept(String s, Byte o) {
-									permissions.addAll(get(permissionList, s, o));
-								}
-							});
-						}
-					});
-			permissions.add(UserType.ADMIN.getAuthority());
-			break;
+				permissions.add(UserType.SYSTEM_ADMIN.getAuthority());
+				break;
+			case USER:
+				permissionRepository.findByTypeInAndDeletedFalse(Arrays.asList(UserType.USER))
+						.forEach(permission -> permissions.add(permission.getName()));
+				break;
+
 		}
-		var org = user.getOrganization() == null ? null : user.getOrganization().getId();
-		var found = user.getFoundation() == null ? null : user.getFoundation().getId();
+
 		return new CurrentUserDetail(user.getId(), user.getUserName().toLowerCase(), user.getPassword(),
 				AuthorityUtils.commaSeparatedStringToAuthorityList(String.join(",", permissions)), user.getFullName(),
-				user.getThumbnail(), user.getEmail(), org, found, user.getType(), user.getChatId());
-	}
+				user.getThumbnail(), user.getEmail(), user.getType(), user.getChatId());
 
-	private Set<String> get(List<Permission> permissions, String name, byte equation) {
-		return permissions.stream()
-				.filter(new Predicate<Permission>() {
-					@Override
-					public boolean test(Permission permission) {
-						return permission.getKeyCode().equals(name)
-								&& PermissionCheck.hasAction(equation, permission.getCode().byteValue());
-					}
-				})
-				.map(Permission::getName).collect(Collectors.toSet());
 	}
 }

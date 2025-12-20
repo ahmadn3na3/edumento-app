@@ -101,18 +101,18 @@ public interface JoinedRepository extends JpaRepository<Joined, Long> {
 	/**
 	 * this method is used for returning User's space rank using userId and Space ID
 	 */
-	@Query(value = """
-			select results.rank from
-			(select j.user_id As user_id, j.space_id, j.space_score_points,
-			CASE
-			WHEN @prev_value = j.space_score_points THEN @curRank
-			WHEN @prev_value\\:=j.space_score_points THEN @curRank\\:=@curRank + 1
-			ELSE @curRank\\:=@curRank + 1
-			END AS rank
-			from joined j, (SELECT @curRank\\:=0) r, (SELECT @prev_value\\:=NULL) pv
-			where j.deleted = false
-			and j.space_id = ?1
-			order by j.space_score_points desc) results
-			where results.user_id = ?2""", nativeQuery = true)
-	Integer getUserSpaceRank(Long spaceId, Long userId);
+//	@Query(value = """
+//			select results.rank from
+//			(select j.user_id As user_id, j.space_id, j.space_score_points,
+//			CASE
+//			WHEN @prev_value = j.space_score_points THEN @curRank
+//			WHEN @prev_value:=j.space_score_points THEN @curRank:=@curRank + 1
+//			ELSE @curRank\\:=@curRank + 1
+//			END AS rank
+//			from joined j, (SELECT @curRank\\:=0) r, (SELECT @prev_value\\:=NULL) pv
+//			where j.deleted = false
+//			and j.space_id = ?1
+//			order by j.space_score_points desc) results
+//			where results.user_id = ?2""", nativeQuery = true)
+//	Integer getUserSpaceRank(Long spaceId, Long userId);
 }

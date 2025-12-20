@@ -16,7 +16,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,19 +31,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.edumento.assessment.domain.Assessment;
 import com.edumento.assessment.repos.AssessmentRepository;
-import com.edumento.b2b.domain.Foundation;
-import com.edumento.b2b.domain.Groups;
-import com.edumento.b2b.domain.Organization;
-import com.edumento.b2b.model.group.GroupModel;
-import com.edumento.b2b.repo.GroupsRepository;
-import com.edumento.category.domain.Category;
-import com.edumento.category.repos.CategoryRepository;
+
 import com.edumento.content.domain.Content;
 import com.edumento.content.repos.ContentRepository;
 import com.edumento.core.configuration.auditing.Auditable;
 import com.edumento.core.configuration.notifications.Message;
 import com.edumento.core.constants.Code;
-import com.edumento.core.constants.Gender;
 import com.edumento.core.constants.JoinedStatus;
 import com.edumento.core.constants.Services;
 import com.edumento.core.constants.SortField;
@@ -91,8 +83,6 @@ public class SpaceService {
 
 	private final SpaceRepository spaceRepository;
 
-	private final CategoryRepository categoryRepository;
-
 	private final JoinedRepository joinedRepository;
 
 	private final UserRepository userRepository;
@@ -100,8 +90,6 @@ public class SpaceService {
 	private final ContentRepository contentRepository;
 
 	private final AssessmentRepository assessmentRepository;
-
-	private final GroupsRepository groupsRepository;
 
 	private final DiscussionRepository discussionRepository;
 
@@ -115,14 +103,12 @@ public class SpaceService {
 
 	@Autowired
 	public SpaceService(JoinedRepository joinedRepository, UserRepository userRepository,
-			GroupsRepository groupsRepository, SpaceRepository spaceRepository, CategoryRepository categoryRepository,
+			SpaceRepository spaceRepository,
 			ContentRepository contentRepository, AssessmentRepository assessmentRepository,
 			DiscussionRepository discussionRepository, CommentRepository commentRepository) {
 		this.joinedRepository = joinedRepository;
 		this.userRepository = userRepository;
-		this.groupsRepository = groupsRepository;
 		this.spaceRepository = spaceRepository;
-		this.categoryRepository = categoryRepository;
 		this.contentRepository = contentRepository;
 		this.assessmentRepository = assessmentRepository;
 		this.discussionRepository = discussionRepository;
@@ -135,30 +121,10 @@ public class SpaceService {
 	@Message(entityAction = EntityAction.SPACE_CREATE, services = { Services.NOTIFICATIONS,
 			Services.CHAT }, withModel = true, indexOfModel = 0)
 	public ResponseModel createSpaceForUser(SpaceCreateModel createModel, String username) {
-		final User[] user = {
-				userRepository.findOneByUserNameAndDeletedFalse(username).orElseThrow(NotPermittedException::new) };
-		if (createModel.getOwnerId() != null && (user[0].getType() == UserType.SYSTEM_ADMIN
-				|| user[0].getType() == UserType.FOUNDATION_ADMIN || user[0].getType() == UserType.ADMIN)) {
-			userRepository.findOneByIdAndDeletedFalse(createModel.getOwnerId()).ifPresent(new Consumer<User>() {
-				@Override
-				public void accept(User user1) {
-					if (user[0].getType() == UserType.ADMIN
-							&& Objects.equals(user[0].getOrganization().getId(), user1.getOrganization().getId())) {
-						user[0] = user1;
-					}
-				}
-			});
-		}
+		final User user = userRepository.findOneByUserNameAndDeletedFalse(username)
+				.orElseThrow(NotPermittedException::new);
 
-		Category category;
-		if (null == createModel.getCategoryModel().getId()) {
-			throw new MintException(Code.MISSING, "category");
-		} else {
-			category = categoryRepository.findById(createModel.getCategoryModel().getId())
-					.orElseThrow(NotFoundException::new);
-		}
-		if (spaceRepository.countByNameAndUserIdAndCategoryAndDeletedFalse(createModel.getName(), user[0].getId(),
-				category) > 0) {
+		if (spaceRepository.countByNameAndUserIdAndDeletedFalse(createModel.getName(), user.getId()) > 0) {
 			throw new ExistException(createModel.getName());
 		}
 
@@ -172,14 +138,9 @@ public class SpaceService {
 		space.setAllowLeave(createModel.getAllowLeave());
 		space.setAutoWifiSyncAllowed(createModel.getAutoWifiSyncAllowed());
 		space.setShowCommunity(createModel.getShowCommunity());
-		space.setUser(user[0]);
-		space.setCategory(category);
-		if (createModel.getImage() == null) {
-			space.setImage(category.getImage());
-		}
-		if (createModel.getThumbnail() == null) {
-			space.setThumbnail(category.getThumbnail());
-		} else {
+		space.setUser(user);
+
+		if (createModel.getThumbnail() != null) {
 			space.setThumbnail(createModel.getThumbnail());
 		}
 
@@ -191,101 +152,62 @@ public class SpaceService {
 
 		var joined = new Joined();
 		joined.setSpace(space);
-		joined.setUser(user[0]);
+		joined.setUser(user);
 		joined.setSpaceRole(SpaceRole.OWNER);
 		joinedRepository.save(joined);
 
 		return ResponseModel.done(space.getId(),
 				new SpaceInfoMessage(space.getId(), space.getName(), space.getThumbnail(),
-						new From(user[0].getId(), user[0].getFullName(), user[0].getThumbnail(), user[0].getChatId()),
-						category.getName(), category.getNameAr(), space.getIsPrivate(), null));
+						new From(user.getId(), user.getFullName(), user.getThumbnail(), user.getChatId()),
+						null, null, space.getIsPrivate(), null));
 	}
 
 	@Transactional(readOnly = true)
 	@PreAuthorize("hasAuthority('SPACE_READ')")
 	public ResponseModel checkSpaceNameForUser(String spaceName) {
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, ResponseModel>() {
-			@Override
-			public ResponseModel apply(User user) {
-				if (spaceRepository.countByNameAndUserIdAndDeletedFalse(spaceName, user.getId()) > 0) {
-					throw new ExistException(spaceName);
-				}
-				return ResponseModel.done();
-			}
-		}).orElseThrow(NotPermittedException::new);
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+				.map(new Function<User, ResponseModel>() {
+					@Override
+					public ResponseModel apply(User user) {
+						if (spaceRepository.countByNameAndUserIdAndDeletedFalse(spaceName, user.getId()) > 0) {
+							throw new ExistException(spaceName);
+						}
+						return ResponseModel.done();
+					}
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	@Transactional(readOnly = true)
 	@PreAuthorize("hasAuthority('SPACE_READ')")
 	public PageResponseModel searchForSpace(String name, PageRequest pageRequestModel, String lang) {
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, PageResponseModel>() {
-			@Override
-			public PageResponseModel apply(User user) {
-				Page<SpaceListingModel> spaceSearchModels = spaceRepository.searchForSpace(name, pageRequestModel)
-						.map(new Function<Space, SpaceListingModel>() {
-							@Override
-							public SpaceListingModel apply(Space space) {
-								var spaceListingModel = getSpaceListingModelForAdmins(space, null, lang);
-								spaceListingModel.setRole(null);
-								joinedRepository.findOneBySpaceIdAndUserIdAndDeletedFalse(space.getId(), user.getId())
-										.ifPresent(new Consumer<Joined>() {
-											@Override
-											public void accept(Joined joined) {
-												spaceListingModel.setJoinedStatus(joined.getJoinedStatus());
-												spaceListingModel.setRole(joined.getSpaceRole());
-											}
-										});
-								return spaceListingModel;
-							}
-						});
-				List<SpaceListingModel> spaceListingModels = new ArrayList<>(spaceSearchModels.getContent());
-				if (user.getFoundation() == null) {
-					var Id = Long.valueOf(227);
-					if ("prod".equals(profile)) {
-						Id = Long.valueOf(1017);
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+				.map(new Function<User, PageResponseModel>() {
+					@Override
+					public PageResponseModel apply(User user) {
+						Page<SpaceListingModel> spaceSearchModels = spaceRepository
+								.searchForSpace(name, pageRequestModel)
+								.map(new Function<Space, SpaceListingModel>() {
+									@Override
+									public SpaceListingModel apply(Space space) {
+										var spaceListingModel = getSpaceListingModelForAdmins(space, null, lang);
+										spaceListingModel.setRole(null);
+										joinedRepository
+												.findOneBySpaceIdAndUserIdAndDeletedFalse(space.getId(), user.getId())
+												.ifPresent(new Consumer<Joined>() {
+													@Override
+													public void accept(Joined joined) {
+														spaceListingModel.setJoinedStatus(joined.getJoinedStatus());
+														spaceListingModel.setRole(joined.getSpaceRole());
+													}
+												});
+										return spaceListingModel;
+									}
+								});
+						return PageResponseModel.done(new ArrayList<>(spaceSearchModels.getContent()),
+								spaceSearchModels.getTotalPages(),
+								spaceSearchModels.getNumber(), spaceSearchModels.getTotalElements());
 					}
-					var finalId = Id;
-					var spaceListingModel = spaceListingModels.stream()
-							.filter(new Predicate<SpaceListingModel>() {
-								@Override
-								public boolean test(SpaceListingModel model) {
-									return model.getId().equals(finalId);
-								}
-							}).findFirst().orElse(null);
-
-					if (spaceListingModel != null) {
-						spaceListingModels.add(spaceListingModels.set(0, spaceListingModel));
-					} else {
-						spaceListingModel = spaceRepository.findOneByIdAndDeletedFalse(Id).map(new Function<Space, SpaceListingModel>() {
-							@Override
-							public SpaceListingModel apply(Space space) {
-								var model = getSpaceListingModelForAdmins(space, null, lang);
-								model.setRole(null);
-								joinedRepository.findOneBySpaceIdAndUserIdAndDeletedFalse(space.getId(), user.getId())
-										.ifPresent(new Consumer<Joined>() {
-											@Override
-											public void accept(Joined joined) {
-												model.setJoinedStatus(joined.getJoinedStatus());
-												model.setRole(joined.getSpaceRole());
-											}
-										});
-								return model;
-							}
-						}).orElseGet(new Supplier<SpaceListingModel>() {
-							@Override
-							public SpaceListingModel get() {
-								return null;
-							}
-						});
-						if (spaceListingModel != null) {
-							spaceListingModels.add(0, spaceListingModel);
-						}
-					}
-				}
-				return PageResponseModel.done(spaceListingModels, spaceSearchModels.getTotalPages(),
-						spaceSearchModels.getNumber(), spaceSearchModels.getTotalElements());
-			}
-		}).orElseThrow(NotPermittedException::new);
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	@Transactional
@@ -293,22 +215,21 @@ public class SpaceService {
 	@PreAuthorize("hasAuthority('SPACE_DELETE')")
 	@Message(entityAction = EntityAction.SPACE_DELETE, services = { Services.NOTIFICATIONS, Services.CHAT })
 	public ResponseModel deleteSpace(Long id) {
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, ResponseModel>() {
-			@Override
-			public ResponseModel apply(User user) {
-				var space = spaceRepository.findById(id).orElseThrow(NotFoundException::new);
-				return deleteSpaceByObject(user, space);
-			}
-		}).orElseThrow(NotPermittedException::new);
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+				.map(new Function<User, ResponseModel>() {
+					@Override
+					public ResponseModel apply(User user) {
+						var space = spaceRepository.findById(id).orElseThrow(NotFoundException::new);
+						return deleteSpaceByObject(user, space);
+					}
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	private ResponseModel deleteSpaceByObject(User user, Space space) {
-		if (!Objects.equals(user, space.getUser()) && user.getType() != UserType.SYSTEM_ADMIN
-				&& (user.getType() == UserType.FOUNDATION_ADMIN
-						&& !Objects.equals(user.getOrganization().getFoundation(), space.getCategory().getFoundation())
-						|| user.getType() == UserType.ADMIN
-								&& !Objects.equals(user.getOrganization(), space.getCategory().getOrganization())
-						|| user.getType() == UserType.USER)) {
+		if (!Objects.equals(user, space.getUser())
+				&& user.getType() != UserType.SYSTEM_ADMIN
+				&& user.getType() != UserType.SUPER_ADMIN) {
+			// In B2C, strict ownership or admin override
 			throw new NotPermittedException();
 		}
 
@@ -343,7 +264,7 @@ public class SpaceService {
 		return ResponseModel.done(null,
 				new SpaceShareInfoMessage(space.getId(), space.getName(), space.getThumbnail(),
 						new From(user.getId(), user.getFullName(), user.getThumbnail(), user.getChatId()),
-						space.getCategory().getName(), space.getCategory().getNameAr(), space.getIsPrivate(),
+						null, null, space.getIsPrivate(),
 						joinedList.stream().map(new Function<Joined, Long>() {
 							@Override
 							public Long apply(Joined joined) {
@@ -360,113 +281,78 @@ public class SpaceService {
 			Services.CHAT }, withModel = true)
 	public ResponseModel shareSpaceToUsers(Long spaceId, SpaceShareModel spaceShareModel) {
 		List<Joined> sharedWith = new ArrayList<>();
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, ResponseModel>() {
-			@Override
-			public ResponseModel apply(User user1) {
-				if (null == spaceId) {
-					throw new MintException(Code.INVALID_KEY);
-				}
-				var space = spaceRepository.findById(spaceId).orElseThrow(NotFoundException::new);
-
-				checkUserForSpace(user1, space);
-
-				Set<Joined> joineds = joinedRepository.findBySpaceIdAndDeletedFalse(spaceId).collect(Collectors.toSet());
-
-				if (spaceShareModel.getUsers().isEmpty() && spaceShareModel.getGroups().isEmpty()) {
-					throw new MintException(Code.INVALID, "error.share.users");
-				}
-				if (!spaceShareModel.getUsers().isEmpty()) {
-					userRepository.findAllById(
-							spaceShareModel.getUsers().stream().map(SpaceRoleModel::getId).collect(Collectors.toList()))
-							.forEach(new Consumer<User>() {
-								@Override
-								public void accept(User user) {
-									var spaceRoleModel = spaceShareModel.getUsers()
-											.get(spaceShareModel.getUsers().indexOf(new SpaceRoleModel(user.getId())));
-									if (spaceRoleModel != null) {
-										final Joined[] j = { new Joined(user, space) };
-										joineds.stream().filter(new Predicate<Joined>() {
-											@Override
-											public boolean test(Joined j1) {
-												return Objects.equals(j1, j[0]);
-											}
-										}).findFirst()
-												.ifPresent(new Consumer<Joined>() {
-													@Override
-													public void accept(Joined joined) {
-														j[0] = joined;
-													}
-												});
-										if (!Objects.equals(j[0].getUser().getId(), user1.getId())
-												&& j[0].getSpaceRole() != SpaceRole.OWNER) {
-											j[0].setSpaceRole(spaceRoleModel.getRole());
-										}
-										if (!joineds.contains(j[0])) {
-											joineds.add(j[0]);
-											sharedWith.add(j[0]);
-										}
-									}
-								}
-							});
-				}
-				if (!spaceShareModel.getGroups().isEmpty() && space.getCategory().getFoundation() != null) {
-					Set<Long> ids = spaceShareModel.getGroups().stream().map(SpaceRoleModel::getId).skip(0L)
-							.collect(Collectors.toSet());
-					groupsRepository.findAllById(ids).forEach(new Consumer<Groups>() {
-						@Override
-						public void accept(Groups groups) {
-							groups.getUsers().forEach(new Consumer<User>() {
-								@Override
-								public void accept(User user) {
-									if (!user.isDeleted()) {
-										var spaceRoleModel = spaceShareModel.getGroups()
-												.get(spaceShareModel.getGroups().indexOf(new SpaceRoleModel(groups.getId())));
-										if (spaceRoleModel != null) {
-											final Joined[] j = { new Joined(user, space) };
-											joineds.stream().filter(new Predicate<Joined>() {
-												@Override
-												public boolean test(Joined j1) {
-													return Objects.equals(j1, j[0]);
-												}
-											}).findFirst()
-													.ifPresent(new Consumer<Joined>() {
-														@Override
-														public void accept(Joined joined) {
-															j[0] = joined;
-														}
-													});
-											if (!Objects.equals(j[0].getUser().getId(), user1.getId())
-													&& j[0].getSpaceRole() != SpaceRole.OWNER) {
-												j[0].setSpaceRole(spaceRoleModel.getRole());
-												j[0].setGroupName(groups.getId().toString());
-											}
-											if (!joineds.contains(j[0])) {
-												joineds.add(j[0]);
-												sharedWith.add(j[0]);
-											}
-										}
-									}
-								}
-							});
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+				.map(new Function<User, ResponseModel>() {
+					@Override
+					public ResponseModel apply(User user1) {
+						if (null == spaceId) {
+							throw new MintException(Code.INVALID_KEY);
 						}
-					});
-				}
-				joinedRepository.saveAll(joineds);
-				updateUserLastAccess(spaceId);
-				var model = ResponseModel.done();
-				model.setMessageData(new SpaceShareInfoMessage(space.getId(), space.getName(), space.getThumbnail(),
-						new From(user1.getId(), user1.getFullName(), user1.getThumbnail(), user1.getChatId()),
-						space.getCategory().getName(), space.getCategory().getNameAr(), space.getIsPrivate(),
-						sharedWith.stream().map(new Function<Joined, Long>() {
-							@Override
-							public Long apply(Joined joined) {
-								return joined.getUser().getId();
-							}
-						}).collect(Collectors.toSet()),
-						space.getChatRoomId()));
-				return model;
-			}
-		}).orElseThrow(NotPermittedException::new);
+						var space = spaceRepository.findById(spaceId).orElseThrow(NotFoundException::new);
+
+						checkUserForSpace(user1, space);
+
+						Set<Joined> joineds = joinedRepository.findBySpaceIdAndDeletedFalse(spaceId)
+								.collect(Collectors.toSet());
+
+						if (spaceShareModel.getUsers().isEmpty()) {
+							throw new MintException(Code.INVALID, "error.share.users");
+						}
+						if (!spaceShareModel.getUsers().isEmpty()) {
+							userRepository.findAllById(
+									spaceShareModel.getUsers().stream().map(SpaceRoleModel::getId)
+											.collect(Collectors.toList()))
+									.forEach(new Consumer<User>() {
+										@Override
+										public void accept(User user) {
+											var spaceRoleModel = spaceShareModel.getUsers()
+													.get(spaceShareModel.getUsers()
+															.indexOf(new SpaceRoleModel(user.getId())));
+											if (spaceRoleModel != null) {
+												final Joined[] j = { new Joined(user, space) };
+												joineds.stream().filter(new Predicate<Joined>() {
+													@Override
+													public boolean test(Joined j1) {
+														return Objects.equals(j1, j[0]);
+													}
+												}).findFirst()
+														.ifPresent(new Consumer<Joined>() {
+															@Override
+															public void accept(Joined joined) {
+																j[0] = joined;
+															}
+														});
+												if (!Objects.equals(j[0].getUser().getId(), user1.getId())
+														&& j[0].getSpaceRole() != SpaceRole.OWNER) {
+													j[0].setSpaceRole(spaceRoleModel.getRole());
+												}
+												if (!joineds.contains(j[0])) {
+													joineds.add(j[0]);
+													sharedWith.add(j[0]);
+												}
+											}
+										}
+									});
+						}
+
+						joinedRepository.saveAll(joineds);
+						updateUserLastAccess(spaceId);
+						var model = ResponseModel.done();
+						model.setMessageData(new SpaceShareInfoMessage(space.getId(), space.getName(),
+								space.getThumbnail(),
+								new From(user1.getId(), user1.getFullName(), user1.getThumbnail(), user1.getChatId()),
+								null, null, space.getIsPrivate(),
+								sharedWith.stream().map(new Function<Joined, Long>() {
+									@Override
+									public Long apply(Joined joined) {
+										return joined.getUser().getId();
+									}
+								}).collect(Collectors.toSet()),
+								space.getChatRoomId()));
+						return model;
+					}
+
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	private void checkUserForSpace(User user1, Space space) {
@@ -476,12 +362,6 @@ public class SpaceService {
 			if (joined.getSpaceRole() != SpaceRole.OWNER && joined.getSpaceRole() != SpaceRole.CO_OWNER) {
 				throw new NotPermittedException();
 			}
-		} else if (user1.getType() == UserType.FOUNDATION_ADMIN
-				&& !Objects.equals(space.getCategory().getFoundation(), user1.getFoundation())) {
-			throw new NotPermittedException();
-		} else if (user1.getType() == UserType.ADMIN
-				&& !Objects.equals(space.getCategory().getOrganization(), user1.getOrganization())) {
-			throw new NotPermittedException();
 		}
 	}
 
@@ -490,25 +370,25 @@ public class SpaceService {
 	@PreAuthorize("hasAuthority('SPACE_JOINREQUEST_CREATE')")
 	@Message(entityAction = EntityAction.SPACE_JOIN, services = { Services.NOTIFICATIONS, Services.CHAT })
 	public ResponseModel joinSpace(Long spaceId) {
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, ResponseModel>() {
-			@Override
-			public ResponseModel apply(User user) {
-				var space = spaceRepository.findById(spaceId).orElseThrow(NotFoundException::new);
-				var joined = joinedValidation(user, space);
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+				.map(new Function<User, ResponseModel>() {
+					@Override
+					public ResponseModel apply(User user) {
+						var space = spaceRepository.findById(spaceId).orElseThrow(NotFoundException::new);
+						var joined = joinedValidation(user, space);
 
-				joinedRepository.save(joined);
-				updateSpaceModificationDate(space);
-				var userInfoMessage = new UserInfoMessage(user);
-				return ResponseModel.done(null,
-						new SpaceJoinMessage(space.getId(), space.getName(), space.getThumbnail(),
-								new From(userInfoMessage),
-								"ar".equalsIgnoreCase(user.getLangKey()) ? space.getCategory().getNameAr()
-										: space.getCategory().getName(),
-								"ar".equalsIgnoreCase(user.getLangKey()) ? space.getCategory().getNameAr()
-										: space.getCategory().getName(),
-								space.getIsPrivate(), userInfoMessage, joined.getJoinedStatus(), space.getChatRoomId()));
-			}
-		}).orElseThrow(NotPermittedException::new);
+						joinedRepository.save(joined);
+						updateSpaceModificationDate(space);
+						var userInfoMessage = new UserInfoMessage(user);
+						return ResponseModel.done(null,
+								new SpaceJoinMessage(space.getId(), space.getName(), space.getThumbnail(),
+										new From(userInfoMessage),
+										null,
+										null,
+										space.getIsPrivate(), userInfoMessage, joined.getJoinedStatus(),
+										space.getChatRoomId()));
+					}
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	private Joined joinedValidation(User user, Space space) {
@@ -531,38 +411,41 @@ public class SpaceService {
 				.map(new Function<User, ResponseModel>() {
 					@Override
 					public ResponseModel apply(User user) {
-						return spaceRepository.findOneByIdAndDeletedFalse(spaceId).map(new Function<Space, ResponseModel>() {
-							@Override
-							public ResponseModel apply(Space space) {
-								return joinedRepository
-										.findOneBySpaceIdAndUserIdAndDeletedFalse(spaceId, userId).map(new Function<Joined, ResponseModel>() {
-											@Override
-											public ResponseModel apply(Joined joined) {
-												if (!space.getUser().equals(user)) {
-													throw new NotPermittedException("error.space.join.approve");
-												}
+						return spaceRepository.findOneByIdAndDeletedFalse(spaceId)
+								.map(new Function<Space, ResponseModel>() {
+									@Override
+									public ResponseModel apply(Space space) {
+										return joinedRepository
+												.findOneBySpaceIdAndUserIdAndDeletedFalse(spaceId, userId)
+												.map(new Function<Joined, ResponseModel>() {
+													@Override
+													public ResponseModel apply(Joined joined) {
+														if (!space.getUser().equals(user)) {
+															throw new NotPermittedException("error.space.join.approve");
+														}
 
-												joined.setJoinedStatus(JoinedStatus.JOINED);
-												joinedRepository.save(joined);
+														joined.setJoinedStatus(JoinedStatus.JOINED);
+														joinedRepository.save(joined);
 
-												return ResponseModel.done(null, new SpaceJoinMessage(space.getId(), space.getName(),
-														space.getThumbnail(), new From(new UserInfoMessage(user)),
-														"ar".equalsIgnoreCase(joined.getUser().getLangKey())
-																? space.getCategory().getNameAr()
-																: space.getCategory().getName(),
-														"ar".equalsIgnoreCase(user.getLangKey()) ? space.getCategory().getNameAr()
-																: space.getCategory().getName(),
-														space.getIsPrivate(), new UserInfoMessage(joined.getUser()), JoinedStatus.JOINED,
-														space.getChatRoomId()));
-											}
-										}).orElseThrow(new Supplier<InvalidException>() {
-											@Override
-											public InvalidException get() {
-												return new InvalidException("error.space.join.user");
-											}
-										});
-							}
-						})
+														return ResponseModel.done(null, new SpaceJoinMessage(
+																space.getId(), space.getName(),
+																space.getThumbnail(),
+																new From(new UserInfoMessage(user)),
+																null,
+																null,
+																space.getIsPrivate(),
+																new UserInfoMessage(joined.getUser()),
+																JoinedStatus.JOINED,
+																space.getChatRoomId()));
+													}
+												}).orElseThrow(new Supplier<InvalidException>() {
+													@Override
+													public InvalidException get() {
+														return new InvalidException("error.space.join.user");
+													}
+												});
+									}
+								})
 								.orElseThrow(NotFoundException::new);
 					}
 				})
@@ -575,37 +458,40 @@ public class SpaceService {
 				.map(new Function<User, ResponseModel>() {
 					@Override
 					public ResponseModel apply(User user) {
-						return spaceRepository.findOneByIdAndDeletedFalse(spaceId).map(new Function<Space, ResponseModel>() {
-							@Override
-							public ResponseModel apply(Space space) {
-								return joinedRepository
-										.findOneBySpaceIdAndUserIdAndDeletedFalse(spaceId, userId).map(new Function<Joined, ResponseModel>() {
-											@Override
-											public ResponseModel apply(Joined joined) {
-												if (!space.getUser().equals(user)) {
-													throw new NotPermittedException("error.space.join.approve");
-												}
-												joined.setJoinedStatus(JoinedStatus.REFUSED);
-												joinedRepository.save(joined);
+						return spaceRepository.findOneByIdAndDeletedFalse(spaceId)
+								.map(new Function<Space, ResponseModel>() {
+									@Override
+									public ResponseModel apply(Space space) {
+										return joinedRepository
+												.findOneBySpaceIdAndUserIdAndDeletedFalse(spaceId, userId)
+												.map(new Function<Joined, ResponseModel>() {
+													@Override
+													public ResponseModel apply(Joined joined) {
+														if (!space.getUser().equals(user)) {
+															throw new NotPermittedException("error.space.join.approve");
+														}
+														joined.setJoinedStatus(JoinedStatus.REFUSED);
+														joinedRepository.save(joined);
 
-												return ResponseModel.done(null, new SpaceJoinMessage(space.getId(), space.getName(),
-														space.getThumbnail(), new From(new UserInfoMessage(user)),
-														"ar".equalsIgnoreCase(joined.getUser().getLangKey())
-																? space.getCategory().getNameAr()
-																: space.getCategory().getName(),
-														"ar".equalsIgnoreCase(user.getLangKey()) ? space.getCategory().getNameAr()
-																: space.getCategory().getName(),
-														space.getIsPrivate(), new UserInfoMessage(joined.getUser()), JoinedStatus.JOINED,
-														space.getChatRoomId()));
-											}
-										}).orElseThrow(new Supplier<InvalidException>() {
-											@Override
-											public InvalidException get() {
-												return new InvalidException("error.space.join.user");
-											}
-										});
-							}
-						})
+														return ResponseModel.done(null, new SpaceJoinMessage(
+																space.getId(), space.getName(),
+																space.getThumbnail(),
+																new From(new UserInfoMessage(user)),
+																null,
+																null,
+																space.getIsPrivate(),
+																new UserInfoMessage(joined.getUser()),
+																JoinedStatus.JOINED,
+																space.getChatRoomId()));
+													}
+												}).orElseThrow(new Supplier<InvalidException>() {
+													@Override
+													public InvalidException get() {
+														return new InvalidException("error.space.join.user");
+													}
+												});
+									}
+								})
 								.orElseThrow(NotFoundException::new);
 					}
 				})
@@ -616,28 +502,30 @@ public class SpaceService {
 	@Auditable(EntityAction.SPACE_LEAVE)
 	@Message(entityAction = EntityAction.SPACE_LEAVE, services = Services.CHAT)
 	public ResponseModel leaveSpace(Long spaceId) {
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, ResponseModel>() {
-			@Override
-			public ResponseModel apply(User user) {
-				var space = spaceRepository.findById(spaceId).orElseThrow(NotFoundException::new);
-				if (space.getAllowLeave() != null && !space.getAllowLeave()) {
-					throw new MintException(Code.INVALID, "error.space.leavenotallowed");
-				}
-				joinedRepository.findOneBySpaceIdAndUserIdAndDeletedFalse(spaceId, user.getId()).ifPresent(new Consumer<Joined>() {
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+				.map(new Function<User, ResponseModel>() {
 					@Override
-					public void accept(Joined joined) {
-						if (joined.getSpaceRole() == SpaceRole.OWNER) {
-							throw new NotPermittedException();
+					public ResponseModel apply(User user) {
+						var space = spaceRepository.findById(spaceId).orElseThrow(NotFoundException::new);
+						if (space.getAllowLeave() != null && !space.getAllowLeave()) {
+							throw new MintException(Code.INVALID, "error.space.leavenotallowed");
 						}
-						joinedRepository.delete(joined);
-						updateSpaceModificationDate(space);
-					}
-				});
+						joinedRepository.findOneBySpaceIdAndUserIdAndDeletedFalse(spaceId, user.getId())
+								.ifPresent(new Consumer<Joined>() {
+									@Override
+									public void accept(Joined joined) {
+										if (joined.getSpaceRole() == SpaceRole.OWNER) {
+											throw new NotPermittedException();
+										}
+										joinedRepository.delete(joined);
+										updateSpaceModificationDate(space);
+									}
+								});
 
-				return ResponseModel.done(null, new SpaceInfoMessage(spaceId, null, null,
-						new From(new UserInfoMessage(user)), null, null, null, space.getChatRoomId()));
-			}
-		}).orElseThrow(NotPermittedException::new);
+						return ResponseModel.done(null, new SpaceInfoMessage(spaceId, null, null,
+								new From(new UserInfoMessage(user)), null, null, null, space.getChatRoomId()));
+					}
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	@Transactional
@@ -662,137 +550,116 @@ public class SpaceService {
 	@Auditable(EntityAction.SPACE_UNSHARE)
 	@Message(entityAction = EntityAction.SPACE_UNSHARE, services = Services.CHAT)
 	public ResponseModel unShareSpaceToUsers(Long spaceId, SpaceShareModel spaceShareModel) {
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, ResponseModel>() {
-			@Override
-			public ResponseModel apply(User user1) {
-				List<Joined> unshared = new ArrayList<>();
-				if (null == spaceId) {
-					throw new MintException(Code.MISSING, "id");
-				}
-
-				var space = spaceRepository.findOneByIdAndDeletedFalse(spaceId).orElseThrow(NotFoundException::new);
-
-				checkUserForSpace(user1, space);
-				if (!spaceShareModel.getUsers().isEmpty()) {
-					List<Joined> joineds = joinedRepository.findBySpaceIdAndUserIdInAndDeletedFalse(spaceId,
-							spaceShareModel.getUsers().stream().map(SpaceRoleModel::getId).collect(Collectors.toList()))
-							.collect(Collectors.toList());
-					if (!joineds.isEmpty()) {
-						unshared.addAll(joineds);
-						joinedRepository.deleteAll(joineds);
-					}
-				}
-				if (!spaceShareModel.getGroups().isEmpty() && space.getCategory().getFoundation() != null) {
-					Set<Long> ids = spaceShareModel.getGroups().stream().map(SpaceRoleModel::getId).skip(0L)
-							.collect(Collectors.toSet());
-					Stream<Groups> groupsStream;
-					if (space.getCategory().getOrganization() != null) {
-						groupsStream = groupsRepository.findByIdInAndOrganizationInAndDeletedFalse(ids,
-								Collections.singleton(space.getCategory().getOrganization()));
-					} else {
-						groupsStream = groupsRepository.findByIdInAndOrganizationInAndDeletedFalse(ids,
-								space.getCategory().getFoundation().getOrganizations() == null ? new ArrayList<>()
-										: space.getCategory().getFoundation().getOrganizations());
-					}
-					Set<String> groupNames = groupsStream.map(Groups::getName).collect(Collectors.toSet());
-
-					List<Joined> joineds = joinedRepository.findBySpaceIdAndDeletedFalse(spaceId).filter(new Predicate<Joined>() {
-						@Override
-						public boolean test(Joined joined1) {
-							if (joined1 == null || joined1.getGroupName() == null) {
-								return false;
-							}
-							if (joined1.getGroupName().matches("\\d+")) {
-								return ids.contains(Long.valueOf(joined1.getGroupName()));
-							}
-							return groupNames.contains(joined1.getGroupName());
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+				.map(new Function<User, ResponseModel>() {
+					@Override
+					public ResponseModel apply(User user1) {
+						List<Joined> unshared = new ArrayList<>();
+						if (null == spaceId) {
+							throw new MintException(Code.MISSING, "id");
 						}
-					}).collect(Collectors.toList());
-					if (!joineds.isEmpty()) {
-						unshared.addAll(joineds);
-						joinedRepository.deleteAll(joineds);
-					}
-				}
-				updateUserLastAccess(spaceId);
-				var model = ResponseModel.done();
-				model.setMessageData(new SpaceShareInfoMessage(space.getId(), null, null, null, null, null, null,
-						unshared.stream().map(new Function<Joined, Long>() {
-							@Override
-							public Long apply(Joined joined) {
-								return joined.getUser().getId();
+
+						var space = spaceRepository.findOneByIdAndDeletedFalse(spaceId)
+								.orElseThrow(NotFoundException::new);
+
+						checkUserForSpace(user1, space);
+						if (!spaceShareModel.getUsers().isEmpty()) {
+							List<Joined> joineds = joinedRepository.findBySpaceIdAndUserIdInAndDeletedFalse(spaceId,
+									spaceShareModel.getUsers().stream().map(SpaceRoleModel::getId)
+											.collect(Collectors.toList()))
+									.collect(Collectors.toList());
+							if (!joineds.isEmpty()) {
+								unshared.addAll(joineds);
+								joinedRepository.deleteAll(joineds);
 							}
-						}).collect(Collectors.toSet()),
-						space.getChatRoomId()));
-				return model;
-			}
-		}).orElseThrow(NotPermittedException::new);
+						}
+
+						updateUserLastAccess(spaceId);
+						var model = ResponseModel.done();
+						model.setMessageData(
+								new SpaceShareInfoMessage(space.getId(), null, null, null, null, null, null,
+										unshared.stream().map(new Function<Joined, Long>() {
+											@Override
+											public Long apply(Joined joined) {
+												return joined.getUser().getId();
+											}
+										}).collect(Collectors.toSet()),
+										space.getChatRoomId()));
+						return model;
+					}
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	@Transactional
 	@Auditable(EntityAction.SPACE_FAVORIT)
 	public ResponseModel favoriteSpace(Long spaceId) {
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, ResponseModel>() {
-			@Override
-			public ResponseModel apply(User user) {
-				if (null == spaceId) {
-					throw new MintException(Code.INVALID_KEY);
-				}
-				return joinedRepository.findOneByUserIdAndSpaceIdAndDeletedFalse(user.getId(), spaceId).map(new Function<Joined, ResponseModel>() {
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+				.map(new Function<User, ResponseModel>() {
 					@Override
-					public ResponseModel apply(Joined joined) {
-						joined.setFavorite(Boolean.TRUE);
-						joined.setLastAccessed(new Date());
-						joinedRepository.save(joined);
-						return ResponseModel.done();
+					public ResponseModel apply(User user) {
+						if (null == spaceId) {
+							throw new MintException(Code.INVALID_KEY);
+						}
+						return joinedRepository.findOneByUserIdAndSpaceIdAndDeletedFalse(user.getId(), spaceId)
+								.map(new Function<Joined, ResponseModel>() {
+									@Override
+									public ResponseModel apply(Joined joined) {
+										joined.setFavorite(Boolean.TRUE);
+										joined.setLastAccessed(new Date());
+										joinedRepository.save(joined);
+										return ResponseModel.done();
+									}
+								}).orElseThrow(NotFoundException::new);
 					}
-				}).orElseThrow(NotFoundException::new);
-			}
-		}).orElseThrow(NotPermittedException::new);
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	@Transactional
 	@Auditable(EntityAction.SPACE_UNFAVORIT)
 	public ResponseModel unFavoriteSpace(Long spaceId) {
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, ResponseModel>() {
-			@Override
-			public ResponseModel apply(User user) {
-				if (null == spaceId) {
-					throw new MintException(Code.INVALID_KEY);
-				}
-				return joinedRepository.findOneByUserIdAndSpaceIdAndFavoriteTrueAndDeletedFalse(user.getId(), spaceId)
-						.map(new Function<Joined, ResponseModel>() {
-							@Override
-							public ResponseModel apply(Joined joined) {
-								joined.setFavorite(Boolean.FALSE);
-								joined.setLastAccessed(new Date());
-								joinedRepository.save(joined);
-								return ResponseModel.done();
-							}
-						}).orElseThrow(NotFoundException::new);
-			}
-		}).orElseThrow(NotPermittedException::new);
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+				.map(new Function<User, ResponseModel>() {
+					@Override
+					public ResponseModel apply(User user) {
+						if (null == spaceId) {
+							throw new MintException(Code.INVALID_KEY);
+						}
+						return joinedRepository
+								.findOneByUserIdAndSpaceIdAndFavoriteTrueAndDeletedFalse(user.getId(), spaceId)
+								.map(new Function<Joined, ResponseModel>() {
+									@Override
+									public ResponseModel apply(Joined joined) {
+										joined.setFavorite(Boolean.FALSE);
+										joined.setLastAccessed(new Date());
+										joinedRepository.save(joined);
+										return ResponseModel.done();
+									}
+								}).orElseThrow(NotFoundException::new);
+					}
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	@Transactional(readOnly = true)
 	@PreAuthorize("hasAuthority('SPACE_READ')")
 	public ResponseModel getFavoriteSpaces(Integer page, Integer size, SortField field, Sort.Direction direction,
 			String lang) {
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, PageResponseModel>() {
-			@Override
-			public PageResponseModel apply(User user) {
-				var pageRequest = getPageRequestForJoined(page, size, field, direction);
-				var joinedPage = joinedRepository.getFavoriteSpaces(user.getId(), pageRequest);
-				return PageResponseModel.done(
-						joinedPage.getContent().stream().map(new Function<Joined, SpaceListingModel>() {
-							@Override
-							public SpaceListingModel apply(Joined joined) {
-								return getUpdatesForSpaces(joined, null, lang);
-							}
-						})
-								.collect(Collectors.toList()),
-						joinedPage.getTotalPages(), pageRequest.getPageNumber(), joinedPage.getTotalElements());
-			}
-		}).orElseThrow(NotPermittedException::new);
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+				.map(new Function<User, PageResponseModel>() {
+					@Override
+					public PageResponseModel apply(User user) {
+						var pageRequest = getPageRequestForJoined(page, size, field, direction);
+						var joinedPage = joinedRepository.getFavoriteSpaces(user.getId(), pageRequest);
+						return PageResponseModel.done(
+								joinedPage.getContent().stream().map(new Function<Joined, SpaceListingModel>() {
+									@Override
+									public SpaceListingModel apply(Joined joined) {
+										return getUpdatesForSpaces(joined, null, lang);
+									}
+								})
+										.collect(Collectors.toList()),
+								joinedPage.getTotalPages(), pageRequest.getPageNumber(), joinedPage.getTotalElements());
+					}
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	private PageRequest getPageRequestForJoined(Integer page, Integer size, SortField field, Sort.Direction direction) {
@@ -810,128 +677,111 @@ public class SpaceService {
 	@Transactional(readOnly = true)
 	@PreAuthorize("hasAuthority('SPACE_READ')")
 	public ResponseModel getRecentAccessedSpaces(String lang) {
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, PageResponseModel>() {
-			@Override
-			public PageResponseModel apply(User user) {
-				var pageRequest = PageRequestModel.getPageRequestModel(0, 8);
-				var joinedPage = joinedRepository.findByUserIdAndDeletedFalseOrderByLastAccessedDesc(user.getId(),
-						pageRequest);
-				return PageResponseModel.done(
-						joinedPage.getContent().stream().map(new Function<Joined, SpaceListingModel>() {
-							@Override
-							public SpaceListingModel apply(Joined joined) {
-								return getUpdatesForSpaces(joined, null, lang);
-							}
-						})
-								.collect(Collectors.toList()),
-						joinedPage.getTotalPages(), pageRequest.getPageNumber(), joinedPage.getTotalElements());
-			}
-		}).orElseThrow(NotPermittedException::new);
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+				.map(new Function<User, PageResponseModel>() {
+					@Override
+					public PageResponseModel apply(User user) {
+						var pageRequest = PageRequestModel.getPageRequestModel(0, 8);
+						var joinedPage = joinedRepository.findByUserIdAndDeletedFalseOrderByLastAccessedDesc(
+								user.getId(),
+								pageRequest);
+						return PageResponseModel.done(
+								joinedPage.getContent().stream().map(new Function<Joined, SpaceListingModel>() {
+									@Override
+									public SpaceListingModel apply(Joined joined) {
+										return getUpdatesForSpaces(joined, null, lang);
+									}
+								})
+										.collect(Collectors.toList()),
+								joinedPage.getTotalPages(), pageRequest.getPageNumber(), joinedPage.getTotalElements());
+					}
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	@Transactional(readOnly = true)
 	@PreAuthorize("hasAuthority('SPACE_READ')")
 	public ResponseModel getOwnedSpaces(Integer page, Integer size, SortField field, Sort.Direction direction,
 			String lang) {
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, PageResponseModel>() {
-			@Override
-			public PageResponseModel apply(User user) {
-				var pageRequest = getPageRequestForJoined(page, size, field, direction);
-				var joinedPage = joinedRepository.getOwnedSpacesByUser(user.getId(), pageRequest);
-				return PageResponseModel.done(
-						joinedPage.getContent().stream().map(new Function<Joined, SpaceListingModel>() {
-							@Override
-							public SpaceListingModel apply(Joined joined) {
-								return getUpdatesForSpaces(joined, null, lang);
-							}
-						})
-								.collect(Collectors.toList()),
-						joinedPage.getTotalPages(), pageRequest.getPageNumber(), joinedPage.getTotalElements());
-			}
-		}).orElseThrow(NotPermittedException::new);
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+				.map(new Function<User, PageResponseModel>() {
+					@Override
+					public PageResponseModel apply(User user) {
+						var pageRequest = getPageRequestForJoined(page, size, field, direction);
+						var joinedPage = joinedRepository.getOwnedSpacesByUser(user.getId(), pageRequest);
+						return PageResponseModel.done(
+								joinedPage.getContent().stream().map(new Function<Joined, SpaceListingModel>() {
+									@Override
+									public SpaceListingModel apply(Joined joined) {
+										return getUpdatesForSpaces(joined, null, lang);
+									}
+								})
+										.collect(Collectors.toList()),
+								joinedPage.getTotalPages(), pageRequest.getPageNumber(), joinedPage.getTotalElements());
+					}
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	@Transactional(readOnly = true)
 	@PreAuthorize("hasAuthority('SPACE_READ')")
 	public ResponseModel getAllSpaces(String lang, String name, Integer page, Integer size, SortField field,
 			Sort.Direction direction) {
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, PageResponseModel>() {
-			@Override
-			public PageResponseModel apply(User user) {
-				Sort sort = null;
-				if (field != null && direction != null) {
-					sort = Sort.by(direction, field.getFieldName());
-				}
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+				.map(new Function<User, PageResponseModel>() {
+					@Override
+					public PageResponseModel apply(User user) {
+						Sort sort = null;
+						if (field != null && direction != null) {
+							sort = Sort.by(direction, field.getFieldName());
+						}
 
-				var pageRequest = PageRequestModel.getPageRequestModel(page, size, sort);
-				switch (user.getType()) {
-				case SUPER_ADMIN:
-				case SYSTEM_ADMIN:
-					var systemAdminSpacePage = spaceRepository.findAll(pageRequest);
-					return PageResponseModel.done(systemAdminSpacePage.getContent().stream()
-							.map(new Function<Space, SpaceListingModel>() {
-								@Override
-								public SpaceListingModel apply(Space space) {
-									return getSpaceListingModelForAdmins(space, null, lang);
-								}
-							}).collect(Collectors.toSet()),
-							systemAdminSpacePage.getTotalPages(), pageRequest.getPageNumber(),
-							systemAdminSpacePage.getTotalElements());
+						var pageRequest = PageRequestModel.getPageRequestModel(page, size, sort);
+						switch (user.getType()) {
+							case SUPER_ADMIN:
+							case SYSTEM_ADMIN:
+								var systemAdminSpacePage = spaceRepository.findAll(pageRequest);
+								return PageResponseModel.done(systemAdminSpacePage.getContent().stream()
+										.map(new Function<Space, SpaceListingModel>() {
+											@Override
+											public SpaceListingModel apply(Space space) {
+												return getSpaceListingModelForAdmins(space, null, lang);
+											}
+										}).collect(Collectors.toSet()),
+										systemAdminSpacePage.getTotalPages(), pageRequest.getPageNumber(),
+										systemAdminSpacePage.getTotalElements());
 
-				case FOUNDATION_ADMIN:
-					var foundationAdminSpacePage = spaceRepository.findByCategoryOrganizationInAndDeletedFalse(
-							user.getFoundation().getOrganizations(), pageRequest);
-					return PageResponseModel.done(foundationAdminSpacePage.getContent().stream()
-							.map(new Function<Space, SpaceListingModel>() {
-								@Override
-								public SpaceListingModel apply(Space space) {
-									return getSpaceListingModelForAdmins(space, null, lang);
+							default:
+								pageRequest = getPageRequestForJoined(page, size, field, direction);
+								Page<Joined> joinedPage = null;
+								if (name == null || name.isEmpty()) {
+									joinedPage = joinedRepository.findByUserIdAndDeletedFalse(user.getId(),
+											pageRequest);
+								} else {
+									joinedPage = joinedRepository
+											.findByUserIdAndSpaceNameIgnoreCaseContainingAndDeletedFalse(
+													user.getId(), name, pageRequest);
 								}
-							}).collect(Collectors.toSet()),
-							foundationAdminSpacePage.getTotalPages(), pageRequest.getPageNumber(),
-							foundationAdminSpacePage.getTotalElements());
 
-				case ADMIN:
-					var adminSpacePage = spaceRepository.findByCategoryOrganizationInAndDeletedFalse(
-							Collections.singletonList(user.getOrganization()), pageRequest);
-					return PageResponseModel.done(adminSpacePage.getContent().stream()
-							.map(new Function<Space, SpaceListingModel>() {
-								@Override
-								public SpaceListingModel apply(Space space) {
-									return getSpaceListingModelForAdmins(space, null, lang);
-								}
-							}).collect(Collectors.toSet()),
-							adminSpacePage.getTotalPages(), pageRequest.getPageNumber(), adminSpacePage.getTotalElements());
-				default:
-					pageRequest = getPageRequestForJoined(page, size, field, direction);
-					Page<Joined> joinedPage = null;
-					if (name == null || name.isEmpty()) {
-						joinedPage = joinedRepository.findByUserIdAndDeletedFalse(user.getId(), pageRequest);
-					} else {
-						joinedPage = joinedRepository.findByUserIdAndSpaceNameIgnoreCaseContainingAndDeletedFalse(
-								user.getId(), name, pageRequest);
+								return PageResponseModel.done(
+										joinedPage.getContent().stream()
+												.map(new Function<Joined, SpaceListingModel>() {
+													@Override
+													public SpaceListingModel apply(Joined joined) {
+														return getUpdatesForSpaces(joined, joined.getLastAccessed(),
+																lang);
+													}
+												})
+												.collect(Collectors.toList()),
+										joinedPage.getTotalPages(), pageRequest.getPageNumber(),
+										joinedPage.getTotalElements());
+						}
 					}
-
-					return PageResponseModel.done(
-							joinedPage.getContent().stream()
-									.map(new Function<Joined, SpaceListingModel>() {
-										@Override
-										public SpaceListingModel apply(Joined joined) {
-											return getUpdatesForSpaces(joined, joined.getLastAccessed(), lang);
-										}
-									})
-									.collect(Collectors.toList()),
-							joinedPage.getTotalPages(), pageRequest.getPageNumber(), joinedPage.getTotalElements());
-				}
-			}
-		}).orElseThrow(NotPermittedException::new);
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	@Transactional(readOnly = true)
 	@PreAuthorize("hasAuthority('SPACE_READ') AND hasAuthority('SYSTEM_ADMIN')")
 	public ResponseModel getCloudSpace(PageRequest pageRequest) {
-		var adminSpacePage = spaceRepository
-				.findByCategoryOrganizationIsNullAndCategoryFoundationIsNullAndDeletedFalse(pageRequest);
+		var adminSpacePage = spaceRepository.findByDeletedFalse(pageRequest);
 		return PageResponseModel.done(
 				adminSpacePage.getContent().stream().map(new Function<Space, SpaceListingModel>() {
 					@Override
@@ -946,114 +796,122 @@ public class SpaceService {
 	@Transactional(readOnly = true)
 	@PreAuthorize("hasAuthority('SPACE_READ')")
 	public ResponseModel getSpaceUpdates(ZonedDateTime lastRequestDate) {
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, ResponseModel>() {
-			@Override
-			public ResponseModel apply(User user) {
-				log.debug("date ==> {}", lastRequestDate);
-				var updateModel = new SpaceListingUpdateModel();
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+				.map(new Function<User, ResponseModel>() {
+					@Override
+					public ResponseModel apply(User user) {
+						log.debug("date ==> {}", lastRequestDate);
+						var updateModel = new SpaceListingUpdateModel();
 
-				var date = DateConverter.convertZonedDateTimeToDate(lastRequestDate);
+						var date = DateConverter.convertZonedDateTimeToDate(lastRequestDate);
 
-				final var queryDate = date;
-				var calendar = Calendar.getInstance();
-				calendar.setTime(date);
-				calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
-				calendar.set(Calendar.MILLISECOND, 0);
-				calendar.set(Calendar.SECOND, 0);
-				calendar.set(Calendar.MINUTE, 0);
-				date = calendar.getTime();
+						final var queryDate = date;
+						var calendar = Calendar.getInstance();
+						calendar.setTime(date);
+						calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+						calendar.set(Calendar.MILLISECOND, 0);
+						calendar.set(Calendar.SECOND, 0);
+						calendar.set(Calendar.MINUTE, 0);
+						date = calendar.getTime();
 
-				log.debug("date after remove ==> {}", date);
-				updateModel.getNewSpaces()
-						.addAll(spaceRepository.findByUserIdAndDeletedFalseAndCreationDateAfter(user.getId(), date)
-								.map(new Function<Space, SpaceListingModel>() {
-									@Override
-									public SpaceListingModel apply(Space space) {
-										return getSpaceListingModelForAdmins(space, queryDate, "en");
-									}
-								})
-								.collect(Collectors.toList()));
+						log.debug("date after remove ==> {}", date);
+						updateModel.getNewSpaces()
+								.addAll(spaceRepository
+										.findByUserIdAndDeletedFalseAndCreationDateAfter(user.getId(), date)
+										.map(new Function<Space, SpaceListingModel>() {
+											@Override
+											public SpaceListingModel apply(Space space) {
+												return getSpaceListingModelForAdmins(space, queryDate, "en");
+											}
+										})
+										.collect(Collectors.toList()));
 
-				updateModel.getJoinedSpaces()
-						.addAll(joinedRepository.findByUserIdAndCreationDateAfterAndDeletedFalse(user.getId(), date)
-								.map(new Function<Joined, SpaceListingModel>() {
-									@Override
-									public SpaceListingModel apply(Joined joined) {
-										return getUpdatesForSpaces(joined, queryDate, "en");
-									}
-								}).collect(Collectors.toList()));
+						updateModel.getJoinedSpaces()
+								.addAll(joinedRepository
+										.findByUserIdAndCreationDateAfterAndDeletedFalse(user.getId(), date)
+										.map(new Function<Joined, SpaceListingModel>() {
+											@Override
+											public SpaceListingModel apply(Joined joined) {
+												return getUpdatesForSpaces(joined, queryDate, "en");
+											}
+										}).collect(Collectors.toList()));
 
-				updateModel.getUpdatesSpaces().addAll(joinedRepository
-						.findByDeletedFalseAndUserIdAndSpaceDeletedFalseAndSpaceLastModifiedDateNotNullAndSpaceLastModifiedDateAfter(
-								user.getId(), date)
-						.map(new Function<Joined, SpaceListingModel>() {
-							@Override
-							public SpaceListingModel apply(Joined joined) {
-								return getUpdatesForSpaces(joined, queryDate, "en");
-							}
-						}).collect(Collectors.toList()));
-				updateModel.getUpdatesSpaces()
-						.addAll(joinedRepository.findByUserIdAndLastModifiedDateAfterAndDeletedFalse(user.getId(), date)
-								.map(new Function<Joined, SpaceListingModel>() {
-									@Override
-									public SpaceListingModel apply(Joined joined) {
-										return getUpdatesForSpaces(joined, queryDate, "en");
-									}
-								}).collect(Collectors.toList()));
-				updateModel.getUnSharedSpaces()
-						.addAll(joinedRepository
-								.findByUserIdAndDeletedTrueAndDeletedDateAfterAndSpaceDeletedFalse(user.getId(), date)
-								.map(new Function<Joined, Long>() {
-									@Override
-									public Long apply(Joined joined) {
-										return joined.getSpace().getId();
-									}
-								}).collect(Collectors.toList()));
-
-				updateModel.getDeletedSpaces()
-						.addAll(joinedRepository
-								.findByUserIdAndDeletedTrueAndSpaceDeletedTrueAndSpaceDeletedDateGreaterThanEqual(
+						updateModel.getUpdatesSpaces().addAll(joinedRepository
+								.findByDeletedFalseAndUserIdAndSpaceDeletedFalseAndSpaceLastModifiedDateNotNullAndSpaceLastModifiedDateAfter(
 										user.getId(), date)
-								.map(new Function<Joined, Long>() {
+								.map(new Function<Joined, SpaceListingModel>() {
 									@Override
-									public Long apply(Joined joined) {
-										return joined.getSpace().getId();
+									public SpaceListingModel apply(Joined joined) {
+										return getUpdatesForSpaces(joined, queryDate, "en");
 									}
 								}).collect(Collectors.toList()));
+						updateModel.getUpdatesSpaces()
+								.addAll(joinedRepository
+										.findByUserIdAndLastModifiedDateAfterAndDeletedFalse(user.getId(), date)
+										.map(new Function<Joined, SpaceListingModel>() {
+											@Override
+											public SpaceListingModel apply(Joined joined) {
+												return getUpdatesForSpaces(joined, queryDate, "en");
+											}
+										}).collect(Collectors.toList()));
+						updateModel.getUnSharedSpaces()
+								.addAll(joinedRepository
+										.findByUserIdAndDeletedTrueAndDeletedDateAfterAndSpaceDeletedFalse(user.getId(),
+												date)
+										.map(new Function<Joined, Long>() {
+											@Override
+											public Long apply(Joined joined) {
+												return joined.getSpace().getId();
+											}
+										}).collect(Collectors.toList()));
 
-				return ResponseModel.done(updateModel);
-			}
-		}).orElseThrow(NotPermittedException::new);
+						updateModel.getDeletedSpaces()
+								.addAll(joinedRepository
+										.findByUserIdAndDeletedTrueAndSpaceDeletedTrueAndSpaceDeletedDateGreaterThanEqual(
+												user.getId(), date)
+										.map(new Function<Joined, Long>() {
+											@Override
+											public Long apply(Joined joined) {
+												return joined.getSpace().getId();
+											}
+										}).collect(Collectors.toList()));
+
+						return ResponseModel.done(updateModel);
+					}
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	@Transactional
 	@Auditable(EntityAction.SPACE_RATE)
 	@Message(entityAction = EntityAction.SPACE_RATE, services = Services.NOTIFICATIONS)
 	public ResponseModel rateSpace(Long spaceId, Integer rating) {
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, ResponseModel>() {
-			@Override
-			public ResponseModel apply(User user) {
-				if (null == spaceId) {
-					throw new MintException(Code.INVALID_KEY);
-				}
-				return joinedRepository.findOneByUserIdAndSpaceIdAndDeletedFalse(user.getId(), spaceId).map(new Function<Joined, ResponseModel>() {
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+				.map(new Function<User, ResponseModel>() {
 					@Override
-					public ResponseModel apply(Joined joined) {
-						joined.setRating(rating);
-						joined.setLastAccessed(new Date());
-						joinedRepository.save(joined);
-						var avgRating = joinedRepository.getAvarageRatingOnSpace(spaceId);
-						var space = joined.getSpace();
-						space.setRating(avgRating);
-						spaceRepository.save(space);
-						return ResponseModel.done(space.getRating(),
-								new SpaceInfoMessage(spaceId, space.getName(), space.getCategory().getImage(),
-										new From(SecurityUtils.getCurrentUser()), space.getCategory().getName(),
-										space.getCategory().getNameAr(), space.getIsPrivate(), space.getChatRoomId()));
+					public ResponseModel apply(User user) {
+						if (null == spaceId) {
+							throw new MintException(Code.INVALID_KEY);
+						}
+						return joinedRepository.findOneByUserIdAndSpaceIdAndDeletedFalse(user.getId(), spaceId)
+								.map(new Function<Joined, ResponseModel>() {
+									@Override
+									public ResponseModel apply(Joined joined) {
+										joined.setRating(rating);
+										joined.setLastAccessed(new Date());
+										joinedRepository.save(joined);
+										var avgRating = joinedRepository.getAvarageRatingOnSpace(spaceId);
+										var space = joined.getSpace();
+										space.setRating(avgRating);
+										spaceRepository.save(space);
+										return ResponseModel.done(space.getRating(),
+												new SpaceInfoMessage(spaceId, space.getName(), space.getImage(),
+														new From(SecurityUtils.getCurrentUser()), null,
+														null, space.getIsPrivate(),
+														space.getChatRoomId()));
+									}
+								}).orElseThrow(NotFoundException::new);
 					}
-				}).orElseThrow(NotFoundException::new);
-			}
-		}).orElseThrow(NotPermittedException::new);
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	@Transactional
@@ -1072,78 +930,29 @@ public class SpaceService {
 					}
 				});
 		if (!space.getUser().equals(currentUser)) {
-			switch (currentUser.getType()) {
-			case FOUNDATION_ADMIN:
-				if (!Objects.equals(currentUser.getFoundation(), space.getUser().getFoundation())) {
-					throw new NotPermittedException();
-				}
-				break;
-			case ADMIN:
-				if (!Objects.equals(currentUser.getOrganization(), space.getUser().getOrganization())) {
-					throw new NotPermittedException();
-				}
-				break;
-			default:
-				throw new NotPermittedException();
-			}
+			// In B2C, only owner can update (or maybe admin, but removing B2B hierarchy
+			// checks)
+			throw new NotPermittedException();
 		}
 
-		if (null == spaceCreateModel.getCategoryModel().getId()) {
-			throw new MintException(Code.MISSING, "category");
-		}
-		var category = categoryRepository.findById(spaceCreateModel.getCategoryModel().getId())
-				.orElseThrow(new Supplier<NotFoundException>() {
-					@Override
-					public NotFoundException get() {
-						return new NotFoundException("category");
-					}
-				});
-		space.setCategory(category);
+		// Category update removed
 
 		final User[] user = { space.getUser() };
 		if (spaceCreateModel.getOwnerId() != null
 				&& !Objects.equals(spaceCreateModel.getOwnerId(), space.getUser().getId())) {
-
 			userRepository.findOneByIdAndDeletedFalse(spaceCreateModel.getOwnerId()).ifPresent(new Consumer<User>() {
 				@Override
 				public void accept(User user1) {
-					switch (user1.getType()) {
-					case FOUNDATION_ADMIN:
-						if (Objects.equals(user1.getFoundation(), space.getUser().getFoundation())) {
-							user[0] = user1;
-						}
-						break;
-					case ADMIN:
-						if (Objects.equals(user1.getFoundation(), space.getUser().getFoundation())
-								&& Objects.equals(user1.getOrganization(), space.getUser().getOrganization())) {
-							user[0] = user1;
-						}
-						break;
-					case USER:
-						if (user1.getFoundation() != null) {
-							if (Objects.equals(user1.getFoundation(), space.getUser().getFoundation())) {
-								user[0] = user1;
-							}
-						} else if (space.getUser().getFoundation() == null) {
-							user[0] = user1;
-						}
-
-						break;
-					case SUPER_ADMIN:
-					case SYSTEM_ADMIN:
-					default:
-						user[0] = space.getUser();
-					}
+					user[0] = user1;
 				}
 			});
-
 		} else {
 			user[0] = space.getUser();
 		}
 
 		if (!Objects.equals(space.getName(), spaceCreateModel.getName())
-				&& spaceRepository.countByNameAndUserIdAndCategoryAndDeletedFalse(spaceCreateModel.getName(),
-						user[0].getId(), category) > 0) {
+				&& spaceRepository.countByNameAndUserIdAndDeletedFalse(spaceCreateModel.getName(),
+						user[0].getId()) > 0) {
 			throw new ExistException(spaceCreateModel.getName());
 		}
 		var oldUser = space.getUser();
@@ -1154,15 +963,12 @@ public class SpaceService {
 		space.setPrice(spaceCreateModel.getPrice());
 		space.setPaid(spaceCreateModel.getPaid());
 		space.setIsPrivate(spaceCreateModel.getIsPrivate());
-		if (spaceCreateModel.getImage() == null) {
-			space.setImage(category.getImage());
-		} else {
+
+		if (spaceCreateModel.getImage() != null) {
 			space.setImage(spaceCreateModel.getImage());
 		}
 		if (spaceCreateModel.getThumbnail() != null) {
 			space.setThumbnail(spaceCreateModel.getThumbnail());
-		} else {
-			space.setThumbnail(category.getThumbnail());
 		}
 
 		space.setDescription(spaceCreateModel.getDescription());
@@ -1191,36 +997,38 @@ public class SpaceService {
 						new SpaceInfoMessage(space.getId(), space.getName(), space.getThumbnail(),
 								new From(user[0].getId(), user[0].getFullName(), user[0].getThumbnail(),
 										user[0].getChatId()),
-								category.getName(), space.getCategory().getNameAr(), space.getIsPrivate(),
+								null, null, space.getIsPrivate(),
 								space.getChatRoomId()));
 	}
 
 	@Transactional(readOnly = true)
 	@PreAuthorize("hasAuthority('SPACE_READ')")
 	public ResponseModel getSpaceById(Long id, String lang) {
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, ResponseModel>() {
-			@Override
-			public ResponseModel apply(User user) {
-				if (user.getType() != UserType.USER) {
-					return spaceRepository.findById(id)
-							.map(new Function<Space, ResponseModel>() {
-								@Override
-								public ResponseModel apply(Space space) {
-									return ResponseModel.done(getSpaceListingModelForAdmins(space, null, lang));
-								}
-							})
-							.orElseThrow(NotFoundException::new);
-				}
-				return joinedRepository.findOneByUserIdAndSpaceIdAndDeletedFalse(user.getId(), id)
-						.map(new Function<Joined, ResponseModel>() {
-							@Override
-							public ResponseModel apply(Joined joined) {
-								return ResponseModel.done(getUpdatesForSpaces(joined, null, lang));
-							}
-						})
-						.orElseThrow(NotFoundException::new);
-			}
-		}).orElseThrow(NotPermittedException::new);
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+				.map(new Function<User, ResponseModel>() {
+					@Override
+					public ResponseModel apply(User user) {
+						if (user.getType() != UserType.USER) {
+							return spaceRepository.findById(id)
+									.map(new Function<Space, ResponseModel>() {
+										@Override
+										public ResponseModel apply(Space space) {
+											return ResponseModel.done(getSpaceListingModelForAdmins(space, null, lang));
+										}
+									})
+									.orElseThrow(NotFoundException::new);
+						}
+						return joinedRepository.findOneByUserIdAndSpaceIdAndDeletedFalse(user.getId(), id)
+								.map(new Function<Joined, ResponseModel>() {
+									@Override
+									public ResponseModel apply(Joined joined) {
+										return ResponseModel.done(getUpdatesForSpaces(joined, null, lang));
+									}
+								})
+								.orElseThrow(NotFoundException::new);
+					}
+
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	@Transactional(readOnly = true)
@@ -1241,76 +1049,32 @@ public class SpaceService {
 				}).collect(Collectors.toList()));
 	}
 
-	@Transactional(readOnly = true)
-	@PreAuthorize("hasAuthority('ADMIN')")
-	// TODO: review this method and check if it is used
-	public ResponseModel getGroupsBySpaceId(Long id) {
-		Set<String> groupsName = joinedRepository.getSpaceCommunity(id).filter(new Predicate<Joined>() {
-			@Override
-			public boolean test(Joined joined) {
-				return joined.getGroupName() != null;
-			}
-		})
-				.map(new Function<Joined, String>() {
-					@Override
-					public String apply(Joined joined) {
-						if (joined.getGroupName().matches("\\d+")) {
-							var groups = groupsRepository.findById(Long.valueOf(joined.getGroupName()))
-									.orElseThrow(NotFoundException::new);
-							if (groups != null) {
-								return groups.getName();
-							}
-						}
-						return joined.getGroupName();
-					}
-				}).collect(Collectors.toSet());
-
-		return ResponseModel
-				.done(groupsRepository.findByNameInAndDeletedFalse(new ArrayList<>(groupsName)).map(new Function<Groups, GroupModel>() {
-					@Override
-					public GroupModel apply(Groups groups) {
-						var groupModel = new GroupModel();
-//                   objectMapper.map(groups, groupModel);
-
-						if (groups.getTags() != null && !groups.getTags().isEmpty()) {
-							groupModel.getTags().addAll(Arrays.asList(groups.getTags().split(",")));
-							if (groupModel.getTags().get(0).equalsIgnoreCase(Gender.MALE.name())
-									|| groupModel.getTags().get(0).equalsIgnoreCase(Gender.FEMALE.name())) {
-								groupModel.setGender(Gender.valueOf(groupModel.getTags().remove(0)));
-							}
-						}
-						if (groups.getCanAccess() != null && !groups.getCanAccess().isEmpty()) {
-							groupModel.getCanAccess().addAll(Arrays.asList(groups.getCanAccess().split(",")));
-						}
-						groupModel.setUserCount(groups.getUsers().size());
-						return groupModel;
-					}
-				}).collect(Collectors.toList()));
-	}
-
 	@Transactional
 	@Auditable(EntityAction.SPACE_UPDATE)
 	@PreAuthorize("hasAuthority('COMMUNITY_UPDATE')")
 	public ResponseModel changeShareRole(Long spaceId, Long userId, SpaceRole spaceRole) {
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, ResponseModel>() {
-			@Override
-			public ResponseModel apply(User user1) {
-				var currentUserJoined = joinedRepository.findOneBySpaceIdAndUserIdAndDeletedFalse(spaceId, user1.getId())
-						.orElseThrow(NotPermittedException::new);
-				if (currentUserJoined.getSpaceRole() != SpaceRole.OWNER
-						&& currentUserJoined.getSpaceRole() != SpaceRole.CO_OWNER) {
-					throw new NotPermittedException();
-				}
-				return joinedRepository.findOneBySpaceIdAndUserIdAndDeletedFalse(spaceId, userId).map(new Function<Joined, ResponseModel>() {
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+				.map(new Function<User, ResponseModel>() {
 					@Override
-					public ResponseModel apply(Joined joined) {
-						joined.setSpaceRole(spaceRole);
-						joinedRepository.save(joined);
-						return ResponseModel.done();
+					public ResponseModel apply(User user1) {
+						var currentUserJoined = joinedRepository
+								.findOneBySpaceIdAndUserIdAndDeletedFalse(spaceId, user1.getId())
+								.orElseThrow(NotPermittedException::new);
+						if (currentUserJoined.getSpaceRole() != SpaceRole.OWNER
+								&& currentUserJoined.getSpaceRole() != SpaceRole.CO_OWNER) {
+							throw new NotPermittedException();
+						}
+						return joinedRepository.findOneBySpaceIdAndUserIdAndDeletedFalse(spaceId, userId)
+								.map(new Function<Joined, ResponseModel>() {
+									@Override
+									public ResponseModel apply(Joined joined) {
+										joined.setSpaceRole(spaceRole);
+										joinedRepository.save(joined);
+										return ResponseModel.done();
+									}
+								}).orElseThrow(NotFoundException::new);
 					}
-				}).orElseThrow(NotFoundException::new);
-			}
-		}).orElseThrow(NotPermittedException::new);
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	@Transactional
@@ -1329,13 +1093,13 @@ public class SpaceService {
 										space.getObjective(), space.getPrice(), space.getPaid(), space.getIsPrivate(),
 										space.getImage(), space.getDescription());
 								spaceDuplicate
-										.setColor(space.getColor() == null ? RandomUtils.genertateRandomColor() : space.getColor());
+										.setColor(space.getColor() == null ? RandomUtils.genertateRandomColor()
+												: space.getColor());
 								spaceDuplicate.setJoinRequestsAllowed(space.getJoinRequestsAllowed());
 								spaceDuplicate.setAutoWifiSyncAllowed(space.getAutoWifiSyncAllowed());
 								spaceDuplicate.setAllowRecommendation(space.getAllowRecommendation());
 								spaceDuplicate.setShowCommunity(space.getShowCommunity());
 								spaceDuplicate.setUser(user);
-								spaceDuplicate.setCategory(space.getCategory());
 								spaceDuplicate.setThumbnail(space.getThumbnail());
 								spaceDuplicate.setPrice(space.getPrice());
 								spaceDuplicate.setImage(space.getImage());
@@ -1374,58 +1138,6 @@ public class SpaceService {
 						}).orElseThrow(NotFoundException::new);
 					}
 				}).orElseThrow(NotPermittedException::new);
-	}
-
-	@Transactional(readOnly = true)
-	@PreAuthorize("hasAuthority('SPACE_READ') AND hasAuthority('GROUP_READ') AND hasAuthority('ADMIN')")
-	public ResponseModel getSpaceByGroupName(Groups groups) {
-		Set<SpaceListingModel> spaceListingModels = joinedRepository
-				.findByGroupNameAndDeletedFalse(groups.getId().toString())
-				.map(new Function<Joined, SpaceListingModel>() {
-					@Override
-					public SpaceListingModel apply(Joined joined) {
-						return getSpaceListingModelForAdmins(joined.getSpace(), null, "en");
-					}
-				})
-				.collect(Collectors.toSet());
-
-		if (spaceListingModels.isEmpty()) {
-			spaceListingModels = joinedRepository.findByGroupNameAndDeletedFalse(groups.getName())
-					.map(new Function<Joined, SpaceListingModel>() {
-						@Override
-						public SpaceListingModel apply(Joined joined) {
-							return getSpaceListingModelForAdmins(joined.getSpace(), null, "en");
-						}
-					})
-					.collect(Collectors.toSet());
-		}
-
-		return ResponseModel.done(spaceListingModels);
-	}
-
-	@Transactional(readOnly = true)
-	@PreAuthorize("hasAuthority('SPACE_READ') AND hasAuthority('ADMIN')")
-	public ResponseModel getSpacesByOrganization(Organization organization) {
-		return ResponseModel.done(
-				spaceRepository.findByCategoryOrganizationInAndDeletedFalse(Collections.singletonList(organization))
-						.map(new Function<Space, SpaceListingModel>() {
-							@Override
-							public SpaceListingModel apply(Space space) {
-								return getSpaceListingModelForAdmins(space, null, "en");
-							}
-						}).collect(Collectors.toSet()));
-	}
-
-	@Transactional(readOnly = true)
-	@PreAuthorize("hasAuthority('SPACE_READ') AND hasAuthority('ADMIN')")
-	public ResponseModel getSpacesByFoundation(Foundation foundation) {
-		return ResponseModel.done(spaceRepository.findByCategoryFoundationAndDeletedFalse(foundation)
-				.map(new Function<Space, SpaceListingModel>() {
-					@Override
-					public SpaceListingModel apply(Space space) {
-						return getSpaceListingModelForAdmins(space, null, "en");
-					}
-				}).collect(Collectors.toSet()));
 	}
 
 	@Transactional(readOnly = true)
@@ -1475,9 +1187,6 @@ public class SpaceService {
 		var spaceListingModel = new SpaceListingModel(url);
 		SpaceMapper.INSTANCE.mapSpaceDomainToListingModel(space, spaceListingModel);
 		spaceListingModel.setRole(SpaceRole.OWNER);
-		if ("ar".equalsIgnoreCase(lang) && spaceListingModel.getCategoryModel().getNameAr() != null) {
-			spaceListingModel.getCategoryModel().setName(spaceListingModel.getCategoryModel().getNameAr());
-		}
 		spaceListingModel.setOwner(space.getUser().getUserName().equalsIgnoreCase(SecurityUtils.getCurrentUserLogin()));
 		spaceListingModel.setCreationDate(DateConverter.convertDateToZonedDateTime(space.getCreationDate()));
 		spaceListingModel.setLastModified(DateConverter.convertDateToZonedDateTime(space.getLastModifiedDate()));
@@ -1507,47 +1216,6 @@ public class SpaceService {
 	}
 
 	@Transactional
-	@Auditable(EntityAction.SPACE_DELETE)
-	@PreAuthorize("hasAuthority('SPACE_DELETE') and  hasAnyAuthority('SUPER_ADMIN','FOUNDATION_ADMIN','FOUNDATION_ADMIN')")
-	@Message(entityAction = EntityAction.SPACE_DELETE, services = { Services.NOTIFICATIONS, Services.CHAT })
-	public void deleteSpacesInOrganization(Organization organization1) {
-		userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
-				.ifPresent(new Consumer<User>() {
-					@Override
-					public void accept(User user) {
-						spaceRepository
-								.findByCategoryOrganizationInAndDeletedFalse(Collections.singletonList(organization1))
-								.forEach(new Consumer<Space>() {
-									@Override
-									public void accept(Space space) {
-										deleteSpaceByObject(user, space);
-									}
-								});
-					}
-				});
-	}
-
-	@Transactional
-	@Auditable(EntityAction.SPACE_DELETE)
-	@PreAuthorize("hasAuthority('SPACE_DELETE') and  hasAnyAuthority('SUPER_ADMIN','SYSTEM_ADMIN','FOUNDATION_ADMIN')")
-	@Message(entityAction = EntityAction.SPACE_DELETE, services = { Services.NOTIFICATIONS, Services.CHAT })
-	public void deleteSpacesInFoundation(Foundation foundation) {
-		userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
-				.ifPresent(new Consumer<User>() {
-					@Override
-					public void accept(User user) {
-						spaceRepository.findByCategoryFoundationAndDeletedFalse(foundation)
-								.forEach(new Consumer<Space>() {
-									@Override
-									public void accept(Space space) {
-										deleteSpaceByObject(user, space);
-									}
-								});
-					}
-				});
-	}
-
-	@Transactional
 	public ResponseModel joinWithTags(List<String> tags, boolean closeAutoLogin) {
 		log.debug("start auto join ");
 		var user = userRepository.findById(SecurityUtils.getCurrentUser().getId())
@@ -1556,16 +1224,17 @@ public class SpaceService {
 		if (tags != null && !tags.isEmpty()) {
 			Set<Joined> joineds = new HashSet<>();
 			for (String string : tags) {
-				joineds.addAll(spaceRepository.findByIsPrivateFalseAndObjectiveContains(string).map(new Function<Space, Joined>() {
-					@Override
-					public Joined apply(Space space) {
-						try {
-							return joinedValidation(user, space);
-						} catch (MintException e) {
-							return null;
-						}
-					}
-				}).filter(Objects::nonNull).collect(Collectors.toSet()));
+				joineds.addAll(spaceRepository.findByIsPrivateFalseAndObjectiveContains(string)
+						.map(new Function<Space, Joined>() {
+							@Override
+							public Joined apply(Space space) {
+								try {
+									return joinedValidation(user, space);
+								} catch (MintException e) {
+									return null;
+								}
+							}
+						}).filter(Objects::nonNull).collect(Collectors.toSet()));
 			}
 
 			log.debug("joined size {} ", joineds.size());

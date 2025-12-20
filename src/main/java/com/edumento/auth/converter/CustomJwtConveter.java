@@ -23,8 +23,7 @@ public class CustomJwtConveter implements Converter<Jwt, AbstractAuthenticationT
 	public AbstractAuthenticationToken convert(Jwt jwt) {
 		CurrentUserDetail currentUserDetail = new CurrentUserDetail(jwt.getClaim("id"), jwt.getSubject(), "",
 				getJwtGrantedAuthoritiesConverter().convert(jwt), jwt.getClaim("fullName"), jwt.getClaim("image"),
-				jwt.getClaim("email"), jwt.getClaim("foundationid"), jwt.getClaim("companyId"),
-				UserType.valueOf(jwt.getClaimAsString("type")), "chatId");
+				jwt.getClaim("email"), UserType.valueOf(jwt.getClaimAsString("type")), "chatId");
 		return new PreAuthenticatedAuthenticationToken(currentUserDetail, null,
 				getJwtGrantedAuthoritiesConverter().convert(jwt));
 		//

@@ -52,8 +52,7 @@ public class AuditingAspect {
 
 		var auditMessage = new AuditMessage(currentUserDetail != null ? currentUserDetail.getId() : null,
 				currentUserDetail != null ? currentUserDetail.getUsername() : null,
-				currentUserDetail != null ? currentUserDetail.getOrganizationId() : null,
-				currentUserDetail != null ? currentUserDetail.getFoundationId() : null, auditable.value(), dataMap);
+				auditable.value(), dataMap);
 		auditMessage.setClientId(currentUserDetail != null ? currentUserDetail.getCurrentClientId() : null);
 		send(Exchnages.MESSAGE_BUS, RoutingKeys.AUDIT, auditMessage);
 	}
@@ -80,8 +79,7 @@ public class AuditingAspect {
 		dataMap.put("Exception", ex.toString());
 		var auditMessage = new AuditMessage(currentUserDetail != null ? currentUserDetail.getId() : null,
 				currentUserDetail != null ? currentUserDetail.getUsername() : null,
-				currentUserDetail != null ? currentUserDetail.getOrganizationId() : null,
-				currentUserDetail != null ? currentUserDetail.getFoundationId() : null, auditable.value(), dataMap);
+				auditable.value(), dataMap);
 		auditMessage.setClientId(currentUserDetail != null ? currentUserDetail.getCurrentClientId() : null);
 
 		send(Exchnages.MESSAGE_BUS, RoutingKeys.AUDIT, auditMessage);
@@ -106,8 +104,7 @@ public class AuditingAspect {
 		dataMap.put("returnValue", String.valueOf(retVal));
 		var auditMessage = new AuditMessage(currentUserDetail != null ? currentUserDetail.getId() : null,
 				currentUserDetail != null ? currentUserDetail.getUsername() : null,
-				currentUserDetail != null ? currentUserDetail.getOrganizationId() : null,
-				currentUserDetail != null ? currentUserDetail.getFoundationId() : null, auditable.value(), dataMap);
+				auditable.value(), dataMap);
 		auditMessage.setClientId(currentUserDetail != null ? currentUserDetail.getCurrentClientId() : null);
 
 		send(Exchnages.MESSAGE_BUS, RoutingKeys.AUDIT, auditMessage);

@@ -245,35 +245,35 @@ public class ContentUploadService {
 			task.setStatus(TaskStatus.FINISHED);
 			taskRepository.save(task);
 			switch (task.getContentType()) {
-			case VIDEO:
-				videoConverterService.extractAndConvert(task);
-				break;
-			case INTERACTIVE:
-				interactiveContentConverter.convertInteractiveContentDirectory(task);
-				break;
-			case IMAGE:
-				imagetoPDfConverter.convertImageToPdfAsync(task);
-				break;
-			case TEXT:
-				encryptPDFUtil.encryptPdf(task);
-				break;
-			case H5P:
-				mintH5PInteractiveContentConverter.convertH5PInteractiveContentDirectory(task);
-				log.info("update Content to be .zip");
-				contentService.updateContentStatus(task.getContentId(), ContentStatus.READY, null, null, "zip",
-						ContentType.INTERACTIVE, null);
-				break;
-			case OTHER:
-				if (task.getExt() != null && "h5p".equals(task.getExt())) {
+				case VIDEO:
+					videoConverterService.extractAndConvert(task);
+					break;
+				case INTERACTIVE:
+					interactiveContentConverter.convertInteractiveContentDirectory(task);
+					break;
+				case IMAGE:
+					imagetoPDfConverter.convertImageToPdfAsync(task);
+					break;
+				case TEXT:
+					encryptPDFUtil.encryptPdf(task);
+					break;
+				case H5P:
 					mintH5PInteractiveContentConverter.convertH5PInteractiveContentDirectory(task);
 					log.info("update Content to be .zip");
 					contentService.updateContentStatus(task.getContentId(), ContentStatus.READY, null, null, "zip",
 							ContentType.INTERACTIVE, null);
-				}
-				break;
-			default:
-				contentService.updateContentStatus(task.getContentId(), ContentStatus.READY);
-				break;
+					break;
+				case OTHER:
+					if (task.getExt() != null && "h5p".equals(task.getExt())) {
+						mintH5PInteractiveContentConverter.convertH5PInteractiveContentDirectory(task);
+						log.info("update Content to be .zip");
+						contentService.updateContentStatus(task.getContentId(), ContentStatus.READY, null, null, "zip",
+								ContentType.INTERACTIVE, null);
+					}
+					break;
+				default:
+					contentService.updateContentStatus(task.getContentId(), ContentStatus.READY);
+					break;
 			}
 
 		} catch (Exception e) {
@@ -284,7 +284,7 @@ public class ContentUploadService {
 		return ResponseModel.done(null,
 				new ContentInfoMessage(content.getId(), content.getName(), content.getType(),
 						content.getSpace().getId(), content.getSpace().getName(),
-						content.getSpace().getCategory().getName(), new From(SecurityUtils.getCurrentUser())));
+						null, new From(SecurityUtils.getCurrentUser())));
 	}
 
 	public ResponseModel cancel(String id, HttpServletRequest request) {

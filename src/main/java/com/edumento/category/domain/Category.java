@@ -7,8 +7,6 @@ import java.util.Set;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-import com.edumento.b2b.domain.Foundation;
-import com.edumento.b2b.domain.Organization;
 import com.edumento.core.domain.AbstractEntity;
 
 import jakarta.persistence.Column;
@@ -50,14 +48,6 @@ public class Category extends AbstractEntity {
 	@OneToMany(mappedBy = "parentCategory")
 	private Set<Category> childCategories = new HashSet<>();
 
-	@ManyToOne
-	@JoinColumn(name = "organization", foreignKey = @ForeignKey(name = "FK_CAT_ORG"))
-	private Organization organization;
-
-	@ManyToOne
-	@JoinColumn(name = "foundation_id", foreignKey = @ForeignKey(name = "FK_CAT_FOUND"))
-	private Foundation foundation;
-
 	public Category() {
 	}
 
@@ -90,14 +80,6 @@ public class Category extends AbstractEntity {
 		this.id = id;
 	}
 
-	public Organization getOrganization() {
-		return organization;
-	}
-
-	public void setOrganization(Organization organization) {
-		this.organization = organization;
-	}
-
 	public String getImage() {
 		return image;
 	}
@@ -112,14 +94,6 @@ public class Category extends AbstractEntity {
 
 	public void setThumbnail(String thumbnail) {
 		this.thumbnail = thumbnail;
-	}
-
-	public Foundation getFoundation() {
-		return foundation;
-	}
-
-	public void setFoundation(Foundation foundation) {
-		this.foundation = foundation;
 	}
 
 	public Category getParentCategory() {
@@ -157,18 +131,13 @@ public class Category extends AbstractEntity {
 
 		var category = (Category) o;
 
-		if (!Objects.equals(id, category.id) || !name.equals(category.name)
-				|| !Objects.equals(organization, category.organization)) {
-			return false;
-		}
-		return Objects.equals(foundation, category.foundation);
+		return Objects.equals(id, category.id) && name.equals(category.name);
 	}
 
 	@Override
 	public int hashCode() {
 		var result = id != null ? id.hashCode() : 0;
 		result = 31 * result + name.hashCode();
-		result = 31 * result + (organization != null ? organization.hashCode() : 0);
-		return 31 * result + (foundation != null ? foundation.hashCode() : 0);
+		return 31 * result + name.hashCode();
 	}
 }

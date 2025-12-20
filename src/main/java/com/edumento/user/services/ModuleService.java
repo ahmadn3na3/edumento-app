@@ -79,27 +79,27 @@ public class ModuleService {
 					@Override
 					public ResponseModel apply(User user) {
 						final Map<String, Set<Byte>> permissionGroup = switch (user.getType()) {
-						case SUPER_ADMIN,
-								SYSTEM_ADMIN ->
-							permissionRepository
-									.findByTypeInAndDeletedFalse(
-											Arrays.asList(UserType.FOUNDATION_ADMIN, UserType.ADMIN, UserType.USER))
-									.stream()
-									.collect(Collectors.groupingBy(Permission::getKeyCode, HashMap::new,
-											Collectors.collectingAndThen(Collectors.toSet(),
-													new Function<Set<Permission>, Set<Byte>>() {
-														@Override
-														public Set<Byte> apply(Set<Permission> permissions) {
-															return permissions.stream()
-																	.map(new Function<Permission, Byte>() {
-																		@Override
-																		public Byte apply(Permission permission) {
-																			return permission.getCode().byteValue();
-																		}
-																	}).collect(Collectors.toSet());
-														}
-													})));
-						default -> throw new NotPermittedException("user type not allowed");
+							case SUPER_ADMIN,
+									SYSTEM_ADMIN ->
+								permissionRepository
+										.findByTypeInAndDeletedFalse(
+												Arrays.asList(UserType.USER))
+										.stream()
+										.collect(Collectors.groupingBy(Permission::getKeyCode, HashMap::new,
+												Collectors.collectingAndThen(Collectors.toSet(),
+														new Function<Set<Permission>, Set<Byte>>() {
+															@Override
+															public Set<Byte> apply(Set<Permission> permissions) {
+																return permissions.stream()
+																		.map(new Function<Permission, Byte>() {
+																			@Override
+																			public Byte apply(Permission permission) {
+																				return permission.getCode().byteValue();
+																			}
+																		}).collect(Collectors.toSet());
+															}
+														})));
+							default -> throw new NotPermittedException("user type not allowed");
 						};
 						return ResponseModel.done(permissionGroup);
 					}

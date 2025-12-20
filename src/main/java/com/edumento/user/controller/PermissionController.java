@@ -1,7 +1,5 @@
 package com.edumento.user.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,7 +14,6 @@ import jakarta.servlet.http.HttpServletRequest;
 /** Created by ahmad on 5/15/16. */
 @RestController
 public class PermissionController {
-	private final Logger log = LoggerFactory.getLogger(PermissionController.class);
 
 	private final ModuleService moduleService;
 

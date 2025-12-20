@@ -39,7 +39,6 @@ public class CategoryController extends AbstractController<CreateCategoryModel, 
 	// categories")
 	public ResponseModel getAll(@RequestHeader(required = false, defaultValue = "0") Integer page,
 			@RequestHeader(required = false, defaultValue = "100") Integer size,
-			@RequestHeader(required = false) Long foundationId, @RequestHeader(required = false) Long organizationId,
 			@RequestParam(required = false) String filter,
 			@RequestHeader(required = false, defaultValue = "NAME") SortField field,
 			@RequestHeader(required = false, defaultValue = "ASCENDING") SortDirection sortDirection,
@@ -48,7 +47,7 @@ public class CategoryController extends AbstractController<CreateCategoryModel, 
 		return categoryService.getCategories(
 				PageRequestModel.getPageRequestModel(page, size,
 						Sort.by(sortDirection.getValue(), field.getFieldName())),
-				foundationId, organizationId, filter, all, lang);
+				filter, all, lang);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, path = "/related_user_spaces")
@@ -93,21 +92,4 @@ public class CategoryController extends AbstractController<CreateCategoryModel, 
 		return categoryService.delete(id);
 	}
 
-	@RequestMapping(path = "/{id}/space", method = RequestMethod.GET)
-	// @ApiOperation(
-	// value = "Get Space's Categories",
-	// notes = "this method is used to list categories of specific space"
-	// )
-	public ResponseModel getSpacesCategory(@PathVariable Long id,
-			@RequestHeader(required = false, defaultValue = "en") String lang,
-			@RequestHeader(required = false) Integer page, @RequestHeader(required = false) Integer size,
-			@RequestHeader(required = false) SortField field, @RequestHeader(required = false) Sort.Direction direction,
-			@RequestHeader(required = false, defaultValue = "false") Boolean owned) {
-		Sort sort = null;
-		if (field != null && direction != null) {
-			sort = Sort.by(direction, field.getFieldName());
-		}
-		return categoryService.getSpacesByCategory(id, PageRequestModel.getPageRequestModel(page, size, sort), lang,
-				owned);
-	}
 }

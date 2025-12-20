@@ -56,7 +56,6 @@ import com.edumento.core.model.messages.content.ContentInfoMessage;
 import com.edumento.core.model.messages.user.UserInfoMessage;
 import com.edumento.core.security.SecurityUtils;
 import com.edumento.core.util.DateConverter;
-import com.edumento.core.util.PermissionCheck;
 import com.edumento.space.domain.Joined;
 import com.edumento.space.repos.JoinedRepository;
 import com.edumento.space.repos.SpaceRepository;
@@ -84,7 +83,7 @@ public class ContentService {
 	private final SpaceService spaceService;
 	private final JoinedRepository joinedRepository;
 	private final MongoTemplate mongoTemplate;
-//	private final AnnotationService annotationService;
+	// private final AnnotationService annotationService;
 
 	@Autowired
 	public ContentService(ContentRepository contentRepository, UserRepository userRepository,
@@ -104,123 +103,134 @@ public class ContentService {
 	@PreAuthorize("hasAuthority('CONTENT_CREATE')")
 	public ResponseModel createContent(ContentCreateModel contentCreateModel) {
 		log.debug("Create Content {}", contentCreateModel);
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, ResponseModel>() {
-			@Override
-			public ResponseModel apply(User user) {
-				var space = spaceRepository.findById(contentCreateModel.getSpaceId()).orElseThrow(NotFoundException::new);
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+				.map(new Function<User, ResponseModel>() {
+					@Override
+					public ResponseModel apply(User user) {
+						var space = spaceRepository.findById(contentCreateModel.getSpaceId())
+								.orElseThrow(NotFoundException::new);
 
-				if (contentCreateModel.getType() != ContentType.WORKSHEET) {
-					if (contentCreateModel.getShelf() != null
-							&& contentRepository.findOneByNameAndShelfNameAndOwnerAndSpaceAndDeletedFalse(
-									contentCreateModel.getName(), contentCreateModel.getShelf(), user, space).isPresent()) {
-						log.warn("content {} already exist", contentCreateModel.getName());
-						throw new ExistException("name");
-					} else if (contentCreateModel.getShelf() == null && contentRepository
-							.findOneByNameAndOwnerAndSpaceAndDeletedFalse(contentCreateModel.getName(), user, space)
-							.isPresent()) {
-						log.warn("content {} already exist", contentCreateModel.getName());
-						throw new ExistException("name");
+						if (contentCreateModel.getType() != ContentType.WORKSHEET) {
+							if (contentCreateModel.getShelf() != null
+									&& contentRepository.findOneByNameAndShelfNameAndOwnerAndSpaceAndDeletedFalse(
+											contentCreateModel.getName(), contentCreateModel.getShelf(), user, space)
+											.isPresent()) {
+								log.warn("content {} already exist", contentCreateModel.getName());
+								throw new ExistException("name");
+							} else if (contentCreateModel.getShelf() == null && contentRepository
+									.findOneByNameAndOwnerAndSpaceAndDeletedFalse(contentCreateModel.getName(), user,
+											space)
+									.isPresent()) {
+								log.warn("content {} already exist", contentCreateModel.getName());
+								throw new ExistException("name");
+							}
+						} else {
+							contentCreateModel.setShelf(ContentType.WORKSHEET.name());
+						}
+
+						var content = new Content();
+						content.setName(contentCreateModel.getName());
+						content.setShelfName(contentCreateModel.getShelf());
+						content.setSpace(space);
+						content.setOwner(user);
+						if (contentCreateModel.getExt() != null) {
+							content.setExt(contentCreateModel.getExt().toLowerCase());
+						}
+						content.setSize(contentCreateModel.getContentLength());
+						content.setTags(
+								contentCreateModel.getTags() != null ? String.join(",", contentCreateModel.getTags())
+										: "");
+						content.setCheckSum(contentCreateModel.getCheckSum());
+
+						content.setType(contentCreateModel.getType());
+
+						if (ContentType.URL.equals(content.getType())) {
+							content.setFileName(null);
+							content.setFolderName(null);
+							content.setContentUrl(contentCreateModel.getContentUrl());
+							content.setStatus(ContentStatus.READY);
+						}
+
+						content.setThumbnail(contentCreateModel.getThumbnail());
+						content.setAllowUseOrginal(contentCreateModel.getAllowUseOriginal());
+						contentRepository.save(content);
+						spaceService.updateSpaceModificationDate(space);
+						log.debug("content saved: {}", contentCreateModel);
+						return ResponseModel.done(content.getId(),
+								new ContentInfoMessage(content.getId(), content.getName(), content.getType(),
+										space.getId(),
+										space.getName(), null, new From(new UserInfoMessage(user))));
 					}
-				} else {
-					contentCreateModel.setShelf(ContentType.WORKSHEET.name());
-				}
-
-				var content = new Content();
-				content.setName(contentCreateModel.getName());
-				content.setShelfName(contentCreateModel.getShelf());
-				content.setSpace(space);
-				content.setOwner(user);
-				if (contentCreateModel.getExt() != null) {
-					content.setExt(contentCreateModel.getExt().toLowerCase());
-				}
-				content.setSize(contentCreateModel.getContentLength());
-				content.setTags(contentCreateModel.getTags() != null ? String.join(",", contentCreateModel.getTags()) : "");
-				content.setCheckSum(contentCreateModel.getCheckSum());
-
-				content.setType(contentCreateModel.getType());
-
-				if (ContentType.URL.equals(content.getType())) {
-					content.setFileName(null);
-					content.setFolderName(null);
-					content.setContentUrl(contentCreateModel.getContentUrl());
-					content.setStatus(ContentStatus.READY);
-				}
-
-				content.setThumbnail(contentCreateModel.getThumbnail());
-				content.setAllowUseOrginal(contentCreateModel.getAllowUseOriginal());
-				contentRepository.save(content);
-				spaceService.updateSpaceModificationDate(space);
-				log.debug("content saved: {}", contentCreateModel);
-				return ResponseModel.done(content.getId(),
-						new ContentInfoMessage(content.getId(), content.getName(), content.getType(), space.getId(),
-								space.getName(), space.getCategory().getName(), new From(new UserInfoMessage(user))));
-			}
-		}).orElseThrow(NotPermittedException::new);
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	@Transactional(readOnly = true)
 	@PreAuthorize("hasAuthority('CONTENT_READ')")
 	public ResponseModel getSpaceContents(Long spaceId, PageRequest pageRequest, String shelf) {
 		log.debug("get space {} contents", spaceId);
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, PageResponseModel>() {
-			@Override
-			public PageResponseModel apply(User user) {
-				// specifications
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+				.map(new Function<User, PageResponseModel>() {
+					@Override
+					public PageResponseModel apply(User user) {
+						// specifications
 
-				spaceRepository.findById(spaceId).orElseThrow(NotFoundException::new);
+						spaceRepository.findById(spaceId).orElseThrow(NotFoundException::new);
 
-				Specification<Content> statusSpec = new Specification<Content>() {
-					@Override
-					@Nullable
-					public jakarta.persistence.criteria.Predicate toPredicate(Root<Content> root,
-							CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
-						return root.get("status")
-								.in(ContentStatus.READY, ContentStatus.UPLOADED);
-					}
-				};
-				Specification<Content> typeSpec = new Specification<Content>() {
-					@Override
-					@Nullable
-					public jakarta.persistence.criteria.Predicate toPredicate(Root<Content> root,
-							CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
-						return criteriaBuilder
-								.notEqual(root.get("type"), ContentType.WORKSHEET);
-					}
-				};
-				Specification<Content> spaceSpec = new Specification<Content>() {
-					@Override
-					@Nullable
-					public jakarta.persistence.criteria.Predicate toPredicate(Root<Content> root,
-							CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
-						return criteriaBuilder
-								.equal(root.get("space").get("id"), spaceId);
-					}
-				};
-				Specification<Content> notDeleted = new Specification<Content>() {
-					@Override
-					@Nullable
-					public jakarta.persistence.criteria.Predicate toPredicate(Root<Content> root,
-							CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
-						return criteriaBuilder
-								.equal(root.get("deleted"), false);
-					}
-				};
-				Specification<Content> shelfContentSpecification = shelf == null ? null
-						: (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("shelfName"), shelf);
+						Specification<Content> statusSpec = new Specification<Content>() {
+							@Override
+							@Nullable
+							public jakarta.persistence.criteria.Predicate toPredicate(Root<Content> root,
+									CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+								return root.get("status")
+										.in(ContentStatus.READY, ContentStatus.UPLOADED);
+							}
+						};
+						Specification<Content> typeSpec = new Specification<Content>() {
+							@Override
+							@Nullable
+							public jakarta.persistence.criteria.Predicate toPredicate(Root<Content> root,
+									CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+								return criteriaBuilder
+										.notEqual(root.get("type"), ContentType.WORKSHEET);
+							}
+						};
+						Specification<Content> spaceSpec = new Specification<Content>() {
+							@Override
+							@Nullable
+							public jakarta.persistence.criteria.Predicate toPredicate(Root<Content> root,
+									CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+								return criteriaBuilder
+										.equal(root.get("space").get("id"), spaceId);
+							}
+						};
+						Specification<Content> notDeleted = new Specification<Content>() {
+							@Override
+							@Nullable
+							public jakarta.persistence.criteria.Predicate toPredicate(Root<Content> root,
+									CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+								return criteriaBuilder
+										.equal(root.get("deleted"), false);
+							}
+						};
+						Specification<Content> shelfContentSpecification = shelf == null ? null
+								: (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("shelfName"),
+										shelf);
 
-				Specification<Content> searchSpec;
-				if (user.getType() == UserType.USER) {
-					searchSpec = Specification.where(spaceSpec).and(statusSpec).and(typeSpec).and(notDeleted)
-							.and(shelfContentSpecification);
-				} else {
-					searchSpec = Specification.where(spaceSpec).and(typeSpec).and(notDeleted);
-				}
-				var contentPage = contentRepository.findAll(searchSpec, pageRequest);
-				return PageResponseModel.done(
-						contentPage.getContent().stream().map(ContentService.this::getContentModel).collect(Collectors.toList()),
-						contentPage.getTotalPages(), pageRequest.getPageNumber(), contentPage.getContent().size());
-			}
-		}).orElseThrow(NotPermittedException::new);
+						Specification<Content> searchSpec;
+						if (user.getType() == UserType.USER) {
+							searchSpec = Specification.where(spaceSpec).and(statusSpec).and(typeSpec).and(notDeleted)
+									.and(shelfContentSpecification);
+						} else {
+							searchSpec = Specification.where(spaceSpec).and(typeSpec).and(notDeleted);
+						}
+						var contentPage = contentRepository.findAll(searchSpec, pageRequest);
+						return PageResponseModel.done(
+								contentPage.getContent().stream().map(ContentService.this::getContentModel)
+										.collect(Collectors.toList()),
+								contentPage.getTotalPages(), pageRequest.getPageNumber(),
+								contentPage.getContent().size());
+					}
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	@Transactional(readOnly = true)
@@ -282,45 +292,50 @@ public class ContentService {
 				.map(new Function<User, ResponseModel>() {
 					@Override
 					public ResponseModel apply(User user) {
-						return contentRepository.findOneByIdAndDeletedFalse(contentId).map(new Function<Content, ResponseModel>() {
-							@Override
-							public ResponseModel apply(Content content) {
-								if (content.getType() == ContentType.WORKSHEET) {
-									throw new MintException(Code.INVALID, "type");
-								}
-								if (!content.getOwner().equals(user) && !content.getSpace().getUser().equals(user)) {
-									throw new NotPermittedException();
-								}
-								if (!content.getName().equals(contentCreateModel.getName())) {
-									if (contentCreateModel.getShelf() != null && contentRepository
-											.findOneByNameAndShelfNameAndOwnerAndSpaceAndDeletedFalse(contentCreateModel.getName(),
-													contentCreateModel.getShelf(), user, content.getSpace())
-											.isPresent()) {
-										log.warn("content {} with shelf {} exist", contentCreateModel.getName(),
-												content.getShelfName());
-										throw new ExistException("name");
-									} else if (contentCreateModel.getShelf() == null && contentRepository
-											.findOneByNameAndOwnerAndSpaceAndDeletedFalse(contentCreateModel.getName(),
-													content.getOwner(), content.getSpace())
-											.isPresent()) {
-										log.warn("content {} exist", contentCreateModel.getName());
-										throw new ExistException("name");
+						return contentRepository.findOneByIdAndDeletedFalse(contentId)
+								.map(new Function<Content, ResponseModel>() {
+									@Override
+									public ResponseModel apply(Content content) {
+										if (content.getType() == ContentType.WORKSHEET) {
+											throw new MintException(Code.INVALID, "type");
+										}
+										if (!content.getOwner().equals(user)
+												&& !content.getSpace().getUser().equals(user)) {
+											throw new NotPermittedException();
+										}
+										if (!content.getName().equals(contentCreateModel.getName())) {
+											if (contentCreateModel.getShelf() != null && contentRepository
+													.findOneByNameAndShelfNameAndOwnerAndSpaceAndDeletedFalse(
+															contentCreateModel.getName(),
+															contentCreateModel.getShelf(), user, content.getSpace())
+													.isPresent()) {
+												log.warn("content {} with shelf {} exist", contentCreateModel.getName(),
+														content.getShelfName());
+												throw new ExistException("name");
+											} else if (contentCreateModel.getShelf() == null && contentRepository
+													.findOneByNameAndOwnerAndSpaceAndDeletedFalse(
+															contentCreateModel.getName(),
+															content.getOwner(), content.getSpace())
+													.isPresent()) {
+												log.warn("content {} exist", contentCreateModel.getName());
+												throw new ExistException("name");
+											}
+										}
+										content.setName(contentCreateModel.getName());
+										content.setShelfName(contentCreateModel.getShelf());
+										content.setTags(String.join(",", contentCreateModel.getTags()));
+										content.setThumbnail(contentCreateModel.getThumbnail());
+										content.setAllowUseOrginal(contentCreateModel.getAllowUseOriginal());
+										contentRepository.save(content);
+										spaceService.updateSpaceModificationDate(content.getSpace());
+										log.debug("content {} updated", contentId);
+										return ResponseModel.done(content.getId(),
+												new ContentInfoMessage(content.getId(), content.getName(),
+														content.getType(),
+														content.getSpace().getId(), content.getSpace().getName(),
+														null, new From(new UserInfoMessage(user))));
 									}
-								}
-								content.setName(contentCreateModel.getName());
-								content.setShelfName(contentCreateModel.getShelf());
-								content.setTags(String.join(",", contentCreateModel.getTags()));
-								content.setThumbnail(contentCreateModel.getThumbnail());
-								content.setAllowUseOrginal(contentCreateModel.getAllowUseOriginal());
-								contentRepository.save(content);
-								spaceService.updateSpaceModificationDate(content.getSpace());
-								log.debug("content {} updated", contentId);
-								return ResponseModel.done(content.getId(),
-										new ContentInfoMessage(content.getId(), content.getName(), content.getType(),
-												content.getSpace().getId(), content.getSpace().getName(),
-												content.getSpace().getCategory().getName(), new From(new UserInfoMessage(user))));
-							}
-						}).orElseThrow(NotFoundException::new);
+								}).orElseThrow(NotFoundException::new);
 					}
 				}).orElseThrow(NotPermittedException::new);
 	}
@@ -351,40 +366,35 @@ public class ContentService {
 				.map(new Function<User, ResponseModel>() {
 					@Override
 					public ResponseModel apply(User user) {
-						return contentRepository.findOneByIdAndDeletedFalse(id).map(new Function<Content, ResponseModel>() {
-							@Override
-							public ResponseModel apply(Content content) {
-								if (content.getSpace().getCategory().getFoundation() != null
-										&& user.getType() == UserType.FOUNDATION_ADMIN
-										&& user.getFoundation().equals(content.getSpace().getCategory().getFoundation())) {
-//						annotationService.deletebyContentId(id);
-									contentRepository.delete(content);
-									spaceService.updateSpaceModificationDate(content.getSpace());
-									return ResponseModel.done(null, new ContentInfoMessage(content.getId(), content.getName(),
-											content.getType(), content.getSpace().getId(), content.getSpace().getName(),
-											content.getSpace().getCategory().getName(), new From(new UserInfoMessage(user))));
-								}
-								return joinedRepository
-										.findOneByUserIdAndSpaceIdAndDeletedFalse(user.getId(), content.getSpace().getId())
-										.map(new Function<Joined, ResponseModel>() {
-											@Override
-											public ResponseModel apply(Joined joined) {
-												if (content.getOwner().equals(joined.getUser())
-														|| SpaceRole.OWNER.equals(joined.getSpaceRole())) {
-//									annotationService.deletebyContentId(id);
-													contentRepository.delete(content);
-													spaceService.updateSpaceModificationDate(content.getSpace());
-													return ResponseModel.done(null, new ContentInfoMessage(content.getId(),
-															content.getName(), content.getType(), content.getSpace().getId(),
-															content.getSpace().getName(), content.getSpace().getCategory().getName(),
-															new From(new UserInfoMessage(user))));
-												} else {
-													throw new NotPermittedException();
-												}
-											}
-										}).orElseThrow(NotPermittedException::new);
-							}
-						}).orElseThrow(NotFoundException::new);
+						return contentRepository.findOneByIdAndDeletedFalse(id)
+								.map(new Function<Content, ResponseModel>() {
+									@Override
+									public ResponseModel apply(Content content) {
+										return joinedRepository
+												.findOneByUserIdAndSpaceIdAndDeletedFalse(user.getId(),
+														content.getSpace().getId())
+												.map(new Function<Joined, ResponseModel>() {
+													@Override
+													public ResponseModel apply(Joined joined) {
+														if (content.getOwner().equals(joined.getUser())
+																|| SpaceRole.OWNER.equals(joined.getSpaceRole())) {
+															// annotationService.deletebyContentId(id);
+															contentRepository.delete(content);
+															spaceService
+																	.updateSpaceModificationDate(content.getSpace());
+															return ResponseModel.done(null,
+																	new ContentInfoMessage(content.getId(),
+																			content.getName(), content.getType(),
+																			content.getSpace().getId(),
+																			content.getSpace().getName(), null,
+																			new From(new UserInfoMessage(user))));
+														} else {
+															throw new NotPermittedException();
+														}
+													}
+												}).orElseThrow(NotPermittedException::new);
+									}
+								}).orElseThrow(NotFoundException::new);
 					}
 				}).orElseThrow(NotPermittedException::new);
 	}
@@ -413,7 +423,8 @@ public class ContentService {
 						contentModel.setFavorite(contentUser.getFavorite());
 						contentModel.setFavoriteDate(contentUser.getFavoriteDate());
 						contentModel
-								.setLastAccess(DateConverter.convertDateToZonedDateTime(contentUser.getLastAccessDate()));
+								.setLastAccess(
+										DateConverter.convertDateToZonedDateTime(contentUser.getLastAccessDate()));
 						contentModel.setNumberOfViews(contentModel.getNumberOfViews() + contentUser.getViews());
 					}
 				});
@@ -434,22 +445,24 @@ public class ContentService {
 				.map(new Function<User, ResponseModel>() {
 					@Override
 					public ResponseModel apply(User user) {
-						return contentRepository.findOneByIdAndDeletedFalse(id).map(new Function<Content, ResponseModel>() {
-							@Override
-							public ResponseModel apply(Content content) {
-								if (user.getType() == UserType.USER && !joinedRepository
-										.findOneBySpaceIdAndUserIdAndDeletedFalse(content.getSpace().getId(), user.getId())
-										.isPresent()) {
-									throw new NotPermittedException();
-								}
+						return contentRepository.findOneByIdAndDeletedFalse(id)
+								.map(new Function<Content, ResponseModel>() {
+									@Override
+									public ResponseModel apply(Content content) {
+										if (user.getType() == UserType.USER && !joinedRepository
+												.findOneBySpaceIdAndUserIdAndDeletedFalse(content.getSpace().getId(),
+														user.getId())
+												.isPresent()) {
+											throw new NotPermittedException();
+										}
 
-								if (content.getFileName() == null) {
-									content.setFileName(content.getName());
-									contentRepository.save(content);
-								}
-								return ResponseModel.done(getContentModel(content));
-							}
-						}).orElseThrow(NotFoundException::new);
+										if (content.getFileName() == null) {
+											content.setFileName(content.getName());
+											contentRepository.save(content);
+										}
+										return ResponseModel.done(getContentModel(content));
+									}
+								}).orElseThrow(NotFoundException::new);
 					}
 				}).orElseThrow(NotPermittedException::new);
 	}
@@ -470,84 +483,85 @@ public class ContentService {
 	@PreAuthorize("hasAuthority('CONTENT_CREATE')")
 	public ResponseModel copyContentToSpace(Long id, Long spaceId) {
 		log.debug("copy content {} to space {}", id, spaceId);
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, ResponseModel>() {
-			@Override
-			public ResponseModel apply(User user) {
-				if (user.getType() == UserType.USER) {
-					var joinedSpace = joinedRepository.findOneBySpaceIdAndUserIdAndDeletedFalse(spaceId,
-							user.getId());
-					if (!joinedSpace.isPresent()) {
-						throw new NotPermittedException();
-					} else if (joinedSpace.get().getSpaceRole() != SpaceRole.OWNER
-							&& joinedSpace.get().getSpaceRole() != SpaceRole.CO_OWNER
-							&& joinedSpace.get().getSpaceRole() != SpaceRole.EDITOR) {
-						throw new NotPermittedException();
-					}
-				}
-
-				return contentRepository.findOneByIdAndDeletedFalse(id).map(new Function<Content, ResponseModel>() {
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+				.map(new Function<User, ResponseModel>() {
 					@Override
-					public ResponseModel apply(Content content) {
-						if (user.getType() != UserType.USER) {
-							var orgId = content.getSpace().getCategory().getOrganization() == null ? null
-									: content.getSpace().getCategory().getOrganization().getId();
-							var foundId = content.getSpace().getCategory().getFoundation() == null ? null
-									: content.getSpace().getCategory().getFoundation().getId();
-							PermissionCheck.checkUserForFoundationAndOrgOperation(user, orgId, foundId);
+					public ResponseModel apply(User user) {
+						if (user.getType() == UserType.USER) {
+							var joinedSpace = joinedRepository.findOneBySpaceIdAndUserIdAndDeletedFalse(spaceId,
+									user.getId());
+							if (!joinedSpace.isPresent()) {
+								throw new NotPermittedException();
+							} else if (joinedSpace.get().getSpaceRole() != SpaceRole.OWNER
+									&& joinedSpace.get().getSpaceRole() != SpaceRole.CO_OWNER
+									&& joinedSpace.get().getSpaceRole() != SpaceRole.EDITOR) {
+								throw new NotPermittedException();
+							}
 						}
 
-						var space = spaceRepository.findById(spaceId).orElseThrow(NotFoundException::new);
+						return contentRepository.findOneByIdAndDeletedFalse(id)
+								.map(new Function<Content, ResponseModel>() {
+									@Override
+									public ResponseModel apply(Content content) {
 
-						if (space == null) {
-							log.warn("space {} not found", spaceId);
-							throw new NotFoundException("space");
-						}
-						if (space.equals(content.getSpace())) {
-							log.warn("invalid , copy to the same space {}", spaceId);
-							throw new MintException(Code.INVALID, "error.content.space.same");
-						}
+										var space = spaceRepository.findById(spaceId)
+												.orElseThrow(NotFoundException::new);
 
-						if (content.getStatus() != ContentStatus.UPLOADED && content.getStatus() != ContentStatus.READY) {
-							throw new MintException(Code.INVALID, "error.content.status");
-						}
+										if (space == null) {
+											log.warn("space {} not found", spaceId);
+											throw new NotFoundException("space");
+										}
+										if (space.equals(content.getSpace())) {
+											log.warn("invalid , copy to the same space {}", spaceId);
+											throw new MintException(Code.INVALID, "error.content.space.same");
+										}
 
-						if (content.getShelfName() != null
-								&& contentRepository.findOneByNameAndShelfNameAndOwnerAndSpaceAndDeletedFalse(content.getName(),
-										content.getShelfName(), content.getOwner(), space).isPresent()) {
-							log.warn("content {} exist", content.getName());
-							throw new ExistException("name");
-						} else if (content.getShelfName() == null && contentRepository
-								.findOneByNameAndOwnerAndSpaceAndDeletedFalse(content.getName(), content.getOwner(), space)
-								.isPresent()) {
-							log.warn("content {} exist", content.getName());
-							throw new ExistException("name");
-						}
+										if (content.getStatus() != ContentStatus.UPLOADED
+												&& content.getStatus() != ContentStatus.READY) {
+											throw new MintException(Code.INVALID, "error.content.status");
+										}
 
-						var copyContent = new Content();
-						copyContent.setName(content.getName());
-						copyContent.setFileName(content.getFileName());
-						copyContent.setShelfName(content.getShelfName());
-						copyContent.setSpace(space);
-						copyContent.setExt(content.getExt());
-						copyContent.setSize(content.getSize());
-						copyContent.setTags(content.getTags());
-						copyContent.setCheckSum(content.getCheckSum());
-						copyContent.setType(content.getType());
-						copyContent.setThumbnail(content.getThumbnail());
-						copyContent.setOwner(content.getOwner());
-						copyContent.setFolderName(content.getFolderName());
-						copyContent.setStatus(content.getStatus());
-						copyContent.setContentUrl(content.getContentUrl());
-						copyContent.setAllowUseOrginal(content.getAllowUseOrginal());
+										if (content.getShelfName() != null
+												&& contentRepository
+														.findOneByNameAndShelfNameAndOwnerAndSpaceAndDeletedFalse(
+																content.getName(),
+																content.getShelfName(), content.getOwner(), space)
+														.isPresent()) {
+											log.warn("content {} exist", content.getName());
+											throw new ExistException("name");
+										} else if (content.getShelfName() == null && contentRepository
+												.findOneByNameAndOwnerAndSpaceAndDeletedFalse(content.getName(),
+														content.getOwner(), space)
+												.isPresent()) {
+											log.warn("content {} exist", content.getName());
+											throw new ExistException("name");
+										}
 
-						contentRepository.save(copyContent);
-						log.debug("content {} copied to space {}", id, spaceId);
-						spaceService.updateSpaceModificationDate(space);
-						return ResponseModel.done(copyContent.getId());
+										var copyContent = new Content();
+										copyContent.setName(content.getName());
+										copyContent.setFileName(content.getFileName());
+										copyContent.setShelfName(content.getShelfName());
+										copyContent.setSpace(space);
+										copyContent.setExt(content.getExt());
+										copyContent.setSize(content.getSize());
+										copyContent.setTags(content.getTags());
+										copyContent.setCheckSum(content.getCheckSum());
+										copyContent.setType(content.getType());
+										copyContent.setThumbnail(content.getThumbnail());
+										copyContent.setOwner(content.getOwner());
+										copyContent.setFolderName(content.getFolderName());
+										copyContent.setStatus(content.getStatus());
+										copyContent.setContentUrl(content.getContentUrl());
+										copyContent.setAllowUseOrginal(content.getAllowUseOrginal());
+
+										contentRepository.save(copyContent);
+										log.debug("content {} copied to space {}", id, spaceId);
+										spaceService.updateSpaceModificationDate(space);
+										return ResponseModel.done(copyContent.getId());
+									}
+								}).orElseThrow(NotFoundException::new);
 					}
 				}).orElseThrow(NotFoundException::new);
-			}
-		}).orElseThrow(NotFoundException::new);
 	}
 
 	@Transactional
@@ -612,32 +626,27 @@ public class ContentService {
 	@Transactional(readOnly = true)
 	public Content getContentInformation(Long id) {
 		Objects.requireNonNull(id);
-		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin()).map(new Function<User, Content>() {
-			@Override
-			public Content apply(User user) {
-				return contentRepository.findById(id).map(new Function<Content, Content>() {
+		return userRepository.findOneByUserNameAndDeletedFalse(SecurityUtils.getCurrentUserLogin())
+				.map(new Function<User, Content>() {
 					@Override
-					public Content apply(Content content) {
-						if (user.getType() != UserType.USER) {
-							var orgId = content.getSpace().getCategory().getOrganization() == null ? null
-									: content.getSpace().getCategory().getOrganization().getId();
-							var foundId = content.getSpace().getCategory().getFoundation() == null ? null
-									: content.getSpace().getCategory().getFoundation().getId();
-							PermissionCheck.checkUserForFoundationAndOrgOperation(user, orgId, foundId);
-							return content;
-						}
-						return joinedRepository
-								.findOneBySpaceIdAndUserIdAndDeletedFalse(content.getSpace().getId(), user.getId())
-								.map(new Function<Joined, Content>() {
-									@Override
-									public Content apply(Joined joined) {
-										return content;
-									}
-								}).orElseThrow(NotPermittedException::new);
+					public Content apply(User user) {
+						return contentRepository.findById(id).map(new Function<Content, Content>() {
+							@Override
+							public Content apply(Content content) {
+
+								return joinedRepository
+										.findOneBySpaceIdAndUserIdAndDeletedFalse(content.getSpace().getId(),
+												user.getId())
+										.map(new Function<Joined, Content>() {
+											@Override
+											public Content apply(Joined joined) {
+												return content;
+											}
+										}).orElseThrow(NotPermittedException::new);
+							}
+						}).orElseThrow(NotFoundException::new);
 					}
-				}).orElseThrow(NotFoundException::new);
-			}
-		}).orElseThrow(NotPermittedException::new);
+				}).orElseThrow(NotPermittedException::new);
 	}
 
 	@Transactional

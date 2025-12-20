@@ -29,22 +29,6 @@ public final class PermissionCheck {
 		return false;
 	}
 
-	public static void checkUserForFoundationAndOrgOperation(User user, Long organizationId, Long foundationId) {
-		if (user.getType() == UserType.FOUNDATION_ADMIN && foundationId == null) {
-			throw new NotPermittedException();
-		}
-		if (user.getType() == UserType.ADMIN && foundationId == null && organizationId == null) {
-			throw new NotPermittedException();
-		}
-		if (user.getType() != UserType.SUPER_ADMIN && user.getType() != UserType.SYSTEM_ADMIN) {
-			if (user.getType() == UserType.FOUNDATION_ADMIN && !user.getFoundation().getId().equals(foundationId)
-					|| user.getType() == UserType.ADMIN && !user.getOrganization().getId().equals(organizationId)
-					|| user.getType() == UserType.USER) {
-				throw new NotPermittedException();
-			}
-		}
-	}
-
 	public static boolean hasAction(byte equation, byte action) {
 		return (equation & action) == action;
 	}

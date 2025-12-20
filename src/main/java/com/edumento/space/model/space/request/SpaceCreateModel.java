@@ -4,7 +4,6 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.edumento.category.model.CategoryModel;
 import com.edumento.core.util.RandomUtils;
 
 import jakarta.validation.constraints.NotNull;
@@ -24,9 +23,6 @@ public class SpaceCreateModel {
 	private String image;
 	private String thumbnail;
 	private String description;
-
-	@NotNull(message = "error.space.label.null")
-	private CategoryModel categoryModel;
 
 	private Boolean joinRequestsAllowed = Boolean.FALSE;
 	private Boolean autoWifiSyncAllowed = Boolean.FALSE;
@@ -90,14 +86,6 @@ public class SpaceCreateModel {
 
 	public void setDescription(String description) {
 		this.description = description;
-	}
-
-	public CategoryModel getCategoryModel() {
-		return categoryModel;
-	}
-
-	public void setCategoryModel(CategoryModel categoryModel) {
-		this.categoryModel = categoryModel;
 	}
 
 	public Boolean getPaid() {
@@ -175,8 +163,8 @@ public class SpaceCreateModel {
 	@Override
 	public String toString() {
 		return String.format(
-				"SpaceCreateModel{color='%s', name='%s', tags=%s, price=%s, paid=%s, isPrivate=%s, image='%s', thumbnail='%s', description='%s', categoryModel=%s, joinRequestsAllowed=%s, autoWifiSyncAllowed=%s, showCommunity=%s, allowRecommendation=%s, ownerId=%d, creationDate=%s}",
-				color, name, tags, price, paid, isPrivate, image, thumbnail, description, categoryModel,
+				"SpaceCreateModel{color='%s', name='%s', tags=%s, price=%s, paid=%s, isPrivate=%s, image='%s', thumbnail='%s', description='%s', joinRequestsAllowed=%s, autoWifiSyncAllowed=%s, showCommunity=%s, allowRecommendation=%s, ownerId=%d, creationDate=%s}",
+				color, name, tags, price, paid, isPrivate, image, thumbnail, description,
 				joinRequestsAllowed, autoWifiSyncAllowed, showCommunity, allowRecommendation, ownerId, creationDate);
 	}
 }
