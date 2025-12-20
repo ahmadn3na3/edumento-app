@@ -1,7 +1,5 @@
 package com.edumento.space.model.space.response;
 
-import com.edumento.category.model.CategoryModel;
-
 /** Created by ahmad on 3/15/16. */
 public class SpaceSearchModel {
 	private Long id;
@@ -9,8 +7,6 @@ public class SpaceSearchModel {
 	private String name;
 	private String image;
 	private String thumbnail;
-
-	private CategoryModel category;
 
 	private String creatorName;
 
@@ -81,18 +77,10 @@ public class SpaceSearchModel {
 		this.thumbnail = thumbnail;
 	}
 
-	public CategoryModel getCategory() {
-		return category;
-	}
-
-	public void setCategory(CategoryModel category) {
-		this.category = category;
-	}
-
 	@Override
 	public String toString() {
 		return "SpaceSearchModel{" + "id=" + id + ", color='" + color + '\'' + ", name='" + name + '\'' + ", image='"
-				+ image + '\'' + ", category=" + category + ", creatorName='" + creatorName + '\'' + ", owner=" + owner
+				+ image + '\'' + ", creatorName='" + creatorName + '\'' + ", owner=" + owner
 				+ '}';
 	}
 }

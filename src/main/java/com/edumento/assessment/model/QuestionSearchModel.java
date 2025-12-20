@@ -9,7 +9,7 @@ public class QuestionSearchModel {
 
 	private QuestionType[] questionType = QuestionType.values();
 	private String body;
-	private Long categoryId;
+
 	private Long spaceId;
 	private String[] exclude;
 	private Integer limit = 0;
@@ -22,14 +22,6 @@ public class QuestionSearchModel {
 
 	public void setQuestionType(QuestionType[] questionType) {
 		this.questionType = questionType;
-	}
-
-	public Long getCategoryId() {
-		return categoryId;
-	}
-
-	public void setCategoryId(Long categoryId) {
-		this.categoryId = categoryId;
 	}
 
 	public Integer getLimit() {
@@ -86,7 +78,7 @@ public class QuestionSearchModel {
 
 	@Override
 	public String toString() {
-		return "QuestionSearchModel{" + "questionType=" + Arrays.toString(questionType) + ", categoryId=" + categoryId
+		return "QuestionSearchModel{" + "questionType=" + Arrays.toString(questionType)
 				+ ", exclude=" + Arrays.toString(exclude) + ", limit=" + limit + ", tags=" + Arrays.toString(tags)
 				+ '}';
 	}

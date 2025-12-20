@@ -10,19 +10,19 @@ public class ContentInfoMessage extends SimpleModel {
 	private ContentType contentType;
 	private Long spaceId;
 	private String spaceName;
-	private String categoryName;
+
 	private From from;
 
 	public ContentInfoMessage() {
 	}
 
 	public ContentInfoMessage(Long id, String name, ContentType contentType, Long spaceId, String spaceName,
-			String categoryName, From from) {
+			From from) {
 		super(id, name);
 		this.contentType = contentType;
 		this.spaceId = spaceId;
 		this.spaceName = spaceName;
-		this.categoryName = categoryName;
+
 		this.from = from;
 	}
 
@@ -40,14 +40,6 @@ public class ContentInfoMessage extends SimpleModel {
 
 	public void setSpaceName(String spaceName) {
 		this.spaceName = spaceName;
-	}
-
-	public String getCategoryName() {
-		return categoryName;
-	}
-
-	public void setCategoryName(String categoryName) {
-		this.categoryName = categoryName;
 	}
 
 	public From getFrom() {
@@ -69,7 +61,7 @@ public class ContentInfoMessage extends SimpleModel {
 	@Override
 	public String toString() {
 		return new ToStringBuilder(this).append("contentType", contentType).append("spaceId", spaceId)
-				.append("spaceName", spaceName).append("categoryName", categoryName).append("from", from)
+				.append("spaceName", spaceName).append("from", from)
 				.append(super.toString()).toString();
 	}
 }

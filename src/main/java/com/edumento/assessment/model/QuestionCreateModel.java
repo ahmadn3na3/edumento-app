@@ -23,9 +23,6 @@ public class QuestionCreateModel {
 
 	private String correctAnswer;
 
-	@NotNull(message = "error.question.category.null")
-	private Long categoryId;
-
 	@NotNull(message = "error.question.owner.null")
 	private Long ownerId;
 
@@ -66,14 +63,6 @@ public class QuestionCreateModel {
 
 	public void setCorrectAnswer(String correctAnswer) {
 		this.correctAnswer = correctAnswer;
-	}
-
-	public Long getCategoryId() {
-		return categoryId;
-	}
-
-	public void setCategoryId(Long categoryId) {
-		this.categoryId = categoryId;
 	}
 
 	public Long getOwnerId() {

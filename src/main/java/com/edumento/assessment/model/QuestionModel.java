@@ -14,7 +14,6 @@ public class QuestionModel extends QuestionCreateModel {
 	private ZonedDateTime creationDate;
 	private ZonedDateTime lastModifiedDate;
 	private String lastModifiedBy;
-	private SimpleModel category;
 	private SimpleModel owner;
 
 	public QuestionModel() {
@@ -82,14 +81,6 @@ public class QuestionModel extends QuestionCreateModel {
 
 	public void setLastModifiedBy(String lastModifiedBy) {
 		this.lastModifiedBy = lastModifiedBy;
-	}
-
-	public SimpleModel getCategory() {
-		return category;
-	}
-
-	public void setCategory(SimpleModel category) {
-		this.category = category;
 	}
 
 	public SimpleModel getOwner() {

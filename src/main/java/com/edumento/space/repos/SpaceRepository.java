@@ -12,7 +12,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import com.edumento.category.domain.Category;
 import com.edumento.space.domain.Space;
 
 /** Created by ahmad on 3/2/16. */
@@ -39,10 +38,6 @@ public interface SpaceRepository extends JpaRepository<Space, Long> {
 	@Query("update Space s set  s.lastModifiedDate = current_timestamp() where s = ?1")
 	@Modifying
 	void updateSpaceModificationDate(Space space);
-
-	Stream<Space> findByCategoryAndDeletedFalse(Category category);
-
-	Integer countByCategoryAndDeletedFalse(Category category);
 
 	@Query(value = "select count(s) from Space s where s.user.id=?1")
 	Integer countByOwnerId(Long userId);

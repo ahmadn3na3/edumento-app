@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 import com.edumento.notification.handlers.impl.AnnotationRelplyHandler;
 import com.edumento.notification.handlers.impl.AssessmentNotificationHandler;
-import com.edumento.notification.handlers.impl.CategoryNotificationHandler;
+
 import com.edumento.notification.handlers.impl.ContentHandler;
 import com.edumento.notification.handlers.impl.DiscussionHadler;
 import com.edumento.notification.handlers.impl.DiscussionReplyHandler;
@@ -53,9 +53,6 @@ public class NotificationMessageHandler {
 
 	@Autowired
 	ContentHandler contentHandler;
-
-	@Autowired
-	CategoryNotificationHandler categoryNotificationHandler;
 
 	@Autowired
 	AssessmentNotificationHandler assessmentNotificationHandler;

@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.edumento.category.model.CategoryModel;
 import com.edumento.core.constants.JoinedStatus;
 import com.edumento.core.constants.SpaceRole;
 
@@ -18,8 +17,6 @@ public class SpaceListingModel {
 	private String thumbnail;
 	private String name;
 	private String description;
-
-	private CategoryModel categoryModel;
 
 	private SpaceUserModel creator;
 
@@ -189,14 +186,6 @@ public class SpaceListingModel {
 		this.thumbnail = thumbnail;
 	}
 
-	public CategoryModel getCategoryModel() {
-		return categoryModel;
-	}
-
-	public void setCategoryModel(CategoryModel categoryModel) {
-		this.categoryModel = categoryModel;
-	}
-
 	public boolean getIsPrivate() {
 		return isPrivate;
 	}
@@ -324,7 +313,7 @@ public class SpaceListingModel {
 	public String toString() {
 		return "SpaceListingModel{" + "id=" + id + ", color='" + color + '\'' + ", image='" + image + '\''
 				+ ", thumbnail='" + thumbnail + '\'' + ", name='" + name + '\'' + ", description='" + description + '\''
-				+ ", categoryModel=" + categoryModel + ", creator=" + creator + ", isPrivate=" + isPrivate + ", rating="
+				+ ", creator=" + creator + ", isPrivate=" + isPrivate + ", rating="
 				+ rating + ", newContent=" + newContent + ", newAssessment=" + newAssessment + ", newComments="
 				+ newComments + ", favorite=" + favorite + ", owner=" + owner + ", communitySize=" + communitySize
 				+ ", contentSize=" + contentSize + ", joinRequestsAllowed=" + joinRequestsAllowed
