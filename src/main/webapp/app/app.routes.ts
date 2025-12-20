@@ -7,7 +7,7 @@ import { inject } from '@angular/core';
 import { ModuleComponent } from './modules/module/module.component';
 import { UsersComponent } from './users/users.component';
 import { UserComponent } from './users/user/user.component';
-import { CategoryComponent } from './category/category.component';
+
 
 export const routes: Routes = [
 	{
@@ -40,23 +40,18 @@ export const routes: Routes = [
 		data: { title: 'Modules' }
 	},
 	{
-		path:'users',
-		component:UsersComponent,
+		path: 'users',
+		component: UsersComponent,
 		canActivate: [() => { return inject(LoginService).isLoggedIn(); }],
 		data: { title: 'Users' }
 	},
 	{
-		path:'users/new',
-		component:UserComponent,
+		path: 'users/new',
+		component: UserComponent,
 		canActivate: [() => { return inject(LoginService).isLoggedIn(); }],
 		data: { title: 'New User' }
 	},
-	{
-		path:'categories',
-		component:CategoryComponent,
-		canActivate: [() => { return inject(LoginService).isLoggedIn(); }],
-		data: { title: 'categories' }
-	}
+
 
 
 ];

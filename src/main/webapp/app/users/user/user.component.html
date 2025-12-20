@@ -1,86 +1,56 @@
-<div class="continer mx-aut0 p-3">
-    <form [formGroup]="form">
-        <div class="row">
-            <mat-form-field
-                appearance="outline"
-                class="col"
-            > <mat-label>Email</mat-label> <input
-                matInput
-                type="email"
-                formControlName="email"
-            /></mat-form-field>
-            <mat-form-field
-                appearance="outline"
-                class="col"
-            > <mat-label>Password</mat-label> <input
-                matInput
-                type="password"
-                formControlName="password"
-            /></mat-form-field>
-        </div>
-        <div class="row">
-            <mat-form-field
-                appearance="outline"
-                class="col"
-            > <mat-label>First Name</mat-label> <input
-                matInput
-                type="text"
-                formControlName="firstName"
-            /> </mat-form-field>
-            <mat-form-field
-                appearance="outline"
-                class="col"
-            > <mat-label>Last Name</mat-label> <input
-                matInput
-                type="text"
-                formControlName="lastName"
-            /> </mat-form-field>
-        </div>
-        <div class="row">
-            <mat-form-field
-                appearance="outline"
-                class="col"
-            > <mat-label>User Name</mat-label> <input
-                matInput
-                type="text"
-                formControlName="username"
-            /></mat-form-field>
-            <mat-form-field
-                appearance="outline"
-                class="col"
-            > <mat-label>User Type</mat-label> <mat-select
-                formControlName="userType"
-            > @for (usertype of userTypes;track usertype) { <mat-option
-                [value]="usertype"
-            >{{ usertype.replace("_", " ") | titlecase }}</mat-option> } </mat-select> </mat-form-field>
-        </div>
-        <div class="row">
-            <mat-form-field
-                appearance="outline"
-                class="col"
-            > <mat-label>Gender</mat-label> <mat-select
-                formControlName="gender"
-            > @for (gender of genders;track gender) { <mat-option
-                [value]="gender"
-            > {{ gender | titlecase }} </mat-option> } </mat-select> </mat-form-field>
-        </div>
-        <div class="row">
-            <div class="col">
-                <button
-                    type="submit"
-                    mat-flat-button
-                    color="primary"
-                    class="ms-3"
-                    (click)="saveUser()"
-                >Save</button>
-                <button
-                    type="button"
-                    mat-flat-button
-                    color="primary"
-                    class="ms-3"
-                    (click)="cancel()"
-                >Cancel</button>
+<div class="container mt-4">
+    <div class="card p-4 shadow-sm">
+        <h3 class="mb-4">User Details</h3>
+        <form [formGroup]="form">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" formControlName="email">
+                </div>
+                <div class="col-md-6">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" formControlName="password">
+                </div>
             </div>
-        </div>
-    </form>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="firstName" class="form-label">First Name</label>
+                    <input type="text" class="form-control" id="firstName" formControlName="firstName">
+                </div>
+                <div class="col-md-6">
+                    <label for="lastName" class="form-label">Last Name</label>
+                    <input type="text" class="form-control" id="lastName" formControlName="lastName">
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="username" class="form-label">User Name</label>
+                    <input type="text" class="form-control" id="username" formControlName="username">
+                </div>
+                <div class="col-md-4">
+                    <label for="userType" class="form-label">User Type</label>
+                    <select class="form-select" id="userType" formControlName="userType">
+                        @for (usertype of userTypes; track usertype) {
+                        <option [value]="usertype">{{ usertype.replace("_", " ") | titlecase }}</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="gender" class="form-label">Gender</label>
+                    <select class="form-select" id="gender" formControlName="gender">
+                        @for (gender of genders; track gender) {
+                        <option [value]="gender">{{ gender | titlecase }}</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end mt-4">
+                <button type="button" class="btn btn-secondary me-2" (click)="cancel()">Cancel</button>
+                <button type="button" class="btn btn-primary" (click)="saveUser()">Save</button>
+            </div>
+        </form>
+    </div>
 </div>

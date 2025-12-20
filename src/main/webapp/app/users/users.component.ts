@@ -9,27 +9,18 @@ import { LoginService } from '../login/login.service';
 import { MatInputModule } from '@angular/material/input';
 
 @Component({
-    selector: 'app-users',
-    imports: [MatTableModule, MatPaginatorModule, MatSortModule, MatFormFieldModule, MatInputModule],
-    templateUrl: './users.component.html',
-    styleUrl: './users.component.css'
+	selector: 'app-users',
+	imports: [MatTableModule, MatPaginatorModule, MatSortModule, MatFormFieldModule, MatInputModule],
+	templateUrl: './users.component.html',
+	styleUrl: './users.component.css'
 })
 export class UsersComponent {
 	displayedColumns: string[] = ['id', 'fullName', 'username', 'email'];
-	dataSource: MatTableDataSource<UserModel>;
-
-	@ViewChild(MatPaginator) paginator!: MatPaginator;
-	@ViewChild(MatSort) sort!: MatSort;
+	users: UserModel[] = [];
 
 	constructor(private _userService: UsersService, private loginService: LoginService) {
-		// Create 100 users
-		const users: UserModel[] = [];
-
 		this._userService.getUsers().subscribe((users: UserModel[]) => {
-			users.forEach((user: UserModel) => {
-				users.push(user);
-			});
-			
+			this.users = users;
 		}, (error) => {
 			if (error.status === 404) {
 				console.log('Error 404');
@@ -37,31 +28,14 @@ export class UsersComponent {
 				this.loginService.logout();
 			}
 			console.error(error);
-
 		});
-
-		// Assign the data to the data source for the table to render
-		this.dataSource = new MatTableDataSource(users);
-		}
-		
-		
-	
-
-	ngAfterViewInit() {
-			this.dataSource.paginator = this.paginator;
-			this.dataSource.sort = this.sort;
-		}
+	}
 
 	applyFilter(event: Event) {
-			const filterValue = (event.target as HTMLInputElement).value;
-			if (filterValue !== '') {
-               this.dataSource.filter = filterValue.trim().toLowerCase();
-            }
-			
-
-			if(this.dataSource.paginator) {
-			this.dataSource.paginator.firstPage();
-		}
+		const filterValue = (event.target as HTMLInputElement).value;
+		// Simple client-side filtering logic if needed, or call API
+		// For simplicity, doing nothing or refreshing list
+		console.log('Filter not implemented yet for bootstrap table:', filterValue);
 	}
 }
 

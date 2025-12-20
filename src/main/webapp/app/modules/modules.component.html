@@ -1,29 +1,24 @@
-
-<div class="table-container">
-
-	<table mat-table [dataSource]="dataSource" class="example-table"
-		matSort>
-		<!-- Number Column -->
-		<ng-container matColumnDef="id">
-		<th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>
-		<td mat-cell *matCellDef="let row">{{row.id}}</td>
-		</ng-container>
-
-		<!-- Title Column -->
-		<ng-container matColumnDef="name">
-		<th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
-		<td mat-cell *matCellDef="let row"><a [routerLink]="'/modules/'+row.id" >{{row.name}}</a></td>
-		</ng-container>
-
-		<!-- State Column -->
-		<ng-container matColumnDef="description">
-		<th mat-header-cell *matHeaderCellDef mat-sort-header>Description</th>
-		<td mat-cell *matCellDef="let row">{{row.description}}</td>
-		</ng-container>
-
-		<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-		<tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-	</table>
-	<mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"
-		aria-label="Select page of  modules"></mat-paginator>
+<div class="container mt-4">
+	<div class="row">
+		<div class="col-12">
+			<table class="table table-striped table-hover">
+				<thead>
+					<tr>
+						<th scope="col">#</th>
+						<th scope="col">Name</th>
+						<th scope="col">Description</th>
+					</tr>
+				</thead>
+				<tbody>
+					@for (module of modules; track module.id) {
+					<tr>
+						<td>{{module.id}}</td>
+						<td><a [routerLink]="['/modules', module.id]">{{module.name}}</a></td>
+						<td>{{module.description}}</td>
+					</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
 </div>
