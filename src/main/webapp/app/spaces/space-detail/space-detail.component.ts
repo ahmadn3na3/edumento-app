@@ -1,0 +1,19 @@
+import { Component } from '@angular/core';
+import { RouterModule } from '@angular/router';
+
+import { HeaderComponent } from '../../header/header.component';
+
+@Component({
+  selector: 'app-space-detail',
+  standalone: true,
+  imports: [RouterModule, HeaderComponent],
+  templateUrl: './space-detail.component.html',
+  styleUrl: './space-detail.component.css'
+})
+export class SpaceDetailComponent {
+  activeTab: string = 'overview';
+
+  setActiveTab(tab: string) {
+    this.activeTab = tab;
+  }
+}

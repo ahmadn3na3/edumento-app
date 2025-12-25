@@ -1,0 +1,49 @@
+<header class="sticky-top z-3 bg-opacity-90 border-bottom py-3 px-4 transition-colors bg-surface backdrop-blur-md"
+    [style.border-color]="'var(--border-light)'">
+    <div class="container-fluid d-flex align-items-center justify-content-between gap-4" style="max-width: 1600px;">
+        <!-- Logo -->
+        <div class="d-flex align-items-center gap-3 text-reset text-decoration-none flex-shrink-0 cursor-pointer"
+            routerLink="/">
+            <div class="d-flex align-items-center justify-content-center rounded-3 bg-primary-custom"
+                style="width: 32px; height: 32px;">
+                <span class="material-symbols-outlined text-dark" style="font-size: 20px;">school</span>
+            </div>
+            <h2 class="h5 fw-bold mb-0 tracking-tight">EduSpace</h2>
+        </div>
+
+        <!-- Search (Desktop) -->
+        <div class="d-none d-md-flex flex-grow-1 justify-content-center pointer-events-auto" style="max-width: 500px;">
+            <div class="position-relative w-100">
+                <span
+                    class="material-symbols-outlined position-absolute top-50 start-0 translate-middle-y ms-3 text-muted">search</span>
+                <input type="text" class="form-control rounded-pill py-2 ps-5 pe-4 search-input bg-light border-0"
+                    placeholder="Search for spaces, people, or resources...">
+            </div>
+        </div>
+
+        <!-- Right Actions -->
+        <div class="d-flex align-items-center gap-4 flex-shrink-0">
+            <nav class="d-none d-lg-flex align-items-center gap-4 me-2">
+                <a routerLink="/spaces" class="text-reset text-decoration-none fw-medium small hover-primary"
+                    routerLinkActive="text-primary-custom" [routerLinkActiveOptions]="{exact: false}">Spaces</a>
+                <a href="#" class="text-reset text-decoration-none fw-medium small hover-primary">Discussions</a>
+                <a href="#" class="text-reset text-decoration-none fw-medium small hover-primary">Resources</a>
+            </nav>
+            <div class="d-flex align-items-center gap-2">
+                <button
+                    class="btn btn-light rounded-circle p-0 d-flex align-items-center justify-content-center position-relative"
+                    style="width: 40px; height: 40px;">
+                    <span class="material-symbols-outlined" style="font-size: 20px;">notifications</span>
+                    <span
+                        class="position-absolute top-0 end-0 translate-middle p-1 bg-primary border border-light rounded-circle"
+                        style="width: 8px; height: 8px; margin-top: 10px; margin-right: 10px;"></span>
+                </button>
+                <div class="rounded-circle overflow-hidden ms-2 border border-2 border-transparent hover-border-primary"
+                    style="width: 40px; height: 40px; cursor: pointer;" routerLink="/profile">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxTxHoVGZlw5UwOL6cBY2rEbY04_oz_GHcq_0i6TWts_Gp8OwqSr4Btn2JxOnAb0iIWeRLLp4lTv8WawAeTbM6uIyJaavUM-Bxxly10LCI8KDsvpizBMoeHwyhBzTWtW_o2ZCtUpv7HRE-XGYTOCFEjQs2mhj50X1YB56IlXVBuhhYN8-lgFanoFlvYTC5RZ3KO_gbUWldZOwOGSDsHoGxVd5KYT389VikkTQu48AAAFBIz-hKxGRTMmaGsJLW5v5WJL_FG7PALac"
+                        alt="Profile" class="w-100 h-100 object-fit-cover">
+                </div>
+            </div>
+        </div>
+    </div>
+</header>

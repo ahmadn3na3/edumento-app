@@ -1,3 +1,145 @@
+:root {
+    --primary: #f9f506;
+    --primary-hover: #e6e205;
+    --background-light: #f8f8f5;
+    --background-dark: #23220f;
+    --surface-light: #ffffff;
+    --surface-dark: #2c2c20;
+    --text-main: #181811;
+    --text-muted: #8c8b5f;
+    --border-light: #f5f5f0;
+    --border-dark: #3a3a2a;
+}
 
-/* You can add global styles to this file, and also import other style files */
+[data-bs-theme="dark"] {
+    --bs-body-bg: var(--background-dark);
+    --bs-body-color: #ffffff;
+    --bs-card-bg: var(--surface-dark);
+}
 
+[data-bs-theme="light"] {
+    --bs-body-bg: var(--background-light);
+    --bs-body-color: var(--text-main);
+    --bs-card-bg: var(--surface-light);
+}
+
+body {
+    font-family: 'Spline Sans', sans-serif;
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+}
+
+.material-symbols-outlined {
+    font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24;
+}
+
+.material-symbols-outlined.filled {
+    font-variation-settings: 'FILL' 1;
+}
+
+/* Custom Utilities */
+.text-primary-custom {
+    color: var(--primary);
+}
+
+.bg-primary-custom {
+    background-color: var(--primary);
+    color: var(--text-main);
+}
+
+.bg-surface {
+    background-color: var(--bs-card-bg);
+}
+
+.rounded-xl {
+    border-radius: 1.5rem !important;
+}
+
+.rounded-2xl {
+    border-radius: 2rem !important;
+}
+
+.rounded-3xl {
+    border-radius: 2.5rem !important;
+}
+
+.btn-primary-custom {
+    background-color: var(--primary);
+    border: none;
+    color: var(--text-main);
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-primary-custom:hover {
+    background-color: var(--primary-hover);
+    transform: scale(1.05);
+}
+
+.search-input {
+    background-color: rgba(0, 0, 0, 0.05);
+    border: none;
+    color: inherit;
+}
+
+[data-bs-theme="dark"] .search-input {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.search-input:focus {
+    background-color: rgba(0, 0, 0, 0.05);
+    box-shadow: 0 0 0 2px var(--primary);
+}
+
+[data-bs-theme="dark"] .search-input:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+}
+
+[data-bs-theme="dark"] ::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Additional Utilities */
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.hover-primary:hover {
+    color: var(--primary) !important;
+    cursor: pointer;
+}
+
+.card-hover-effect {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-hover-effect:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15) !important;
+}
+
+.hover-shadow-md {
+    transition: box-shadow 0.2s ease;
+}
+
+.hover-shadow-md:hover {
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15) !important;
+}

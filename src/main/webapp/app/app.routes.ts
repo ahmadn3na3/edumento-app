@@ -23,6 +23,16 @@ export const routes: Routes = [
 		// canActivate: [() => { return inject(LoginService).isLoggedIn(); }],
 		data: { title: 'My Spaces' }
 	},
+	{
+		path: 'spaces/:id',
+		loadComponent: () => import('./spaces/space-detail/space-detail.component').then(m => m.SpaceDetailComponent),
+		data: { title: 'Space Details' }
+	},
+	{
+		path: 'profile',
+		loadComponent: () => import('./user-profile/user-profile.component').then(m => m.UserProfileComponent),
+		data: { title: 'Account Settings' }
+	}
 
 
 ];

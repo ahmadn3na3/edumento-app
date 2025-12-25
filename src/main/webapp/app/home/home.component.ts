@@ -1,7 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { HttpClientModule } from '@angular/common/http';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { LoginService } from '../login/login.service';
 
@@ -12,8 +11,6 @@ import { LoginService } from '../login/login.service';
   imports: [
 
     RouterOutlet,
-    RouterLink,
-    HttpClientModule
   ],
   providers: [
     LoginService
