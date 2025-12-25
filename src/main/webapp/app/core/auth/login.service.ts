@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Authentication } from './model/authentication';
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from '@angular/router';
 import { Subject, map } from 'rxjs';
+import { User } from '../models/user.model';
+import { MOCK_USER } from '../models/mock-data';
 
 @Injectable({
 	providedIn: 'root',
@@ -41,10 +43,21 @@ export class LoginService {
 		return localStorage.getItem('currentUser') !== null;
 	}
 
+
+
 	getToken() {
 		let currentUser = JSON.parse(localStorage.getItem('currentUser') ?? '{}');
 		if (currentUser && currentUser.token) {
 			return currentUser.token;
+		}
+		return null;
+	}
+
+	getCurrentUser(): User | null {
+		// In a real app, you'd parse the token or fetch user details.
+		// For now, we return the mock user if logged in, or null.
+		if (this.isLoggedIn()) {
+			return MOCK_USER;
 		}
 		return null;
 	}
