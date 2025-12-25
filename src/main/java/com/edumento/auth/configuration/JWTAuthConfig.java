@@ -140,7 +140,19 @@ public class JWTAuthConfig {
 	public BearerTokenResolver bearerTokenResolver() {
 		var bearerTokenResolver = new DefaultBearerTokenResolver();
 		bearerTokenResolver.setAllowUriQueryParameter(false);
-		return bearerTokenResolver;
+		return request -> {
+			String token = bearerTokenResolver.resolve(request);
+			if (token == null) {
+				if (request.getCookies() != null) {
+					for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
+						if ("access_token".equals(cookie.getName())) {
+							return cookie.getValue();
+						}
+					}
+				}
+			}
+			return token;
+		};
 	}
 
 }

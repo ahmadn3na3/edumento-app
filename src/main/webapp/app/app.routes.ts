@@ -1,13 +1,9 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
-import { MainDashboardComponent } from './main-dashboard/main-dashboard.component';
-import { LoginService } from './login/login.service';
-import { ModulesComponent } from './modules/modules.component';
+import { HomeComponent } from './home/home.component';
+import { SpacesComponent } from './spaces/spaces.component';
 import { inject } from '@angular/core';
-import { ModuleComponent } from './modules/module/module.component';
-import { UsersComponent } from './users/users.component';
-import { UserComponent } from './users/user/user.component';
-
+import { LoginService } from './login/login.service';
 
 export const routes: Routes = [
 	{
@@ -18,40 +14,15 @@ export const routes: Routes = [
 	},
 	{
 		path: '',
-		redirectTo: '/main',
+		redirectTo: '/spaces',
 		pathMatch: 'full'
 	},
 	{
-		path: 'main',
-		component: MainDashboardComponent,
-		canActivate: [() => { return inject(LoginService).isLoggedIn(); }],
-
+		path: 'spaces',
+		component: SpacesComponent,
+		// canActivate: [() => { return inject(LoginService).isLoggedIn(); }],
+		data: { title: 'My Spaces' }
 	},
-	{
-		path: 'modules',
-		component: ModulesComponent,
-		canActivate: [() => { return inject(LoginService).isLoggedIn(); }],
-		data: { title: 'Modules' }
-	},
-	{
-		path: 'modules/:id',
-		component: ModuleComponent,
-		canActivate: [() => { return inject(LoginService).isLoggedIn(); }],
-		data: { title: 'Modules' }
-	},
-	{
-		path: 'users',
-		component: UsersComponent,
-		canActivate: [() => { return inject(LoginService).isLoggedIn(); }],
-		data: { title: 'Users' }
-	},
-	{
-		path: 'users/new',
-		component: UserComponent,
-		canActivate: [() => { return inject(LoginService).isLoggedIn(); }],
-		data: { title: 'New User' }
-	},
-
 
 
 ];

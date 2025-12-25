@@ -1,9 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
+import { HttpClientModule } from '@angular/common/http';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { LoginService } from '../login/login.service';
-import { HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-home',

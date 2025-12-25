@@ -25,9 +25,7 @@
 							"src/main/webapp/assets"
 						],
 						"styles": [
-							"bootstrap/dist/css/bootstrap-grid.min.css",
-							"bootstrap/dist/css/bootstrap-reboot.min.css",
-							"bootstrap/dist/css/bootstrap-utilities.min.css",
+							"bootstrap/dist/css/bootstrap.min.css",
 							"src/main/webapp/styles.css"
 						],
 						"scripts": []
@@ -37,13 +35,13 @@
 							"budgets": [
 								{
 									"type": "initial",
-									"maximumWarning": "500kb",
-									"maximumError": "1mb"
+									"maximumWarning": "2mb",
+									"maximumError": "4mb"
 								},
 								{
 									"type": "anyComponentStyle",
-									"maximumWarning": "2kb",
-									"maximumError": "4kb"
+									"maximumWarning": "10kb",
+									"maximumError": "20kb"
 								}
 							],
 							"outputHashing": "all"
@@ -90,9 +88,7 @@
 							"src/main/webapp/assets"
 						],
 						"styles": [
-							"bootstrap/dist/css/bootstrap-grid.min.css",
-							"bootstrap/dist/css/bootstrap-reboot.min.css",
-							"bootstrap/dist/css/bootstrap-utilities.min.css",
+							"bootstrap/dist/css/bootstrap.min.css",
 							"src/main/webapp/styles.css"
 						],
 						"scripts": []

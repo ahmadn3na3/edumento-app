@@ -66,8 +66,19 @@ public class AuthenticateController {
 		var authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		var jwt = createToken(authentication, loginVM.rememberMe());
+
+		long validityLen = loginVM.rememberMe() ? tokenValidityInSecondsForRememberMe : tokenValidityInSeconds;
+
+		var cookie = org.springframework.http.ResponseCookie.from("access_token", jwt)
+				.httpOnly(true)
+				.secure(false) // Set to true in production
+				.path("/")
+				.maxAge(validityLen)
+				.build();
+
 		var httpHeaders = new HttpHeaders();
 		httpHeaders.setBearerAuth(jwt);
+		httpHeaders.add(HttpHeaders.SET_COOKIE, cookie.toString());
 		return new ResponseEntity<>(new JWTToken(jwt), httpHeaders, HttpStatus.OK);
 	}
 
