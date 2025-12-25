@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { RouterLink, RouterOutlet } from '@angular/router';
-import { LoginService } from '../login/login.service';
+import { LoginService } from '../core/auth/login.service';
 
 @Component({
   selector: 'app-home',

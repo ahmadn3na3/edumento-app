@@ -3,7 +3,7 @@ import { LoginComponent } from './login/login.component';
 import { HomeComponent } from './home/home.component';
 import { SpacesComponent } from './spaces/spaces.component';
 import { inject } from '@angular/core';
-import { LoginService } from './login/login.service';
+import { LoginService } from './core/auth/login.service';
 
 export const routes: Routes = [
 	{

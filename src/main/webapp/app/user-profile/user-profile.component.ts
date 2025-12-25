@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { HeaderComponent } from '../header/header.component';
+import { HeaderComponent } from "../layout/header/header.component";
 
 @Component({
   selector: 'app-user-profile',
