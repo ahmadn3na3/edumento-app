@@ -1,0 +1,227 @@
+<div class="d-flex flex-column min-vh-100 bg-light" style="font-family: 'Spline Sans', sans-serif;">
+    <app-header></app-header>
+
+    <div class="flex-grow-1 py-5">
+        <div class="container" style="max-width: 1024px;">
+            <!-- Breadcrumbs -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#" class="text-decoration-none text-muted small">Home</a></li>
+                    <li class="breadcrumb-item"><a routerLink="/spaces"
+                            class="text-decoration-none text-muted small">Spaces</a></li>
+                    <li class="breadcrumb-item active small" aria-current="page">Create Space</li>
+                </ol>
+            </nav>
+
+            <!-- Page Heading -->
+            <div class="mb-5">
+                <h1 class="display-5 fw-bold text-dark mb-2">Let's build a new community</h1>
+                <p class="text-muted lead fs-6">Create a dedicated space for discussions, learning resources, and
+                    collaborative projects.</p>
+            </div>
+
+            <div class="row g-4">
+                <!-- Form Column -->
+                <div class="col-lg-8">
+                    <div class="d-flex flex-column gap-4">
+                        <!-- Basic Info Card -->
+                        <div class="card border-0 shadow-sm rounded-4">
+                            <div class="card-body p-4 p-md-5">
+                                <h3 class="h5 fw-bold mb-4 d-flex align-items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary">edit_square</span>
+                                    Space Details
+                                </h3>
+
+                                <div class="d-flex flex-column gap-4">
+                                    <!-- Space Icon -->
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="bg-light border border-2 border-dashed rounded-circle d-flex align-items-center justify-content-center cursor-pointer"
+                                            style="width: 80px; height: 80px;">
+                                            <span class="material-symbols-outlined text-muted fs-2">add_a_photo</span>
+                                        </div>
+                                        <div>
+                                            <div class="fw-medium text-dark">Space Icon</div>
+                                            <div class="text-muted small">Recommended size 200x200px</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Name Input -->
+                                    <div>
+                                        <label class="form-label fw-medium">Space Name</label>
+                                        <input type="text"
+                                            class="form-control rounded-pill px-4 py-2 bg-light border-light"
+                                            placeholder="e.g., Physics 101, Debate Club" [(ngModel)]="space.name">
+                                    </div>
+
+                                    <!-- Description Input -->
+                                    <div>
+                                        <label class="form-label fw-medium">Description</label>
+                                        <textarea class="form-control rounded-4 px-4 py-3 bg-light border-light"
+                                            rows="5"
+                                            placeholder="What will students learn here? Describe the purpose of this space..."
+                                            [(ngModel)]="space.description"></textarea>
+                                    </div>
+
+                                    <!-- Tags Input -->
+                                    <div>
+                                        <label class="form-label fw-medium">Topics & Tags</label>
+                                        <div
+                                            class="d-flex flex-wrap align-items-center gap-2 p-2 rounded-4 bg-light border border-light">
+                                            @for (tag of space.tags; track $index) {
+                                            <span
+                                                class="badge bg-warning bg-opacity-10 text-dark rounded-pill px-3 py-2 d-flex align-items-center gap-1 font-weight-normal border border-warning border-opacity-25">
+                                                {{ tag }}
+                                                <button type="button" class="btn-close btn-close-black"
+                                                    style="font-size: 0.5em;" (click)="removeTag($index)"></button>
+                                            </span>
+                                            }
+                                            <input type="text" class="form-control border-0 bg-transparent shadow-none"
+                                                placeholder="Add a tag..." style="width: auto; min-width: 100px;"
+                                                [(ngModel)]="tagInput" (keydown.enter)="addTag()" (blur)="addTag()">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Privacy Settings Card -->
+                        <div class="card border-0 shadow-sm rounded-4">
+                            <div class="card-body p-4 p-md-5">
+                                <h3 class="h5 fw-bold mb-4 d-flex align-items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary">lock</span>
+                                    Privacy Settings
+                                </h3>
+
+                                <div class="row row-cols-1 row-cols-md-3 g-3">
+                                    <!-- Public -->
+                                    <div class="col">
+                                        <label class="cursor-pointer h-100 w-100 position-relative">
+                                            <input type="radio" name="privacy" class="d-none peer" [value]="false"
+                                                [(ngModel)]="space.isPrivate">
+                                            <div
+                                                class="card h-100 bg-light border border-2 rounded-4 p-3 hover-bg-surface transition-all peer-checked-border-primary">
+                                                <div class="d-flex flex-column gap-2 h-100">
+                                                    <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center"
+                                                        style="width: 40px; height: 40px;">
+                                                        <span class="material-symbols-outlined">public</span>
+                                                    </div>
+                                                    <div>
+                                                        <div class="fw-bold text-dark">Public</div>
+                                                        <div class="text-muted small">Anyone can see and join this
+                                                            space.</div>
+                                                    </div>
+                                                </div>
+                                                <span
+                                                    class="material-symbols-outlined text-primary position-absolute top-0 end-0 m-3 opacity-0 peer-checked-opacity-100">check_circle</span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    <!-- Private -->
+                                    <div class="col">
+                                        <label class="cursor-pointer h-100 w-100 position-relative">
+                                            <input type="radio" name="privacy" class="d-none peer" [value]="true"
+                                                [(ngModel)]="space.isPrivate">
+                                            <div
+                                                class="card h-100 bg-light border border-2 rounded-4 p-3 hover-bg-surface transition-all peer-checked-border-primary">
+                                                <div class="d-flex flex-column gap-2 h-100">
+                                                    <div class="rounded-circle bg-info bg-opacity-10 text-info d-flex align-items-center justify-content-center"
+                                                        style="width: 40px; height: 40px;">
+                                                        <span class="material-symbols-outlined">visibility</span>
+                                                    </div>
+                                                    <div>
+                                                        <div class="fw-bold text-dark">Private</div>
+                                                        <div class="text-muted small">Visible to all, but joining
+                                                            requires approval.</div>
+                                                    </div>
+                                                </div>
+                                                <span
+                                                    class="material-symbols-outlined text-primary position-absolute top-0 end-0 m-3 opacity-0 peer-checked-opacity-100">check_circle</span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    <!-- Invite Only (Just visually distinct for now, maps to private) -->
+                                    <div class="col">
+                                        <label class="cursor-pointer h-100 w-100 position-relative">
+                                            <input type="radio" name="privacy" class="d-none peer" [value]="true">
+                                            <div
+                                                class="card h-100 bg-light border border-2 rounded-4 p-3 hover-bg-surface transition-all peer-checked-border-primary">
+                                                <div class="d-flex flex-column gap-2 h-100">
+                                                    <div class="rounded-circle bg-danger bg-opacity-10 text-danger d-flex align-items-center justify-content-center"
+                                                        style="width: 40px; height: 40px;">
+                                                        <span class="material-symbols-outlined">lock</span>
+                                                    </div>
+                                                    <div>
+                                                        <div class="fw-bold text-dark">Invite Only</div>
+                                                        <div class="text-muted small">Hidden space. Only invited members
+                                                            can join.</div>
+                                                    </div>
+                                                </div>
+                                                <span
+                                                    class="material-symbols-outlined text-primary position-absolute top-0 end-0 m-3 opacity-0 peer-checked-opacity-100">check_circle</span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex justify-content-end gap-3 pt-2">
+                            <button class="btn btn-link text-dark text-decoration-none fw-medium py-2 px-4"
+                                routerLink="/spaces">Cancel</button>
+                            <button
+                                class="btn btn-primary-custom rounded-pill fw-bold py-2 px-4 shadow-sm d-flex align-items-center gap-2"
+                                (click)="createSpace()">
+                                <span class="material-symbols-outlined">add</span> Create Space
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar / Helper Column -->
+                <div class="col-lg-4">
+                    <div class="d-flex flex-column gap-4">
+                        <!-- Tips Card -->
+                        <div class="card border border-light rounded-4 bg-surface-gradient">
+                            <div class="card-body p-4">
+                                <h4 class="h6 fw-bold mb-3 text-dark">Tips for a great Space</h4>
+                                <ul class="list-unstyled d-flex flex-column gap-3 mb-0">
+                                    <li class="d-flex gap-3 align-items-start">
+                                        <span class="material-symbols-outlined text-primary fs-5 mt-1">lightbulb</span>
+                                        <p class="mb-0 small text-muted"><strong>Be specific.</strong> Use a clear name
+                                            that tells students exactly what to expect.</p>
+                                    </li>
+                                    <li class="d-flex gap-3 align-items-start">
+                                        <span class="material-symbols-outlined text-primary fs-5 mt-1">image</span>
+                                        <p class="mb-0 small text-muted"><strong>Add a cover image.</strong> Visuals
+                                            help students identify your space on their dashboard.</p>
+                                    </li>
+                                    <li class="d-flex gap-3 align-items-start">
+                                        <span class="material-symbols-outlined text-primary fs-5 mt-1">sell</span>
+                                        <p class="mb-0 small text-muted"><strong>Use tags.</strong> Tags make your space
+                                            easier to find in searches.</p>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Preview Card Mini -->
+                        <div class="card border-light rounded-4 bg-white opacity-75 pe-none user-select-none grayscale">
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between mb-3">
+                                    <small class="fw-bold text-muted text-uppercase tracking-wider">Preview</small>
+                                </div>
+                                <div class="rounded-3 bg-light w-100 mb-3 d-flex align-items-center justify-content-center text-muted"
+                                    style="aspect-ratio: 16/9;">
+                                    <span class="material-symbols-outlined display-4">image</span>
+                                </div>
+                                <div class="bg-light rounded col-9 h-10 mb-2" style="height: 1rem;"></div>
+                                <div class="bg-light rounded col-6 h-10" style="height: 0.75rem;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

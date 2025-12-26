@@ -45,3 +45,22 @@ export interface SpaceUser {
     thumbnail: string;
     role: string;
 }
+
+export interface SpaceCreate {
+    name: string;
+    description?: string;
+    color?: string;
+    image?: string;
+    thumbnail?: string;
+    price?: number;
+    paid?: boolean;
+    isPrivate?: boolean;
+    tags?: string[];
+    joinRequestsAllowed?: boolean;
+    autoWifiSyncAllowed?: boolean;
+    showCommunity?: boolean;
+    allowRecommendation?: boolean;
+    allowLeave?: boolean;
+    ownerId?: number;
+    creationDate?: string;
+}

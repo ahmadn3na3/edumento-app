@@ -24,6 +24,11 @@ export const routes: Routes = [
 		data: { title: 'My Spaces' }
 	},
 	{
+		path: 'spaces/create',
+		loadComponent: () => import('./spaces/create-space/create-space.component').then(m => m.CreateSpaceComponent),
+		data: { title: 'Create Space' }
+	},
+	{
 		path: 'spaces/:id',
 		loadComponent: () => import('./spaces/space-detail/space-detail.component').then(m => m.SpaceDetailComponent),
 		data: { title: 'Space Details' }
