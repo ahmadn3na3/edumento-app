@@ -40,7 +40,8 @@ export class SignupComponent {
 
         this.loginService.register(this.signupForm.value).subscribe({
             next: () => {
-                this.router.navigate(['/login']);
+                alert('Registration successful! Please check the backend console for the activation key to activate your account.');
+                this.router.navigate(['/activate']);
             },
             error: (err) => {
                 console.error('Signup failed', err);

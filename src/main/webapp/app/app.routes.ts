@@ -1,9 +1,6 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
-import { HomeComponent } from './home/home.component';
 import { SpacesComponent } from './spaces/spaces.component';
-import { inject } from '@angular/core';
-import { LoginService } from './core/auth/login.service';
 
 export const routes: Routes = [
 	{
@@ -42,6 +39,11 @@ export const routes: Routes = [
 		path: 'profile',
 		loadComponent: () => import('./user-profile/user-profile.component').then(m => m.UserProfileComponent),
 		data: { title: 'Account Settings' }
+	},
+	{
+		path: 'activate',
+		loadComponent: () => import('./activation/activation.component').then(m => m.ActivationComponent),
+		data: { title: 'Activate Account' }
 	}
 
 

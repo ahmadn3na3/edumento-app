@@ -32,7 +32,7 @@ public interface UserRepository extends CrudRepository<User, Long>, JpaSpecifica
 
 	Page<User> findByDeletedFalse(Pageable pageable);
 
-	Integer countByRolesIdInAndDeletedFalse(Iterable<Long> ids);
+	// Integer countByRolesIdInAndDeletedFalse(Iterable<Long> ids);
 
 	Integer countByEmailAndDeletedFalse(String email);
 
@@ -40,13 +40,13 @@ public interface UserRepository extends CrudRepository<User, Long>, JpaSpecifica
 
 	Page<User> findAllByTypeAndDeletedFalse(UserType userType, Pageable pageable);
 
-	Stream<User> findByRolesIdInAndDeletedFalse(Long... id);
+	// Stream<User> findByRolesIdInAndDeletedFalse(Long... id);
 
-	Stream<User> findByTimeLockIdAndDeletedFalse(Long timeLockId);
+	// Stream<User> findByTimeLockIdAndDeletedFalse(Long timeLockId);
 
 	Stream<User> findByIdInAndDeletedFalse(Iterable<Long> userIdList);
 
-	Stream<User> findByGroupsIdInAndDeletedFalse(Iterable<Long> groupIdList);
+	// Stream<User> findByGroupsIdInAndDeletedFalse(Iterable<Long> groupIdList);
 
 	/** Created by A.Alsayed on 21/01/2019. */
 	/** this method is used for returning User's global ranking */

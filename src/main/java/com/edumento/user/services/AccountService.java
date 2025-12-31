@@ -270,6 +270,7 @@ public class AccountService {
 
 		newUser.setCloudPackage(cloudPackage);
 		userRepository.save(newUser);
+		log.info("Activation key: {}", newUser.getActivationKey());
 		log.debug("Created Information for User: {}", newUser);
 
 		return ResponseModel.done("Please check your mail to complete activation process",

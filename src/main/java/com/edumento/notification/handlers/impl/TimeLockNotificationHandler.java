@@ -33,20 +33,6 @@ public class TimeLockNotificationHandler extends AbstractHandler {
 
 	@Override
 	protected void onUpdate(BaseMessage notificationMessage) {
-		userRepository.findOneByUserNameAndDeletedFalse(notificationMessage.getUserName()).ifPresent(new Consumer<User>() {
-			@Override
-			public void accept(User user) {
-				var timelockId = Long.valueOf((Integer) notificationMessage.getEntityId());
-				userRepository.findByTimeLockIdAndDeletedFalse(timelockId).forEach(new Consumer<User>() {
-					@Override
-					public void accept(User user1) {
-						var baseNotificationMessage = new BaseNotificationMessage(ZonedDateTime.now(), APP,
-								new From(user.getId(), user.getUserName()),
-								new Target(TIME_LOCK, timelockId.toString(), UPDATE));
-						amqNotifier.send(amqNotifier.saveMessage(user1, baseNotificationMessage));
-					}
-				});
-			}
-		});
+
 	}
 }

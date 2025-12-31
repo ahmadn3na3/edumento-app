@@ -159,7 +159,7 @@ public class ContentService {
 						return ResponseModel.done(content.getId(),
 								new ContentInfoMessage(content.getId(), content.getName(), content.getType(),
 										space.getId(),
-										space.getName(), null, new From(new UserInfoMessage(user))));
+										space.getName(), new From(new UserInfoMessage(user))));
 					}
 				}).orElseThrow(NotPermittedException::new);
 	}
@@ -333,7 +333,7 @@ public class ContentService {
 												new ContentInfoMessage(content.getId(), content.getName(),
 														content.getType(),
 														content.getSpace().getId(), content.getSpace().getName(),
-														null, new From(new UserInfoMessage(user))));
+														new From(new UserInfoMessage(user))));
 									}
 								}).orElseThrow(NotFoundException::new);
 					}
@@ -386,8 +386,9 @@ public class ContentService {
 																	new ContentInfoMessage(content.getId(),
 																			content.getName(), content.getType(),
 																			content.getSpace().getId(),
-																			content.getSpace().getName(), null,
-																			new From(new UserInfoMessage(user))));
+																			content.getSpace()
+																					.getName(),
+																					new From(new UserInfoMessage(user))));
 														} else {
 															throw new NotPermittedException();
 														}

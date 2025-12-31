@@ -32,7 +32,6 @@ public interface JoinedRepository extends JpaRepository<Joined, Long> {
 	Page<Joined> findByUserIdAndSpaceNameIgnoreCaseContainingAndDeletedFalse(Long userId, String name,
 			Pageable pageable);
 
-	Page<Joined> findByUserAndSpaceCategoryIdAndDeletedFalse(User user, Long id, Pageable pageable);
 
 	Stream<Joined> findByDeletedFalseAndUserIdAndSpaceDeletedFalseAndSpaceLastModifiedDateNotNullAndSpaceLastModifiedDateAfter(
 			Long userName, Date time);

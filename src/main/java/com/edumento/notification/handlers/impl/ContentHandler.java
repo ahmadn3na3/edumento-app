@@ -73,7 +73,7 @@ public class ContentHandler extends AbstractHandler {
 									contentInfoMessage.getFrom(),
 									new Target(EntityType.CONTENT, contentInfoMessage.getId().toString(), action)),
 							createMessage(baseMessage), null, contentInfoMessage.getName(),
-							contentInfoMessage.getSpaceName(), contentInfoMessage.getCategoryName());
+							contentInfoMessage.getSpaceName(), null);
 
 					if (joined.getNotification() && joined.getUser().getNotification() && !joined.getUser().isDeleted()) {
 						amqNotifier.send(notificationMessage);

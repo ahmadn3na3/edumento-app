@@ -58,6 +58,10 @@ export class LoginService {
 		return null;
 	}
 
+	activate(key: string) {
+		return this.httpclient.get(`/api/activate/${key}`);
+	}
+
 	getCurrentUser(): User | null {
 		// In a real app, you'd parse the token or fetch user details.
 		// For now, we return the mock user if logged in, or null.

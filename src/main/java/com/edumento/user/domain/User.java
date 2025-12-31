@@ -6,22 +6,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-
 import com.edumento.assessment.domain.Assessment;
 // Removed B2B imports
-
 import com.edumento.b2c.domain.CloudPackage;
 import com.edumento.content.domain.Content;
 import com.edumento.core.domain.AbstractEntity;
 import com.edumento.space.domain.Space;
 import com.edumento.user.constant.UserType;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -106,7 +103,7 @@ public class User extends AbstractEntity {
 	private String interests;
 
 	@Column
-	@Enumerated
+	@Enumerated(EnumType.STRING)
 	private UserType type;
 
 	@Column

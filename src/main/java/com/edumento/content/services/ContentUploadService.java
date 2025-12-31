@@ -284,7 +284,7 @@ public class ContentUploadService {
 		return ResponseModel.done(null,
 				new ContentInfoMessage(content.getId(), content.getName(), content.getType(),
 						content.getSpace().getId(), content.getSpace().getName(),
-						null, new From(SecurityUtils.getCurrentUser())));
+						new From(SecurityUtils.getCurrentUser())));
 	}
 
 	public ResponseModel cancel(String id, HttpServletRequest request) {
