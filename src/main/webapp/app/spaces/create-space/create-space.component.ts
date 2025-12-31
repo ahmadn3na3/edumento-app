@@ -28,6 +28,18 @@ export class CreateSpaceComponent {
     };
 
     tagInput: string = '';
+    selectedFile: File | null = null;
+    imagePreview: string | ArrayBuffer | null = null;
+    imageError: string | null = null;
+    readonly MIN_WIDTH = 200;
+    readonly MIN_HEIGHT = 200;
+
+    // Cover Image
+    selectedCoverFile: File | null = null;
+    coverPreview: string | ArrayBuffer | null = null;
+    coverError: string | null = null;
+    readonly MIN_COVER_WIDTH = 800; // Adjusted for cover aspect ratio
+    readonly MIN_COVER_HEIGHT = 300;
 
     constructor(
         private spaceService: SpaceService,
@@ -50,14 +62,79 @@ export class CreateSpaceComponent {
         }
     }
 
+    triggerFileInput(fileInput: HTMLInputElement) {
+        fileInput.click();
+    }
+
+    onFileSelected(event: any) {
+        const file = event.target.files[0];
+        if (file) {
+            this.imageError = null;
+            const reader = new FileReader();
+            reader.onload = (e: any) => {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = () => {
+                    if (img.width < this.MIN_WIDTH || img.height < this.MIN_HEIGHT) {
+                        this.imageError = `Image must be at least ${this.MIN_WIDTH}x${this.MIN_HEIGHT}px.`;
+                        this.selectedFile = null;
+                        this.imagePreview = null;
+                    } else {
+                        this.selectedFile = file;
+                        this.imagePreview = e.target.result;
+                    }
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    onCoverSelected(event: any) {
+        const file = event.target.files[0];
+        if (file) {
+            this.coverError = null;
+            const reader = new FileReader();
+            reader.onload = (e: any) => {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = () => {
+                    // Validate dimensions
+                    if (img.width < this.MIN_COVER_WIDTH || img.height < this.MIN_COVER_HEIGHT) {
+                        this.coverError = `Cover image must be at least ${this.MIN_COVER_WIDTH}x${this.MIN_COVER_HEIGHT}px.`;
+                        this.selectedCoverFile = null;
+                        this.coverPreview = null;
+                    } else {
+                        this.selectedCoverFile = file;
+                        this.coverPreview = e.target.result;
+                    }
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    removeCover() {
+        this.selectedCoverFile = null;
+        this.coverPreview = null;
+        this.coverError = null;
+    }
+
     createSpace() {
         if (!this.space.name) {
             // Basic validation
             return;
         }
 
-        this.spaceService.createSpace(this.space).subscribe(() => {
-            this.router.navigate(['/spaces']);
+        // Note: Service update is deferred, passing the object as is for now.
+        // When service is updated, we will pass this.selectedFile
+        this.spaceService.createSpace(this.space).subscribe({
+            next: () => {
+                this.router.navigate(['/spaces']);
+            },
+            error: (err) => {
+                console.error('Failed to create space', err);
+                // TODO: Show user friendly error message
+            }
         });
     }
 }

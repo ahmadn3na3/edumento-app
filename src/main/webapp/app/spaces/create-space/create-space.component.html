@@ -35,13 +35,73 @@
                                 <div class="d-flex flex-column gap-4">
                                     <!-- Space Icon -->
                                     <div class="d-flex align-items-center gap-3">
-                                        <div class="bg-light border border-2 border-dashed rounded-circle d-flex align-items-center justify-content-center cursor-pointer"
-                                            style="width: 80px; height: 80px;">
+                                        <input type="file" #fileInput (change)="onFileSelected($event)"
+                                            style="display: none" accept="image/*">
+                                        <div class="bg-light border border-2 border-dashed rounded-circle d-flex align-items-center justify-content-center cursor-pointer position-relative overflow-hidden"
+                                            style="width: 80px; height: 80px;" (click)="triggerFileInput(fileInput)">
+                                            @if (imagePreview) {
+                                            <img [src]="imagePreview" class="w-100 h-100 object-fit-cover"
+                                                alt="Space Icon Preview">
+                                            } @else {
                                             <span class="material-symbols-outlined text-muted fs-2">add_a_photo</span>
+                                            }
                                         </div>
                                         <div>
                                             <div class="fw-medium text-dark">Space Icon</div>
                                             <div class="text-muted small">Recommended size 200x200px</div>
+                                            @if (imageError) {
+                                            <div class="text-danger small mt-1">{{ imageError }}</div>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <!-- Cover Image -->
+                                    <div class="d-flex flex-column gap-2">
+                                        <div class="fw-medium text-dark">Cover Image</div>
+                                        <div class="position-relative w-100 group">
+                                            @if (!coverPreview) {
+                                            <input type="file" #coverInput (change)="onCoverSelected($event)"
+                                                style="display: none" accept="image/*">
+                                            <div class="d-flex flex-column align-items-center justify-content-center w-100 rounded-4 border border-2 border-dashed border-secondary border-opacity-25 bg-light hover-bg-subtle transition-all cursor-pointer overflow-hidden"
+                                                style="height: 192px;" (click)="triggerFileInput(coverInput)">
+                                                <div
+                                                    class="d-flex flex-column align-items-center justify-content-center py-4">
+                                                    <div
+                                                        class="p-3 mb-3 rounded-circle bg-secondary bg-opacity-10 text-secondary">
+                                                        <span class="material-symbols-outlined fs-2">cloud_upload</span>
+                                                    </div>
+                                                    <p class="mb-1 small text-dark fw-medium"><span
+                                                            class="fw-bold">Click to
+                                                            upload</span> or drag and drop</p>
+                                                    <p class="small text-muted" style="font-size: 0.75rem;">SVG, PNG,
+                                                        JPG or
+                                                        GIF (max. 1200x400px)</p>
+                                                </div>
+                                            </div>
+                                            } @else {
+                                            <div class="position-relative w-100 rounded-4 overflow-hidden d-flex align-items-start justify-content-end p-3 gap-2"
+                                                style="height: 192px; background-size: cover; background-position: center;"
+                                                [style.background-image]="'url(' + coverPreview + ')'">
+                                                <div
+                                                    class="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-10">
+                                                </div>
+                                                <div class="position-relative z-1 d-flex gap-2">
+                                                    <button
+                                                        class="btn btn-light btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center shadow-sm"
+                                                        title="Change Image" (click)="removeCover()">
+                                                        <span class="material-symbols-outlined small">edit</span>
+                                                    </button>
+                                                    <button
+                                                        class="btn btn-light btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center shadow-sm text-danger"
+                                                        title="Remove Image" (click)="removeCover()">
+                                                        <span class="material-symbols-outlined small">delete</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            }
+                                            @if (coverError) {
+                                            <div class="text-danger small mt-1">{{ coverError }}</div>
+                                            }
                                         </div>
                                     </div>
 
