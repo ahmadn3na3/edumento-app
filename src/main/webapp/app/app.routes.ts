@@ -13,6 +13,11 @@ export const routes: Routes = [
 		data: { title: 'Login' }
 	},
 	{
+		path: 'signup',
+		loadComponent: () => import('./signup/signup.component').then(m => m.SignupComponent),
+		data: { title: 'Sign Up' }
+	},
+	{
 		path: '',
 		redirectTo: '/spaces',
 		pathMatch: 'full'

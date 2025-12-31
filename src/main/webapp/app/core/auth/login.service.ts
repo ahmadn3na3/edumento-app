@@ -30,6 +30,11 @@ export class LoginService {
 
 	}
 
+	register(user: any) {
+		// Stub implementation
+		return this.httpclient.post('/api/register', user);
+	}
+
 	logout() {
 		localStorage.removeItem('currentUser');
 		this.isLoggedInSubject.next(this.isLoggedIn());

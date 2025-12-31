@@ -1,0 +1,143 @@
+<div class="signup-page d-flex flex-column min-vh-100 position-relative">
+
+    <!-- Top Navigation -->
+    <header class="d-flex align-items-center justify-content-between px-4 px-lg-5 py-3 w-100 position-relative"
+        style="z-index: 10;">
+        <div class="d-flex align-items-center gap-3">
+            <div class="header-logo text-white">
+                <span class="material-symbols-outlined">school</span>
+            </div>
+            <h2 class="h5 fw-bold mb-0">EduSpace Manager</h2>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <span class="small fw-medium d-none d-sm-block">Already have an account?</span>
+            <button class="btn btn-signup text-truncate" routerLink="/login">
+                Sign In
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow-1 d-flex align-items-center justify-content-center p-3 position-relative">
+
+        <!-- Background Elements -->
+        <div class="position-absolute top-0 start-0 w-100 h-100 overflow-hidden" style="pointer-events: none;">
+            <div class="bg-blob-1"></div>
+            <div class="bg-blob-2"></div>
+        </div>
+
+        <div class="container-fluid" style="max-width: 1200px; z-index: 10;">
+            <div class="row align-items-center g-5">
+
+                <!-- Left Column: Form -->
+                <div class="col-12 col-lg-6 order-2 order-lg-1">
+                    <div class="mx-auto mx-lg-0" style="max-width: 560px;">
+                        <div class="mb-5">
+                            <h1 class="display-4 fw-bold mb-3">Create Account</h1>
+                            <p class="text-secondary fs-5">Join our community and start learning today.</p>
+                        </div>
+
+                        <form [formGroup]="signupForm" (ngSubmit)="signup()" class="d-flex flex-column gap-3 w-100">
+
+                            <!-- Full Name -->
+                            <div>
+                                <label for="fullName" class="form-label small fw-bold ms-1 pb-1">Full Name</label>
+                                <div class="position-relative">
+                                    <input type="text"
+                                        class="form-control form-control-rounded shadow-sm text-dark placeholder-secondary"
+                                        id="fullName" formControlName="fullName" placeholder="John Doe">
+                                    <span class="material-symbols-outlined input-icon">person</span>
+                                </div>
+                            </div>
+
+                            <!-- Email -->
+                            <div>
+                                <label for="email" class="form-label small fw-bold ms-1 pb-1">Email Address</label>
+                                <div class="position-relative">
+                                    <input type="email"
+                                        class="form-control form-control-rounded shadow-sm text-dark placeholder-secondary"
+                                        id="email" formControlName="email" placeholder="name@example.com">
+                                    <span class="material-symbols-outlined input-icon">mail</span>
+                                </div>
+                            </div>
+
+                            <!-- Password -->
+                            <div>
+                                <label for="password" class="form-label small fw-bold ms-1 pb-1">Password</label>
+                                <div class="position-relative">
+                                    <input type="password"
+                                        class="form-control form-control-rounded shadow-sm text-dark placeholder-secondary"
+                                        id="password" formControlName="password" placeholder="Create a password">
+                                    <span class="material-symbols-outlined input-icon">lock</span>
+                                </div>
+                            </div>
+
+                            <!-- Confirm Password -->
+                            <div>
+                                <label for="confirmPassword" class="form-label small fw-bold ms-1 pb-1">Confirm
+                                    Password</label>
+                                <div class="position-relative">
+                                    <input type="password"
+                                        class="form-control form-control-rounded shadow-sm text-dark placeholder-secondary"
+                                        id="confirmPassword" formControlName="confirmPassword"
+                                        placeholder="Confirm your password">
+                                    <span class="material-symbols-outlined input-icon">lock_reset</span>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" class="btn btn-primary-custom shadow-lg mt-3"
+                                [disabled]="signupForm.invalid">
+                                Sign Up
+                            </button>
+
+                            <!-- Social Logins (Optional, for consistency) -->
+                            <div class="d-flex align-items-center gap-3 my-2">
+                                <div class="flex-grow-1 border-top"
+                                    style="border-color: var(--border-color) !important;"></div>
+                                <span class="small fw-medium text-secondary">OR SIGN UP WITH</span>
+                                <div class="flex-grow-1 border-top"
+                                    style="border-color: var(--border-color) !important;"></div>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <button type="button" class="social-btn shadow-sm">
+                                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqmMLMVrWk7UcpMYQkA4ZLOjYTZGfux8RKf1lVeHjcKnpnAiLQLkYppYPXlPun5m45WP9efN98ERjYUnq2N1nF1xOg-R53s2nBCmPdabRmqQ0v1yMapOytgeJkpKxSDVyJLoefHJp3qP4UAn3WVl8U52Ve5iRe-C553szzcte6vKCCCpFgeYKPACWCynsLCfvWrFIkfGagp5GbOk5aaVniHrsMNg2BK5W-5h7zWP4-zJu6xJAQT8GE6_BmGP2mK6Nmi3W5XwUZ8Eg"
+                                            alt="Google" width="20" height="20">
+                                        <span class="text-dark">Google</span>
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <button type="button" class="social-btn shadow-sm">
+                                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4TIWRmDpQZubaXH5RnHPPkrOHvpMuISXO_tGWh2eZHmut4t7XQwLc-UHCj8ivIJPY04uex_X98c13jsRztTAnTD3otR4figaPQcxvyycUFastWYEN0GtAFpCNavc-PVhA3jaTg3b0hd2FPzecyxZatg77hOHqAIIQbEdnzG1q7dwM7DuqLsHwwOIi9yqwDSHzihgtiwkNSZR_b7dMEyA430YCCndfLywTQHFAXxrtpNSMgkFGD_l7DJsxJmXn6C02aXDwhhIA9fU"
+                                            alt="Facebook" width="20" height="20">
+                                        <span class="text-dark">Facebook</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Right Column: Visual -->
+                <div class="col-12 col-lg-6 order-1 order-lg-2 d-none d-lg-flex justify-content-center">
+                    <div class="image-container">
+                        <div class="position-absolute start-0 bottom-0 w-100 p-5 d-flex flex-column justify-content-end"
+                            style="background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); z-index: 10; height: 100%;">
+                            <div class="overlay-card text-white">
+                                <h3 class="fw-bold mb-2">Join a global community</h3>
+                                <p class="small mb-0 opacity-75">"Connect with students and educators from top
+                                    institutions worldwide."</p>
+                            </div>
+                        </div>
+                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaGJ9n9Y0EMgS9ALFUnj-3BfoKGMot5-y0FgR88wFymJxtmRAntR5bYNXnEsX9N5_8MOfW1JfEaMCQRWvHjDtw6RTJZAD3lSa4crYz6m8kCDZ46uiwW588DIZh4acsrF5tQLQjh6Pf7ltPR0oqtoL5_95DcCX3zoDnN9sfDWbdUEcfMACF2HD1iDCKZOkDyaKCjELoMfN23akxUHuTekwaNGX8O_7d6kZc-T37o3B7yRZV-AwQqppLnvt-7CmR7TBJeO5-kNxIspI"
+                            alt="Students collaborating" class="w-100 h-100 object-fit-cover">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+</div>
