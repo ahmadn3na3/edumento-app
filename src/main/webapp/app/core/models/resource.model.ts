@@ -7,7 +7,7 @@ export interface Resource {
     contentLength: number;
     ext: string;
     tags: string[];
-    type: 'VIDEO' | 'AUDIO' | 'IMAGE' | 'PDF' | 'DOCUMENT' | 'OTHER'; // Inferred ContentType
+    type: "VIDEO" | "AUDIO" | "IMAGE" | "PDF" | "DOCUMENT" | "OTHER"; // Inferred ContentType
     thumbnail: string;
     contentUrl: string;
     allowUseOriginal: boolean;
@@ -19,7 +19,7 @@ export interface Resource {
     folderName: string;
     lastAccess: string;
     newContent: boolean;
-    status: 'UPLOADED' | 'CONVERTED' | 'FAILED' | 'PROCESSING'; // Inferred ContentStatus
+    status: "UPLOADED" | "CONVERTED" | "FAILED" | "PROCESSING"; // Inferred ContentStatus
     newAnnotation: boolean;
     owner: boolean;
     numberOfViews: number;

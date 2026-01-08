@@ -1,13 +1,5 @@
 package com.edumento.user.domain;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
 import com.edumento.assessment.domain.Assessment;
 // Removed B2B imports
 import com.edumento.b2c.domain.CloudPackage;
@@ -29,457 +21,443 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
-
 @Table(name = "user_table")
 @DynamicInsert
 @DynamicUpdate
 public class User extends AbstractEntity {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Long id;
 
-	@Column(nullable = false, unique = false)
-	private String userName;
+  @Column(nullable = false, unique = false)
+  private String userName;
 
-	@Column
-	private String thumbnail;
-
-	@Column(nullable = false)
-	private String password;
+  @Column private String thumbnail;
 
-	@Column(nullable = false)
-	private String fullName;
-
-	@Column
-	private String mobile;
-	@Column
-	private String color;
+  @Column(nullable = false)
+  private String password;
 
-	@Column(nullable = false)
-	private String email;
-
-	@Column
-	private Boolean status = Boolean.FALSE;
-	@Column
-	private String langKey;
-	@Column
-	private String activationKey;
-	@Column
-	private String resetKey;
-
-	@Column
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date resetDate;
-
-	@Column
-	private Boolean firstLogin = Boolean.TRUE;
-	@Column
-	private Boolean forceChangePassword = Boolean.FALSE;
-	@Column
-	private Boolean gender = null;
-	@Column
-	private Boolean autoJoin = Boolean.FALSE;
-
-	@Column
-	@Temporal(TemporalType.DATE)
-	private Date birthDate;
-
-	@Column
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date activationDate;
-
-	@Column
-	private String profession;
-	@Column
-	private String country;
-
-	@Column
-	private String userStatus;
-
-	@Column(length = 500)
-	private String interests;
-
-	@Column
-	@Enumerated(EnumType.STRING)
-	private UserType type;
-
-	@Column
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date startDate;
-
-	@Column
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date endDate;
-
-	// Removed B2B relationships
-
-	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
-	private List<Space> spaces = new ArrayList<>();
-
-	@OneToMany(mappedBy = "owner")
-	private List<Content> contents = new ArrayList<>();
-
-	// Removed roles
-
-	/** Created by A.Alsayed on 04/01/19. */
-	// new field will be used for the challenge task:
-	// ==============================================
-	@ManyToMany(mappedBy = "challengees")
-	private Set<Assessment> assessments = new HashSet<>();
-
-	// Removed CloudPackage
-
-	@Column
-	private Boolean notification = Boolean.TRUE;
-
-	@Column
-	private Boolean mailNotification = true;
-
-	@Column
-	private String chatId;
-
-	/*
-	 * new column "School" created by Ahmad alsayed
-	 */
-	@Column
-	private String school;
-
-	/**
-	 * created by A.Alsayed 23-01-2019 New Column to store / update user scores per
-	 * each practice and each challenge.
-	 */
-	@Column
-	private Float totalScore = 0.0f;
-
-	@ManyToOne
-	private CloudPackage cloudPackage;
-
-	public static User of(Long id) {
-		var user = new User();
-		user.setId(id);
-		return user;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getUserName() {
-		return userName;
-	}
-
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
-
-	public String getThumbnail() {
-		return thumbnail;
-	}
-
-	public void setThumbnail(String thumbnail) {
-		this.thumbnail = thumbnail;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public String getFullName() {
-		return fullName;
-	}
-
-	public void setFullName(String fullName) {
-		this.fullName = fullName;
-	}
-
-	public String getMobile() {
-		return mobile;
-	}
-
-	public void setMobile(String mobile) {
-		this.mobile = mobile;
-	}
-
-	public String getColor() {
-		return color;
-	}
-
-	public void setColor(String color) {
-		this.color = color;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public Boolean getStatus() {
-		return status;
-	}
-
-	public void setStatus(Boolean status) {
-		this.status = status;
-	}
-
-	public String getLangKey() {
-		return langKey;
-	}
-
-	public void setLangKey(String langKey) {
-		this.langKey = langKey;
-	}
-
-	public String getActivationKey() {
-		return activationKey;
-	}
-
-	public void setActivationKey(String activationKey) {
-		this.activationKey = activationKey;
-	}
-
-	public String getResetKey() {
-		return resetKey;
-	}
-
-	public void setResetKey(String resetKey) {
-		this.resetKey = resetKey;
-	}
-
-	public Date getResetDate() {
-		return resetDate;
-	}
-
-	public void setResetDate(Date resetDate) {
-		this.resetDate = resetDate;
-	}
-
-	public Boolean getFirstLogin() {
-		return firstLogin;
-	}
-
-	public void setFirstLogin(Boolean firstLogin) {
-		this.firstLogin = firstLogin;
-	}
-
-	public Boolean getForceChangePassword() {
-		return forceChangePassword;
-	}
-
-	public void setForceChangePassword(Boolean forceChangePassword) {
-		this.forceChangePassword = forceChangePassword;
-	}
-
-	public Boolean getGender() {
-		return gender;
-	}
-
-	public void setGender(Boolean gender) {
-		this.gender = gender;
-	}
-
-	public Boolean getAutoJoin() {
-		return autoJoin;
-	}
-
-	public void setAutoJoin(Boolean autoJoin) {
-		this.autoJoin = autoJoin;
-	}
-
-	public Date getBirthDate() {
-		return birthDate;
-	}
-
-	public void setBirthDate(Date birthDate) {
-		this.birthDate = birthDate;
-	}
-
-	public Date getActivationDate() {
-		return activationDate;
-	}
-
-	public void setActivationDate(Date activationDate) {
-		this.activationDate = activationDate;
-	}
-
-	public String getProfession() {
-		return profession;
-	}
-
-	public void setProfession(String profession) {
-		this.profession = profession;
-	}
-
-	public String getCountry() {
-		return country;
-	}
-
-	public void setCountry(String country) {
-		this.country = country;
-	}
-
-	public String getUserStatus() {
-		return userStatus;
-	}
-
-	public void setUserStatus(String userStatus) {
-		this.userStatus = userStatus;
-	}
-
-	public String getInterests() {
-		return interests;
-	}
-
-	public void setInterests(String interests) {
-		this.interests = interests;
-	}
-
-	public UserType getType() {
-		return type;
-	}
-
-	public void setType(UserType type) {
-		this.type = type;
-	}
-
-	public Date getStartDate() {
-		return startDate;
-	}
-
-	public void setStartDate(Date startDate) {
-		this.startDate = startDate;
-	}
-
-	public Date getEndDate() {
-		return endDate;
-	}
-
-	public void setEndDate(Date endDate) {
-		this.endDate = endDate;
-	}
-
-	public Boolean getNotification() {
-		return notification;
-	}
-
-	public void setNotification(Boolean notification) {
-		this.notification = notification;
-	}
-
-	public Boolean getMailNotification() {
-		return mailNotification;
-	}
-
-	public void setMailNotification(Boolean mailNotification) {
-		this.mailNotification = mailNotification;
-	}
-
-	public String getChatId() {
-		return chatId;
-	}
-
-	public void setChatId(String chatId) {
-		this.chatId = chatId;
-	}
-
-	public String getSchool() {
-		return school;
-	}
-
-	public void setSchool(String school) {
-		this.school = school;
-	}
-
-	public Float getTotalScore() {
-		return totalScore;
-	}
-
-	public void setTotalScore(Float totalScore) {
-		this.totalScore = totalScore;
-	}
-
-	public CloudPackage getCloudPackage() {
-		return cloudPackage;
-	}
-
-	public void setCloudPackage(CloudPackage cloudPackage) {
-		this.cloudPackage = cloudPackage;
-	}
-
-	/**
-	 * @return the spaces
-	 */
-	public List<Space> getSpaces() {
-		return spaces;
-	}
-
-	/**
-	 * @param spaces the spaces to set
-	 */
-	public void setSpaces(List<Space> spaces) {
-		this.spaces = spaces;
-	}
-
-	/**
-	 * @return the contents
-	 */
-	public List<Content> getContents() {
-		return contents;
-	}
-
-	/**
-	 * @param contents the contents to set
-	 */
-	public void setContents(List<Content> contents) {
-		this.contents = contents;
-	}
-
-	/**
-	 * @return the assessments
-	 */
-	public Set<Assessment> getAssessments() {
-		return assessments;
-	}
-
-	/**
-	 * @param assessments the assessments to set
-	 */
-	public void setAssessments(Set<Assessment> assessments) {
-		this.assessments = assessments;
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(id);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null || getClass() != obj.getClass()) {
-			return false;
-		}
-		var other = (User) obj;
-		if (id == null) {
-			return other.id == null;
-		} else {
-			return id.equals(other.id);
-		}
-	}
+  @Column(nullable = false)
+  private String fullName;
 
+  @Column private String mobile;
+  @Column private String color;
+
+  @Column(nullable = false)
+  private String email;
+
+  @Column private Boolean status = Boolean.FALSE;
+  @Column private String langKey;
+  @Column private String activationKey;
+  @Column private String resetKey;
+
+  @Column
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date resetDate;
+
+  @Column private Boolean firstLogin = Boolean.TRUE;
+  @Column private Boolean forceChangePassword = Boolean.FALSE;
+  @Column private Boolean gender = null;
+  @Column private Boolean autoJoin = Boolean.FALSE;
+
+  @Column
+  @Temporal(TemporalType.DATE)
+  private Date birthDate;
+
+  @Column
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date activationDate;
+
+  @Column private String profession;
+  @Column private String country;
+
+  @Column private String userStatus;
+
+  @Column(length = 500)
+  private String interests;
+
+  @Column
+  @Enumerated(EnumType.STRING)
+  private UserType type;
+
+  @Column
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date startDate;
+
+  @Column
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date endDate;
+
+  // Removed B2B relationships
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+  private List<Space> spaces = new ArrayList<>();
+
+  @OneToMany(mappedBy = "owner")
+  private List<Content> contents = new ArrayList<>();
+
+  // Removed roles
+
+  /** Created by A.Alsayed on 04/01/19. */
+  // new field will be used for the challenge task:
+  // ==============================================
+  @ManyToMany(mappedBy = "challengees")
+  private Set<Assessment> assessments = new HashSet<>();
+
+  // Removed CloudPackage
+
+  @Column private Boolean notification = Boolean.TRUE;
+
+  @Column private Boolean mailNotification = true;
+
+  @Column private String chatId;
+
+  /*
+   * new column "School" created by Ahmad alsayed
+   */
+  @Column private String school;
+
+  /**
+   * created by A.Alsayed 23-01-2019 New Column to store / update user scores per each practice and
+   * each challenge.
+   */
+  @Column private Float totalScore = 0.0f;
+
+  @ManyToOne private CloudPackage cloudPackage;
+
+  public static User of(Long id) {
+    var user = new User();
+    user.setId(id);
+    return user;
+  }
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public String getUserName() {
+    return userName;
+  }
+
+  public void setUserName(String userName) {
+    this.userName = userName;
+  }
+
+  public String getThumbnail() {
+    return thumbnail;
+  }
+
+  public void setThumbnail(String thumbnail) {
+    this.thumbnail = thumbnail;
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  public String getFullName() {
+    return fullName;
+  }
+
+  public void setFullName(String fullName) {
+    this.fullName = fullName;
+  }
+
+  public String getMobile() {
+    return mobile;
+  }
+
+  public void setMobile(String mobile) {
+    this.mobile = mobile;
+  }
+
+  public String getColor() {
+    return color;
+  }
+
+  public void setColor(String color) {
+    this.color = color;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public Boolean getStatus() {
+    return status;
+  }
+
+  public void setStatus(Boolean status) {
+    this.status = status;
+  }
+
+  public String getLangKey() {
+    return langKey;
+  }
+
+  public void setLangKey(String langKey) {
+    this.langKey = langKey;
+  }
+
+  public String getActivationKey() {
+    return activationKey;
+  }
+
+  public void setActivationKey(String activationKey) {
+    this.activationKey = activationKey;
+  }
+
+  public String getResetKey() {
+    return resetKey;
+  }
+
+  public void setResetKey(String resetKey) {
+    this.resetKey = resetKey;
+  }
+
+  public Date getResetDate() {
+    return resetDate;
+  }
+
+  public void setResetDate(Date resetDate) {
+    this.resetDate = resetDate;
+  }
+
+  public Boolean getFirstLogin() {
+    return firstLogin;
+  }
+
+  public void setFirstLogin(Boolean firstLogin) {
+    this.firstLogin = firstLogin;
+  }
+
+  public Boolean getForceChangePassword() {
+    return forceChangePassword;
+  }
+
+  public void setForceChangePassword(Boolean forceChangePassword) {
+    this.forceChangePassword = forceChangePassword;
+  }
+
+  public Boolean getGender() {
+    return gender;
+  }
+
+  public void setGender(Boolean gender) {
+    this.gender = gender;
+  }
+
+  public Boolean getAutoJoin() {
+    return autoJoin;
+  }
+
+  public void setAutoJoin(Boolean autoJoin) {
+    this.autoJoin = autoJoin;
+  }
+
+  public Date getBirthDate() {
+    return birthDate;
+  }
+
+  public void setBirthDate(Date birthDate) {
+    this.birthDate = birthDate;
+  }
+
+  public Date getActivationDate() {
+    return activationDate;
+  }
+
+  public void setActivationDate(Date activationDate) {
+    this.activationDate = activationDate;
+  }
+
+  public String getProfession() {
+    return profession;
+  }
+
+  public void setProfession(String profession) {
+    this.profession = profession;
+  }
+
+  public String getCountry() {
+    return country;
+  }
+
+  public void setCountry(String country) {
+    this.country = country;
+  }
+
+  public String getUserStatus() {
+    return userStatus;
+  }
+
+  public void setUserStatus(String userStatus) {
+    this.userStatus = userStatus;
+  }
+
+  public String getInterests() {
+    return interests;
+  }
+
+  public void setInterests(String interests) {
+    this.interests = interests;
+  }
+
+  public UserType getType() {
+    return type;
+  }
+
+  public void setType(UserType type) {
+    this.type = type;
+  }
+
+  public Date getStartDate() {
+    return startDate;
+  }
+
+  public void setStartDate(Date startDate) {
+    this.startDate = startDate;
+  }
+
+  public Date getEndDate() {
+    return endDate;
+  }
+
+  public void setEndDate(Date endDate) {
+    this.endDate = endDate;
+  }
+
+  public Boolean getNotification() {
+    return notification;
+  }
+
+  public void setNotification(Boolean notification) {
+    this.notification = notification;
+  }
+
+  public Boolean getMailNotification() {
+    return mailNotification;
+  }
+
+  public void setMailNotification(Boolean mailNotification) {
+    this.mailNotification = mailNotification;
+  }
+
+  public String getChatId() {
+    return chatId;
+  }
+
+  public void setChatId(String chatId) {
+    this.chatId = chatId;
+  }
+
+  public String getSchool() {
+    return school;
+  }
+
+  public void setSchool(String school) {
+    this.school = school;
+  }
+
+  public Float getTotalScore() {
+    return totalScore;
+  }
+
+  public void setTotalScore(Float totalScore) {
+    this.totalScore = totalScore;
+  }
+
+  public CloudPackage getCloudPackage() {
+    return cloudPackage;
+  }
+
+  public void setCloudPackage(CloudPackage cloudPackage) {
+    this.cloudPackage = cloudPackage;
+  }
+
+  /**
+   * @return the spaces
+   */
+  public List<Space> getSpaces() {
+    return spaces;
+  }
+
+  /**
+   * @param spaces the spaces to set
+   */
+  public void setSpaces(List<Space> spaces) {
+    this.spaces = spaces;
+  }
+
+  /**
+   * @return the contents
+   */
+  public List<Content> getContents() {
+    return contents;
+  }
+
+  /**
+   * @param contents the contents to set
+   */
+  public void setContents(List<Content> contents) {
+    this.contents = contents;
+  }
+
+  /**
+   * @return the assessments
+   */
+  public Set<Assessment> getAssessments() {
+    return assessments;
+  }
+
+  /**
+   * @param assessments the assessments to set
+   */
+  public void setAssessments(Set<Assessment> assessments) {
+    this.assessments = assessments;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    var other = (User) obj;
+    if (id == null) {
+      return other.id == null;
+    } else {
+      return id.equals(other.id);
+    }
+  }
 }

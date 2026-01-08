@@ -1,6 +1,6 @@
 export enum DiscussionType {
-    DISCUSSION = 'DISCUSSION',
-    INQUIRY = 'INQUIRY'
+    DISCUSSION = "DISCUSSION",
+    INQUIRY = "INQUIRY",
 }
 
 export interface DiscussionSummary {

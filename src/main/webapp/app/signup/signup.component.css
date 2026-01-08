@@ -4,7 +4,8 @@
     color: var(--text-dark);
 }
 
-.bg-blob-1, .bg-blob-2 {
+.bg-blob-1,
+.bg-blob-2 {
     /* Assuming these are global or we can copy from login css if needed. 
        For now, let's assume global or inherited if in same module, 
        but since it's angular component scoped, we might need to copy 
@@ -21,7 +22,11 @@
     left: -10%;
     width: 50vw;
     height: 50vw;
-    background: radial-gradient(circle, var(--accent-light) 0%, transparent 70%);
+    background: radial-gradient(
+        circle,
+        var(--accent-light) 0%,
+        transparent 70%
+    );
 }
 
 .bg-blob-2 {
@@ -29,14 +34,22 @@
     right: -10%;
     width: 60vw;
     height: 60vw;
-    background: radial-gradient(circle, var(--primary-light) 0%, transparent 70%);
+    background: radial-gradient(
+        circle,
+        var(--primary-light) 0%,
+        transparent 70%
+    );
 }
 
 .header-logo {
     width: 40px;
     height: 40px;
     border-radius: 12px;
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    background: linear-gradient(
+        135deg,
+        var(--primary-color),
+        var(--primary-dark)
+    );
     display: flex;
     align-items: center;
     justify-content: center;
@@ -81,7 +94,11 @@
 }
 
 .btn-primary-custom {
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    background: linear-gradient(
+        135deg,
+        var(--primary-color),
+        var(--primary-dark)
+    );
     border: none;
     color: white;
     padding: 0.875rem;
@@ -119,7 +136,7 @@
     border-radius: 24px;
     overflow: hidden;
     position: relative;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
 
 .overlay-card {

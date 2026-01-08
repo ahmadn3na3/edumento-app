@@ -1,73 +1,121 @@
 <div class="d-flex flex-column gap-4">
     <!-- Toolbar -->
     <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
-        <div class="position-relative flex-grow-1" style="max-width: 400px;">
+        <div class="position-relative flex-grow-1" style="max-width: 400px">
             <span
-                class="material-symbols-outlined position-absolute top-50 start-0 translate-middle-y ms-3 text-muted">search</span>
-            <input type="text" class="form-control rounded-pill ps-5" placeholder="Search resources...">
+                class="material-symbols-outlined position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"
+                >search</span
+            >
+            <input
+                type="text"
+                class="form-control rounded-pill ps-5"
+                placeholder="Search resources..."
+            />
         </div>
         <div class="d-flex align-items-center gap-3">
             <div class="bg-surface rounded-2 p-1 border d-flex">
-                <button class="btn btn-sm btn-light p-1 lh-1"><span
-                        class="material-symbols-outlined">grid_view</span></button>
-                <button class="btn btn-sm btn-text text-muted p-1 lh-1 hover-primary"><span
-                        class="material-symbols-outlined">view_list</span></button>
+                <button class="btn btn-sm btn-light p-1 lh-1">
+                    <span class="material-symbols-outlined">grid_view</span>
+                </button>
+                <button
+                    class="btn btn-sm btn-text text-muted p-1 lh-1 hover-primary"
+                >
+                    <span class="material-symbols-outlined">view_list</span>
+                </button>
             </div>
-            <button class="btn btn-primary-custom rounded-pill fw-bold d-flex align-items-center gap-2 px-4 shadow-sm">
-                <span class="material-symbols-outlined">upload_file</span> Upload
+            <button
+                class="btn btn-primary-custom rounded-pill fw-bold d-flex align-items-center gap-2 px-4 shadow-sm"
+            >
+                <span class="material-symbols-outlined">upload_file</span>
+                Upload
             </button>
         </div>
     </div>
 
     @if (loading) {
-    <div class="d-flex justify-content-center p-4">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-    </div>
-    } @else if (error) {
-    <div class="alert alert-danger">{{ error }}</div>
-    } @else if (contents.length === 0) {
-    <div class="text-center p-5 text-muted">
-        <span class="material-symbols-outlined fs-1 mb-2">folder_open</span>
-        <p>No content uploaded yet.</p>
-    </div>
-    } @else {
-    <!-- Files -->
-    <div>
-        <div class="d-flex justify-content-between align-items-center mb-3 ps-1">
-            <h3 class="small fw-bold text-muted text-uppercase mb-0">Files</h3>
-            <div class="d-flex align-items-center gap-1 small fw-bold text-muted cursor-pointer hover-primary">
-                <span>Sort by: Date</span>
-                <span class="material-symbols-outlined fs-6">arrow_drop_down</span>
+        <div class="d-flex justify-content-center p-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
             </div>
         </div>
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4">
-            @for (content of contents; track content.id) {
-            <div class="col">
-                <div class="card rounded-xl border shadow-sm overflow-hidden h-100 card-hover-effect">
-                    <div class="bg-light d-flex align-items-center justify-content-center" style="height: 160px;">
-                        <span class="material-symbols-outlined text-primary" style="font-size: 64px;">
-                            <!-- Simple icon logic -->
-                            insert_drive_file
-                        </span>
-                    </div>
-                    <div class="card-body p-3 d-flex flex-column gap-1">
-                        <div class="d-flex justify-content-between align-items-start gap-2">
-                            <div class="overflow-hidden">
-                                <p class="fw-bold small mb-0 text-truncate">{{ content.fileName }}</p>
-                                <p class="text-muted small mb-0" style="font-size: 0.75rem;">
-                                    {{ content.creationDate | date:'shortDate' }}
-                                </p>
-                            </div>
-                            <button class="btn btn-sm btn-link text-muted p-0"><span
-                                    class="material-symbols-outlined">more_vert</span></button>
-                        </div>
-                    </div>
+    } @else if (error) {
+        <div class="alert alert-danger">{{ error }}</div>
+    } @else if (contents.length === 0) {
+        <div class="text-center p-5 text-muted">
+            <span class="material-symbols-outlined fs-1 mb-2">folder_open</span>
+            <p>No content uploaded yet.</p>
+        </div>
+    } @else {
+        <!-- Files -->
+        <div>
+            <div
+                class="d-flex justify-content-between align-items-center mb-3 ps-1"
+            >
+                <h3 class="small fw-bold text-muted text-uppercase mb-0">
+                    Files
+                </h3>
+                <div
+                    class="d-flex align-items-center gap-1 small fw-bold text-muted cursor-pointer hover-primary"
+                >
+                    <span>Sort by: Date</span>
+                    <span class="material-symbols-outlined fs-6"
+                        >arrow_drop_down</span
+                    >
                 </div>
             </div>
-            }
+            <div
+                class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4"
+            >
+                @for (content of contents; track content.id) {
+                    <div class="col">
+                        <div
+                            class="card rounded-xl border shadow-sm overflow-hidden h-100 card-hover-effect"
+                        >
+                            <div
+                                class="bg-light d-flex align-items-center justify-content-center"
+                                style="height: 160px"
+                            >
+                                <span
+                                    class="material-symbols-outlined text-primary"
+                                    style="font-size: 64px"
+                                >
+                                    <!-- Simple icon logic -->
+                                    insert_drive_file
+                                </span>
+                            </div>
+                            <div class="card-body p-3 d-flex flex-column gap-1">
+                                <div
+                                    class="d-flex justify-content-between align-items-start gap-2"
+                                >
+                                    <div class="overflow-hidden">
+                                        <p
+                                            class="fw-bold small mb-0 text-truncate"
+                                        >
+                                            {{ content.fileName }}
+                                        </p>
+                                        <p
+                                            class="text-muted small mb-0"
+                                            style="font-size: 0.75rem"
+                                        >
+                                            {{
+                                                content.creationDate
+                                                    | date: "shortDate"
+                                            }}
+                                        </p>
+                                    </div>
+                                    <button
+                                        class="btn btn-sm btn-link text-muted p-0"
+                                    >
+                                        <span class="material-symbols-outlined"
+                                            >more_vert</span
+                                        >
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
-    </div>
     }
 </div>

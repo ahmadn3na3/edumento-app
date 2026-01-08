@@ -3,69 +3,69 @@ package com.edumento.user.model.modules;
 import com.edumento.user.constant.UserType;
 
 public class PermissionCreateModel {
-	private String name;
-	private String keyCode;
-	private Integer code;
-	private UserType type;
+  private String name;
+  private String keyCode;
+  private Integer code;
+  private UserType type;
 
-	public PermissionCreateModel() {
-		// TODO Auto-generated constructor stub
-	}
+  public PermissionCreateModel() {
+    // TODO Auto-generated constructor stub
+  }
 
-	public PermissionCreateModel(String name, String keyCode, Integer code) {
-		this.name = name;
-		this.keyCode = keyCode;
-		this.code = code;
-	}
+  public PermissionCreateModel(String name, String keyCode, Integer code) {
+    this.name = name;
+    this.keyCode = keyCode;
+    this.code = code;
+  }
 
-	public String getKeyCode() {
-		return keyCode;
-	}
+  public String getKeyCode() {
+    return keyCode;
+  }
 
-	public void setKeyCode(String keyCode) {
-		this.keyCode = keyCode;
-	}
+  public void setKeyCode(String keyCode) {
+    this.keyCode = keyCode;
+  }
 
-	public Integer getCode() {
-		return code;
-	}
+  public Integer getCode() {
+    return code;
+  }
 
-	public void setCode(Integer code) {
-		this.code = code;
-	}
+  public void setCode(Integer code) {
+    this.code = code;
+  }
 
-	public String getName() {
-		return name;
-	}
+  public String getName() {
+    return name;
+  }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+  public void setName(String name) {
+    this.name = name;
+  }
 
-	public UserType getType() {
-		return type;
-	}
+  public UserType getType() {
+    return type;
+  }
 
-	public void setType(UserType type) {
-		this.type = type;
-	}
+  public void setType(UserType type) {
+    this.type = type;
+  }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
-		var that = (PermissionCreateModel) o;
+    var that = (PermissionCreateModel) o;
 
-		return name.equals(that.name);
-	}
+    return name.equals(that.name);
+  }
 
-	@Override
-	public int hashCode() {
-		return name.hashCode();
-	}
+  @Override
+  public int hashCode() {
+    return name.hashCode();
+  }
 }

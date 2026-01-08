@@ -1,20 +1,39 @@
 <div class="d-flex flex-column gap-4">
     <!-- Filters -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div
+        class="d-flex flex-wrap justify-content-between align-items-center gap-3"
+    >
         <div class="bg-surface rounded-3 p-1 border d-inline-flex">
             <button class="btn btn-sm btn-light fw-bold shadow-sm">All</button>
-            <button class="btn btn-sm btn-link text-muted fw-medium text-decoration-none">Unread</button>
-            <button class="btn btn-sm btn-link text-muted fw-medium text-decoration-none">Popular</button>
+            <button
+                class="btn btn-sm btn-link text-muted fw-medium text-decoration-none"
+            >
+                Unread
+            </button>
+            <button
+                class="btn btn-sm btn-link text-muted fw-medium text-decoration-none"
+            >
+                Popular
+            </button>
         </div>
         <div class="d-flex gap-2">
             <div class="position-relative">
                 <span
-                    class="material-symbols-outlined position-absolute top-50 start-0 translate-middle-y ms-3 text-muted">search</span>
-                <input type="text" class="form-control rounded-pill ps-5" placeholder="Search discussions..."
-                    style="width: 250px;">
+                    class="material-symbols-outlined position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"
+                    >search</span
+                >
+                <input
+                    type="text"
+                    class="form-control rounded-pill ps-5"
+                    placeholder="Search discussions..."
+                    style="width: 250px"
+                />
             </div>
-            <button class="btn btn-primary-custom rounded-pill d-flex align-items-center gap-2 px-4 fw-bold">
-                <span class="material-symbols-outlined">add</span> New Discussion
+            <button
+                class="btn btn-primary-custom rounded-pill d-flex align-items-center gap-2 px-4 fw-bold"
+            >
+                <span class="material-symbols-outlined">add</span> New
+                Discussion
             </button>
         </div>
     </div>
@@ -22,54 +41,93 @@
     <!-- Discussion List -->
     <div class="d-flex flex-column gap-3">
         @if (loading) {
-        <div class="d-flex justify-content-center p-4">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-        </div>
-        } @else if (error) {
-        <div class="alert alert-danger">{{ error }}</div>
-        } @else if (discussions.length === 0) {
-        <div class="card rounded-xl border shadow-sm bg-surface p-5 text-center text-muted">
-            <span class="material-symbols-outlined fs-1 mb-2">forum</span>
-            <p class="mb-0">No discussions yet in this space.</p>
-            <button class="btn btn-link mt-2">Start a discussion</button>
-        </div>
-        } @else {
-        @for (discussion of discussions; track discussion.id) {
-        <div class="card rounded-xl border shadow-sm bg-surface hover-shadow-md cursor-pointer transition-all">
-            <div class="card-body p-4 d-flex flex-column flex-md-row gap-4">
-                <div class="d-flex flex-md-column align-items-center justify-content-center gap-1 text-muted"
-                    style="min-width: 3rem;">
-                    @if (discussion.type === 'INQUIRY') {
-                    <span class="material-symbols-outlined text-warning" title="Inquiry">help</span>
-                    } @else {
-                    <span class="material-symbols-outlined text-primary" title="Discussion">forum</span>
-                    }
-                    <span class="fw-bold text-dark">{{ discussion.commentsCounter || 0 }}</span>
+            <div class="d-flex justify-content-center p-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
                 </div>
-                <div class="flex-grow-1 d-flex flex-column gap-1">
-                    <h3 class="h5 fw-bold mb-1">{{ discussion.title }}</h3>
-                    <p class="text-muted small mb-2 text-truncate">{{ discussion.body }}</p>
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="d-flex align-items-center gap-1 small text-muted">
-                            <div class="rounded-circle bg-light overflow-hidden" style="width: 16px; height: 16px;">
-                                <img [src]="discussion.ownerThumb || 'assets/default-avatar.png'"
-                                    class="w-100 h-100 object-fit-cover" alt="User Avatar">
+            </div>
+        } @else if (error) {
+            <div class="alert alert-danger">{{ error }}</div>
+        } @else if (discussions.length === 0) {
+            <div
+                class="card rounded-xl border shadow-sm bg-surface p-5 text-center text-muted"
+            >
+                <span class="material-symbols-outlined fs-1 mb-2">forum</span>
+                <p class="mb-0">No discussions yet in this space.</p>
+                <button class="btn btn-link mt-2">Start a discussion</button>
+            </div>
+        } @else {
+            @for (discussion of discussions; track discussion.id) {
+                <div
+                    class="card rounded-xl border shadow-sm bg-surface hover-shadow-md cursor-pointer transition-all"
+                >
+                    <div
+                        class="card-body p-4 d-flex flex-column flex-md-row gap-4"
+                    >
+                        <div
+                            class="d-flex flex-md-column align-items-center justify-content-center gap-1 text-muted"
+                            style="min-width: 3rem"
+                        >
+                            @if (discussion.type === "INQUIRY") {
+                                <span
+                                    class="material-symbols-outlined text-warning"
+                                    title="Inquiry"
+                                    >help</span
+                                >
+                            } @else {
+                                <span
+                                    class="material-symbols-outlined text-primary"
+                                    title="Discussion"
+                                    >forum</span
+                                >
+                            }
+                            <span class="fw-bold text-dark">{{
+                                discussion.commentsCounter || 0
+                            }}</span>
+                        </div>
+                        <div class="flex-grow-1 d-flex flex-column gap-1">
+                            <h3 class="h5 fw-bold mb-1">
+                                {{ discussion.title }}
+                            </h3>
+                            <p class="text-muted small mb-2 text-truncate">
+                                {{ discussion.body }}
+                            </p>
+                            <div class="d-flex align-items-center gap-3">
+                                <div
+                                    class="d-flex align-items-center gap-1 small text-muted"
+                                >
+                                    <div
+                                        class="rounded-circle bg-light overflow-hidden"
+                                        style="width: 16px; height: 16px"
+                                    >
+                                        <img
+                                            [src]="
+                                                discussion.ownerThumb ||
+                                                'assets/default-avatar.png'
+                                            "
+                                            class="w-100 h-100 object-fit-cover"
+                                            alt="User Avatar"
+                                        />
+                                    </div>
+                                    <span
+                                        >{{ discussion.ownerName }} •
+                                        {{
+                                            discussion.creationDate
+                                                | date: "MMM d, y, h:mm a"
+                                        }}</span
+                                    >
+                                </div>
                             </div>
-                            <span>{{ discussion.ownerName }} • {{ discussion.creationDate | date:'MMM d, y, h:mm a'
-                                }}</span>
+                        </div>
+                        <div
+                            class="d-flex flex-md-column align-items-center align-items-md-end justify-content-between gap-2 border-start-md ps-md-4"
+                        >
+                            <!-- Placeholder for last reply logic if available in future -->
+                            <div class="small text-muted"></div>
                         </div>
                     </div>
                 </div>
-                <div
-                    class="d-flex flex-md-column align-items-center align-items-md-end justify-content-between gap-2 border-start-md ps-md-4">
-                    <!-- Placeholder for last reply logic if available in future -->
-                    <div class="small text-muted"></div>
-                </div>
-            </div>
-        </div>
-        }
+            }
         }
     </div>
 </div>

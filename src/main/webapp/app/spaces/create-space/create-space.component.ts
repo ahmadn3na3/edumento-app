@@ -1,33 +1,33 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { HeaderComponent } from '../../layout/header/header.component';
-import { SpaceService } from '../../core/services/space.service';
-import { SpaceCreate } from '../../core/models/space.model';
+import { Component } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { Router, RouterLink } from "@angular/router";
+import { FormsModule } from "@angular/forms";
+import { HeaderComponent } from "../../layout/header/header.component";
+import { SpaceService } from "../../core/services/space.service";
+import { SpaceCreate } from "../../core/models/space.model";
 
 @Component({
-    selector: 'app-create-space',
+    selector: "app-create-space",
     standalone: true,
     imports: [CommonModule, RouterLink, FormsModule, HeaderComponent],
-    templateUrl: './create-space.component.html',
-    styleUrl: './create-space.component.css'
+    templateUrl: "./create-space.component.html",
+    styleUrl: "./create-space.component.css",
 })
 export class CreateSpaceComponent {
     space: SpaceCreate = {
-        name: '',
-        description: '',
+        name: "",
+        description: "",
         tags: [],
         isPrivate: false,
         joinRequestsAllowed: true,
         showCommunity: true,
         // defaults
-        color: '#000000',
-        image: '',
-        thumbnail: ''
+        color: "#000000",
+        image: "",
+        thumbnail: "",
     };
 
-    tagInput: string = '';
+    tagInput: string = "";
     selectedFile: File | null = null;
     imagePreview: string | ArrayBuffer | null = null;
     imageError: string | null = null;
@@ -43,8 +43,8 @@ export class CreateSpaceComponent {
 
     constructor(
         private spaceService: SpaceService,
-        private router: Router
-    ) { }
+        private router: Router,
+    ) {}
 
     addTag() {
         if (this.tagInput.trim()) {
@@ -52,7 +52,7 @@ export class CreateSpaceComponent {
                 this.space.tags = [];
             }
             this.space.tags.push(this.tagInput.trim());
-            this.tagInput = '';
+            this.tagInput = "";
         }
     }
 
@@ -75,7 +75,10 @@ export class CreateSpaceComponent {
                 const img = new Image();
                 img.src = e.target.result;
                 img.onload = () => {
-                    if (img.width > this.MIN_WIDTH || img.height > this.MIN_HEIGHT) {
+                    if (
+                        img.width > this.MIN_WIDTH ||
+                        img.height > this.MIN_HEIGHT
+                    ) {
                         this.imageError = `Image must be at least ${this.MIN_WIDTH}x${this.MIN_HEIGHT}px.`;
                         this.selectedFile = null;
                         this.imagePreview = null;
@@ -99,7 +102,10 @@ export class CreateSpaceComponent {
                 img.src = e.target.result;
                 img.onload = () => {
                     // Validate dimensions
-                    if (img.width > this.MIN_COVER_WIDTH || img.height > this.MIN_COVER_HEIGHT) {
+                    if (
+                        img.width > this.MIN_COVER_WIDTH ||
+                        img.height > this.MIN_COVER_HEIGHT
+                    ) {
                         this.coverError = `Cover image must be at least ${this.MIN_COVER_WIDTH}x${this.MIN_COVER_HEIGHT}px.`;
                         this.selectedCoverFile = null;
                         this.coverPreview = null;
@@ -126,21 +132,25 @@ export class CreateSpaceComponent {
         }
 
         if (this.selectedFile) {
-            this.spaceService.uploadImage(this.selectedCoverFile!, this.selectedFile).subscribe({
-                next: (res) => {
-                    if (res && res.data) {
-                        this.space.image = res.data.image;
-                        if (res.data.thumbnail) {
-                            this.space.thumbnail = res.data.thumbnail;
+            this.spaceService
+                .uploadImage(this.selectedCoverFile!, this.selectedFile)
+                .subscribe({
+                    next: (res) => {
+                        if (res && res.data) {
+                            this.space.image = res.data.image;
+                            if (res.data.thumbnail) {
+                                this.space.thumbnail = res.data.thumbnail;
+                            }
                         }
-                    }
-                    this.finalizeCreateSpace();
-                },
-                error: (err) => {
-                    console.error('Failed to upload image', err);
-                    alert('Failed to upload image. Please try again or continue without an image.');
-                }
-            });
+                        this.finalizeCreateSpace();
+                    },
+                    error: (err) => {
+                        console.error("Failed to upload image", err);
+                        alert(
+                            "Failed to upload image. Please try again or continue without an image.",
+                        );
+                    },
+                });
         } else {
             this.finalizeCreateSpace();
         }
@@ -149,12 +159,12 @@ export class CreateSpaceComponent {
     finalizeCreateSpace() {
         this.spaceService.createSpace(this.space).subscribe({
             next: () => {
-                this.router.navigate(['/spaces']);
+                this.router.navigate(["/spaces"]);
             },
             error: (err) => {
-                console.error('Failed to create space', err);
+                console.error("Failed to create space", err);
                 // TODO: Show user friendly error message
-            }
+            },
         });
     }
 }

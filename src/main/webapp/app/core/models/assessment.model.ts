@@ -14,7 +14,7 @@ export interface AssessmentList {
     assessmentType?: string;
     viewAnswersAfterSubmit?: boolean;
 
-    assessmentStatus: 'NOT_STARTED' | 'IN_PROGRESS' | 'SUBMITTED' | 'EVALUATED';
+    assessmentStatus: "NOT_STARTED" | "IN_PROGRESS" | "SUBMITTED" | "EVALUATED";
     creationDate: string;
     lastModifiedDate: string;
     publishedDate: string;

@@ -1,59 +1,89 @@
 <div class="d-flex flex-column gap-4">
     <div class="border-bottom d-flex gap-4">
         <button
-            class="btn btn-link text-dark fw-bold text-decoration-none border-bottom border-2 border-primary pb-2 px-0">Upcoming</button>
+            class="btn btn-link text-dark fw-bold text-decoration-none border-bottom border-2 border-primary pb-2 px-0"
+        >
+            Upcoming
+        </button>
         <button
-            class="btn btn-link text-muted fw-medium text-decoration-none border-bottom border-2 border-transparent pb-2 px-0 hover-primary">Graded</button>
+            class="btn btn-link text-muted fw-medium text-decoration-none border-bottom border-2 border-transparent pb-2 px-0 hover-primary"
+        >
+            Graded
+        </button>
         <button
-            class="btn btn-link text-muted fw-medium text-decoration-none border-bottom border-2 border-transparent pb-2 px-0 hover-primary">Past
-            Due</button>
+            class="btn btn-link text-muted fw-medium text-decoration-none border-bottom border-2 border-transparent pb-2 px-0 hover-primary"
+        >
+            Past Due
+        </button>
     </div>
 
     @if (loading) {
-    <div class="d-flex justify-content-center p-4">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-    </div>
-    } @else if (error) {
-    <div class="alert alert-danger">{{ error }}</div>
-    } @else if (assessments.length === 0) {
-    <div class="text-center p-5 text-muted">
-        <span class="material-symbols-outlined fs-1 mb-2">assignment</span>
-        <p>No assessments found.</p>
-    </div>
-    } @else {
-    <div class="row g-4">
-        @for (assessment of assessments; track assessment.id) {
-        <div class="col-12 col-md-6">
-            <!-- Border color based on status/type? Using simple logic for now -->
-            <div class="card rounded-xl shadow-sm border h-100 overflow-hidden"
-                style="border-left: 4px solid #dc3545 !important;">
-                <div class="card-body p-4 d-flex flex-column">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <!-- Due date badge -->
-                        @if (assessment.dueDate) {
-                        <span class="badge bg-danger bg-opacity-10 text-danger rounded-1 small fw-bold">DUE {{
-                            assessment.dueDate | date:'EEE, MMM d' }}</span>
-                        } @else {
-                        <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-1 small fw-bold">NO DUE
-                            DATE</span>
-                        }
-                        <span class="small text-muted fw-medium">{{ assessment.totalGrade }} pts</span>
-                    </div>
-                    <h3 class="h5 fw-bold mb-1">{{ assessment.title }}</h3>
-                    <p class="text-muted small mb-4 text-truncate">
-                        <!-- Description logic if available, else type -->
-                        {{ assessment.assessmentType }}
-                    </p>
-                    <div class="mt-auto d-flex gap-2">
-                        <button class="btn btn-light fw-bold flex-fill">View Specs</button>
-                        <button class="btn btn-primary-custom fw-bold flex-fill">Start</button>
-                    </div>
-                </div>
+        <div class="d-flex justify-content-center p-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
             </div>
         </div>
-        }
-    </div>
+    } @else if (error) {
+        <div class="alert alert-danger">{{ error }}</div>
+    } @else if (assessments.length === 0) {
+        <div class="text-center p-5 text-muted">
+            <span class="material-symbols-outlined fs-1 mb-2">assignment</span>
+            <p>No assessments found.</p>
+        </div>
+    } @else {
+        <div class="row g-4">
+            @for (assessment of assessments; track assessment.id) {
+                <div class="col-12 col-md-6">
+                    <!-- Border color based on status/type? Using simple logic for now -->
+                    <div
+                        class="card rounded-xl shadow-sm border h-100 overflow-hidden"
+                        style="border-left: 4px solid #dc3545 !important"
+                    >
+                        <div class="card-body p-4 d-flex flex-column">
+                            <div
+                                class="d-flex justify-content-between align-items-start mb-3"
+                            >
+                                <!-- Due date badge -->
+                                @if (assessment.dueDate) {
+                                    <span
+                                        class="badge bg-danger bg-opacity-10 text-danger rounded-1 small fw-bold"
+                                        >DUE
+                                        {{
+                                            assessment.dueDate
+                                                | date: "EEE, MMM d"
+                                        }}</span
+                                    >
+                                } @else {
+                                    <span
+                                        class="badge bg-secondary bg-opacity-10 text-secondary rounded-1 small fw-bold"
+                                        >NO DUE DATE</span
+                                    >
+                                }
+                                <span class="small text-muted fw-medium"
+                                    >{{ assessment.totalGrade }} pts</span
+                                >
+                            </div>
+                            <h3 class="h5 fw-bold mb-1">
+                                {{ assessment.title }}
+                            </h3>
+                            <p class="text-muted small mb-4 text-truncate">
+                                <!-- Description logic if available, else type -->
+                                {{ assessment.assessmentType }}
+                            </p>
+                            <div class="mt-auto d-flex gap-2">
+                                <button class="btn btn-light fw-bold flex-fill">
+                                    View Specs
+                                </button>
+                                <button
+                                    class="btn btn-primary-custom fw-bold flex-fill"
+                                >
+                                    Start
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
     }
 </div>

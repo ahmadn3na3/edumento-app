@@ -1,38 +1,27 @@
 package com.edumento.notification.handlers.impl;
 
-import static com.edumento.core.constants.notification.Actions.UPDATE;
-import static com.edumento.core.constants.notification.EntityType.TIME_LOCK;
-import static com.edumento.core.constants.notification.MessageCategory.APP;
-
-import java.time.ZonedDateTime;
-import java.util.function.Consumer;
-
-import org.springframework.stereotype.Component;
-
 import com.edumento.core.model.messages.BaseMessage;
-import com.edumento.core.model.messages.BaseNotificationMessage;
-import com.edumento.core.model.messages.From;
-import com.edumento.core.model.messages.Target;
 import com.edumento.notification.components.AmqNotifier;
 import com.edumento.notification.handlers.AbstractHandler;
 import com.edumento.notification.service.MailService;
-import com.edumento.user.domain.User;
 import com.edumento.user.repo.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.stereotype.Component;
 
 /** Created by ayman on 04/07/17. */
-//TODO: TetFawar
+// TODO: TetFawar
 @Component
 public class TimeLockNotificationHandler extends AbstractHandler {
 
-	public TimeLockNotificationHandler(UserRepository userRepository, AmqNotifier amqNotifier, MailService mailService,
-			ObjectMapper objectMapper) {
-		super(userRepository, amqNotifier, mailService, objectMapper);
-		// TODO Auto-generated constructor stub
-	}
+  public TimeLockNotificationHandler(
+      UserRepository userRepository,
+      AmqNotifier amqNotifier,
+      MailService mailService,
+      ObjectMapper objectMapper) {
+    super(userRepository, amqNotifier, mailService, objectMapper);
+    // TODO Auto-generated constructor stub
+  }
 
-	@Override
-	protected void onUpdate(BaseMessage notificationMessage) {
-
-	}
+  @Override
+  protected void onUpdate(BaseMessage notificationMessage) {}
 }

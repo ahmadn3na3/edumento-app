@@ -1,19 +1,27 @@
-<div class="d-flex flex-column min-vh-100 bg-body overflow-x-hidden" style="font-family: 'Spline Sans', sans-serif;">
+<div
+    class="d-flex flex-column min-vh-100 bg-body overflow-x-hidden"
+    style="font-family: &quot;Spline Sans&quot;, sans-serif"
+>
     <!-- Header -->
     <!-- Header -->
     <app-header></app-header>
 
-    <div class="d-flex flex-grow-1 mx-auto w-100" style="max-width: 1600px;">
+    <div class="d-flex flex-grow-1 mx-auto w-100" style="max-width: 1600px">
         <main class="flex-fill px-4 py-4 w-100">
             <!-- Page Header -->
-            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+            <div
+                class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4"
+            >
                 <div>
                     <h1 class="h2 fw-bold mb-1 tracking-tight">My Spaces</h1>
-                    <p class="text-muted mb-0">Manage and access your {{ spaces.length }} active spaces</p>
+                    <p class="text-muted mb-0">
+                        Manage and access your {{ spaces.length }} active spaces
+                    </p>
                 </div>
                 <button
                     class="btn btn-primary-custom rounded-pill px-4 py-2 d-flex align-items-center gap-2 shadow-sm transition-transform hover-scale"
-                    routerLink="/spaces/create">
+                    routerLink="/spaces/create"
+                >
                     <span class="material-symbols-outlined">add</span>
                     <span>Create New Space</span>
                 </button>
@@ -22,86 +30,161 @@
             <!-- Filter Chips -->
             <div class="d-flex flex-wrap gap-2 mb-4">
                 <button
-                    class="btn btn-primary-custom rounded-pill d-flex align-items-center gap-2 px-3 py-2 fw-semibold shadow-sm small border-0">
-                    <span class="material-symbols-outlined filled" style="font-size: 20px;">grid_view</span>
+                    class="btn btn-primary-custom rounded-pill d-flex align-items-center gap-2 px-3 py-2 fw-semibold shadow-sm small border-0"
+                >
+                    <span
+                        class="material-symbols-outlined filled"
+                        style="font-size: 20px"
+                        >grid_view</span
+                    >
                     <span>All Spaces</span>
                 </button>
                 <button
-                    class="btn btn-hover-light rounded-pill d-flex align-items-center gap-2 px-3 py-2 small fw-medium transition-colors group">
-                    <span class="material-symbols-outlined" style="font-size: 20px;">favorite</span>
+                    class="btn btn-hover-light rounded-pill d-flex align-items-center gap-2 px-3 py-2 small fw-medium transition-colors group"
+                >
+                    <span
+                        class="material-symbols-outlined"
+                        style="font-size: 20px"
+                        >favorite</span
+                    >
                     <span>Favorites</span>
                 </button>
                 <button
-                    class="btn btn-hover-light rounded-pill d-flex align-items-center gap-2 px-3 py-2 small fw-medium transition-colors">
-                    <span class="material-symbols-outlined" style="font-size: 20px;">person</span>
+                    class="btn btn-hover-light rounded-pill d-flex align-items-center gap-2 px-3 py-2 small fw-medium transition-colors"
+                >
+                    <span
+                        class="material-symbols-outlined"
+                        style="font-size: 20px"
+                        >person</span
+                    >
                     <span>Owned by Me</span>
                 </button>
                 <button
-                    class="btn btn-hover-light rounded-pill d-flex align-items-center gap-2 px-3 py-2 small fw-medium transition-colors">
-                    <span class="material-symbols-outlined" style="font-size: 20px;">archive</span>
+                    class="btn btn-hover-light rounded-pill d-flex align-items-center gap-2 px-3 py-2 small fw-medium transition-colors"
+                >
+                    <span
+                        class="material-symbols-outlined"
+                        style="font-size: 20px"
+                        >archive</span
+                    >
                     <span>Archived</span>
                 </button>
             </div>
 
             <!-- Toolbar (Search & Filter) -->
             <div
-                class="bg-surface rounded-4 p-2 d-flex flex-column flex-md-row align-items-center gap-2 shadow-sm mb-4 border">
+                class="bg-surface rounded-4 p-2 d-flex flex-column flex-md-row align-items-center gap-2 shadow-sm mb-4 border"
+            >
                 <!-- Search -->
-                <div class="flex-grow-1 w-100 d-flex align-items-center bg-body rounded-pill px-3 py-2"
-                    style="height: 48px;">
-                    <span class="material-symbols-outlined text-muted">search</span>
-                    <input type="text" class="form-control border-0 bg-transparent shadow-none small ms-2"
-                        placeholder="Search within your spaces...">
+                <div
+                    class="flex-grow-1 w-100 d-flex align-items-center bg-body rounded-pill px-3 py-2"
+                    style="height: 48px"
+                >
+                    <span class="material-symbols-outlined text-muted"
+                        >search</span
+                    >
+                    <input
+                        type="text"
+                        class="form-control border-0 bg-transparent shadow-none small ms-2"
+                        placeholder="Search within your spaces..."
+                    />
                 </div>
 
-                <div class="d-none d-md-block vr mx-2" style="height: 32px;"></div>
+                <div
+                    class="d-none d-md-block vr mx-2"
+                    style="height: 32px"
+                ></div>
 
                 <!-- Buttons -->
                 <div
-                    class="d-flex w-100 w-md-auto justify-content-between justify-content-md-end align-items-center gap-2 px-2">
+                    class="d-flex w-100 w-md-auto justify-content-between justify-content-md-end align-items-center gap-2 px-2"
+                >
                     <div class="d-flex gap-2">
                         <div class="dropdown">
                             <button
                                 class="btn btn-hover-light rounded-pill d-flex align-items-center gap-2 px-3 py-2 small fw-medium"
-                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <span class="material-symbols-outlined" style="font-size: 18px;">filter_list</span>
+                                type="button"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                            >
+                                <span
+                                    class="material-symbols-outlined"
+                                    style="font-size: 18px"
+                                    >filter_list</span
+                                >
                                 Filter
                             </button>
-                            <ul class="dropdown-menu shadow-sm border-0 rounded-4 mt-2">
-                                <li><a class="dropdown-item small py-2" href="#">#Science</a></li>
-                                <li><a class="dropdown-item small py-2" href="#">#2024</a></li>
-                                <li><a class="dropdown-item small py-2" href="#">#Project</a></li>
+                            <ul
+                                class="dropdown-menu shadow-sm border-0 rounded-4 mt-2"
+                            >
                                 <li>
-                                    <hr class="dropdown-divider">
+                                    <a class="dropdown-item small py-2" href="#"
+                                        >#Science</a
+                                    >
                                 </li>
-                                <li><a class="dropdown-item small py-2" href="#">Other Criteria...</a></li>
+                                <li>
+                                    <a class="dropdown-item small py-2" href="#"
+                                        >#2024</a
+                                    >
+                                </li>
+                                <li>
+                                    <a class="dropdown-item small py-2" href="#"
+                                        >#Project</a
+                                    >
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider" />
+                                </li>
+                                <li>
+                                    <a class="dropdown-item small py-2" href="#"
+                                        >Other Criteria...</a
+                                    >
+                                </li>
                             </ul>
                         </div>
                         <button
-                            class="btn btn-hover-light rounded-pill d-flex align-items-center gap-2 px-3 py-2 small fw-medium">
-                            <span class="material-symbols-outlined" style="font-size: 18px;">sort</span> Sort
+                            class="btn btn-hover-light rounded-pill d-flex align-items-center gap-2 px-3 py-2 small fw-medium"
+                        >
+                            <span
+                                class="material-symbols-outlined"
+                                style="font-size: 18px"
+                                >sort</span
+                            >
+                            Sort
                         </button>
                     </div>
                     <div class="bg-body rounded-pill p-1 d-flex">
                         <button
                             class="btn btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-sm"
-                            style="width: 32px; height: 32px;">
-                            <span class="material-symbols-outlined" style="font-size: 18px;">grid_view</span>
+                            style="width: 32px; height: 32px"
+                        >
+                            <span
+                                class="material-symbols-outlined"
+                                style="font-size: 18px"
+                                >grid_view</span
+                            >
                         </button>
                         <button
                             class="btn btn-text text-muted rounded-circle p-0 d-flex align-items-center justify-content-center"
-                            style="width: 32px; height: 32px;">
-                            <span class="material-symbols-outlined" style="font-size: 18px;">view_list</span>
+                            style="width: 32px; height: 32px"
+                        >
+                            <span
+                                class="material-symbols-outlined"
+                                style="font-size: 18px"
+                                >view_list</span
+                            >
                         </button>
                     </div>
                 </div>
             </div>
 
-            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+            <div
+                class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4"
+            >
                 @for (space of spaces; track space.id) {
-                <div class="col">
-                    <app-space-card [space]="space"></app-space-card>
-                </div>
+                    <div class="col">
+                        <app-space-card [space]="space"></app-space-card>
+                    </div>
                 }
                 <!-- Join Space (Empty State) -->
                 <div class="col">

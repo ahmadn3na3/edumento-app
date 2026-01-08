@@ -2,16 +2,16 @@
     background: linear-gradient(135deg, #fbfbf9 0%, #f0f0eb 100%);
 }
 
-.peer:checked~.peer-checked-border-primary {
+.peer:checked ~ .peer-checked-border-primary {
     border-color: var(--bs-primary) !important;
     border-width: 1px !important;
 }
 
-.peer:checked~.peer-checked-border-primary .peer-checked-opacity-100 {
+.peer:checked ~ .peer-checked-border-primary .peer-checked-opacity-100 {
     opacity: 1 !important;
 }
 
-.peer:checked~.peer-checked-border-primary .peer-checked-text-primary {
+.peer:checked ~ .peer-checked-border-primary .peer-checked-text-primary {
     color: var(--bs-primary) !important;
 }
 

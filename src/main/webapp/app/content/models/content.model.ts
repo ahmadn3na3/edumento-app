@@ -1,9 +1,9 @@
 export enum ContentStatus {
-    NOT_UPLOAD = 'NOT_UPLOAD',
-    UPLOADING = 'UPLOADING',
-    UPLOADED = 'UPLOADED',
-    READY = 'READY',
-    ERROR = 'ERROR'
+    NOT_UPLOAD = "NOT_UPLOAD",
+    UPLOADING = "UPLOADING",
+    UPLOADED = "UPLOADED",
+    READY = "READY",
+    ERROR = "ERROR",
 }
 
 export interface Content {

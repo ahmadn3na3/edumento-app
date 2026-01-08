@@ -1,62 +1,72 @@
 package com.edumento.core.util;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-
 /**
- * Custom Jackson deserializer for transforming a JSON object (using the ISO
- * 8601 date formatwith optional time) to a JSR310 LocalDate object.
+ * Custom Jackson deserializer for transforming a JSON object (using the ISO 8601 date formatwith
+ * optional time) to a JSR310 LocalDate object.
  */
 public class JSR310LocalDateDeserializer extends JsonDeserializer<LocalDate> {
 
-	public static final JSR310LocalDateDeserializer INSTANCE = new JSR310LocalDateDeserializer();
-	private static final DateTimeFormatter ISO_DATE_OPTIONAL_TIME;
+  public static final JSR310LocalDateDeserializer INSTANCE = new JSR310LocalDateDeserializer();
+  private static final DateTimeFormatter ISO_DATE_OPTIONAL_TIME;
 
-	static {
-		ISO_DATE_OPTIONAL_TIME = new DateTimeFormatterBuilder().append(DateTimeFormatter.ISO_LOCAL_DATE).optionalStart()
-				.appendLiteral('T').append(DateTimeFormatter.ISO_OFFSET_TIME).toFormatter();
-	}
+  static {
+    ISO_DATE_OPTIONAL_TIME =
+        new DateTimeFormatterBuilder()
+            .append(DateTimeFormatter.ISO_LOCAL_DATE)
+            .optionalStart()
+            .appendLiteral('T')
+            .append(DateTimeFormatter.ISO_OFFSET_TIME)
+            .toFormatter();
+  }
 
-	private JSR310LocalDateDeserializer() {
-	}
+  private JSR310LocalDateDeserializer() {}
 
-	@Override
-	public LocalDate deserialize(JsonParser parser, DeserializationContext context) throws IOException {
-		switch (parser.getCurrentToken()) {
-		case START_ARRAY:
-			if (parser.nextToken() == JsonToken.END_ARRAY) {
-				return null;
-			}
-			var year = parser.getIntValue();
+  @Override
+  public LocalDate deserialize(JsonParser parser, DeserializationContext context)
+      throws IOException {
+    switch (parser.getCurrentToken()) {
+      case START_ARRAY:
+        if (parser.nextToken() == JsonToken.END_ARRAY) {
+          return null;
+        }
+        var year = parser.getIntValue();
 
-			parser.nextToken();
-			var month = parser.getIntValue();
+        parser.nextToken();
+        var month = parser.getIntValue();
 
-			parser.nextToken();
-			var day = parser.getIntValue();
+        parser.nextToken();
+        var day = parser.getIntValue();
 
-			if (parser.nextToken() != JsonToken.END_ARRAY) {
-				throw context.wrongTokenException(parser, ISO_DATE_OPTIONAL_TIME.getClass(), JsonToken.END_ARRAY,
-						"Expected array to end.");
-			}
-			return LocalDate.of(year, month, day);
+        if (parser.nextToken() != JsonToken.END_ARRAY) {
+          throw context.wrongTokenException(
+              parser,
+              ISO_DATE_OPTIONAL_TIME.getClass(),
+              JsonToken.END_ARRAY,
+              "Expected array to end.");
+        }
+        return LocalDate.of(year, month, day);
 
-		case VALUE_STRING:
-			var string = parser.getText().trim();
-			if (string.length() == 0) {
-				return null;
-			}
-			return LocalDate.parse(string, ISO_DATE_OPTIONAL_TIME);
-		default:
-			throw context.wrongTokenException(parser, ISO_DATE_OPTIONAL_TIME.getClass(), JsonToken.END_ARRAY,
-					"Expected array to end.");
-		}
-	}
+      case VALUE_STRING:
+        var string = parser.getText().trim();
+        if (string.length() == 0) {
+          return null;
+        }
+        return LocalDate.parse(string, ISO_DATE_OPTIONAL_TIME);
+      default:
+        throw context.wrongTokenException(
+            parser,
+            ISO_DATE_OPTIONAL_TIME.getClass(),
+            JsonToken.END_ARRAY,
+            "Expected array to end.");
+    }
+  }
 }

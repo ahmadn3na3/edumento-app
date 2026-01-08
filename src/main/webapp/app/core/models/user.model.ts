@@ -2,11 +2,11 @@ export interface User {
     id: number;
     login: string;
     fullName: string;
-    userType: 'USER' | 'ADMIN' | 'SUPER_ADMIN'; // Inferred from usage
+    userType: "USER" | "ADMIN" | "SUPER_ADMIN"; // Inferred from usage
     email: string;
     activated: boolean;
     lang: string;
-    gender: 'MALE' | 'FEMALE';
+    gender: "MALE" | "FEMALE";
     mobile: string;
     profession: string;
     country: string;

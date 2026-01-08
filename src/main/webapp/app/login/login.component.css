@@ -1,5 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
+@import url("https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200");
 
 :host {
     display: block;
@@ -10,14 +10,14 @@
     --neutral-dark: #181811;
     --neutral-medium: #8c8b5f;
     --border-color: #e5e5e5;
-    font-family: 'Spline Sans', sans-serif;
+    font-family: "Spline Sans", sans-serif;
 }
 
 .login-page {
     background-color: var(--background-light);
     color: var(--neutral-dark);
     min-height: 100vh;
-    font-family: 'Spline Sans', sans-serif;
+    font-family: "Spline Sans", sans-serif;
     overflow-x: hidden;
 }
 

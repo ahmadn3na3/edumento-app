@@ -1,21 +1,23 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { DiscussionSummary } from '../models/discussion.model';
-import { ResponseModel } from '../../core/models/response.model';
+import { Injectable } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+import { Observable } from "rxjs";
+import { map } from "rxjs/operators";
+import { DiscussionSummary } from "../models/discussion.model";
+import { ResponseModel } from "../../core/models/response.model";
 
 @Injectable({
-    providedIn: 'root'
+    providedIn: "root",
 })
 export class DiscussionService {
-    private apiUrl = '/api/discussion';
+    private apiUrl = "/api/discussion";
 
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient) {}
 
     getDiscussions(spaceId: number): Observable<DiscussionSummary[]> {
-        return this.http.get<ResponseModel<DiscussionSummary[]>>(`${this.apiUrl}/listAll/${spaceId}`).pipe(
-            map(response => response.data || [])
-        );
+        return this.http
+            .get<
+                ResponseModel<DiscussionSummary[]>
+            >(`${this.apiUrl}/listAll/${spaceId}`)
+            .pipe(map((response) => response.data || []));
     }
 }

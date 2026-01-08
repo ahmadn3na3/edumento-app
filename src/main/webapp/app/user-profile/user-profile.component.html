@@ -8,34 +8,50 @@
         <div class="mb-5">
             <div class="mb-4">
                 <h1 class="h2 fw-bold mb-2">Account Settings</h1>
-                <p class="text-muted small mb-0">Manage your personal information, privacy, and security preferences.
+                <p class="text-muted small mb-0">
+                    Manage your personal information, privacy, and security
+                    preferences.
                 </p>
             </div>
 
             <div class="border-bottom border-light">
                 <div class="d-flex gap-4 overflow-auto">
-                    <div class="py-3 cursor-pointer border-bottom border-3 text-muted small fw-bold hover-primary"
+                    <div
+                        class="py-3 cursor-pointer border-bottom border-3 text-muted small fw-bold hover-primary"
                         [class.border-transparent]="activeTab !== 'overview'"
-                        [class.border-body]="activeTab === 'overview'" [class.text-body]="activeTab === 'overview'"
-                        (click)="setActiveTab('overview')">
+                        [class.border-body]="activeTab === 'overview'"
+                        [class.text-body]="activeTab === 'overview'"
+                        (click)="setActiveTab('overview')"
+                    >
                         Overview
                     </div>
-                    <div class="py-3 cursor-pointer border-bottom border-3 text-muted small fw-bold hover-primary"
+                    <div
+                        class="py-3 cursor-pointer border-bottom border-3 text-muted small fw-bold hover-primary"
                         [class.border-transparent]="activeTab !== 'settings'"
-                        [class.border-body]="activeTab === 'settings'" [class.text-body]="activeTab === 'settings'"
-                        (click)="setActiveTab('settings')">
+                        [class.border-body]="activeTab === 'settings'"
+                        [class.text-body]="activeTab === 'settings'"
+                        (click)="setActiveTab('settings')"
+                    >
                         Account Settings
                     </div>
-                    <div class="py-3 cursor-pointer border-bottom border-3 text-muted small fw-bold hover-primary"
+                    <div
+                        class="py-3 cursor-pointer border-bottom border-3 text-muted small fw-bold hover-primary"
                         [class.border-transparent]="activeTab !== 'security'"
-                        [class.border-body]="activeTab === 'security'" [class.text-body]="activeTab === 'security'"
-                        (click)="setActiveTab('security')">
+                        [class.border-body]="activeTab === 'security'"
+                        [class.text-body]="activeTab === 'security'"
+                        (click)="setActiveTab('security')"
+                    >
                         Security
                     </div>
-                    <div class="py-3 cursor-pointer border-bottom border-3 text-muted small fw-bold hover-primary"
-                        [class.border-transparent]="activeTab !== 'notifications'"
+                    <div
+                        class="py-3 cursor-pointer border-bottom border-3 text-muted small fw-bold hover-primary"
+                        [class.border-transparent]="
+                            activeTab !== 'notifications'
+                        "
                         [class.border-body]="activeTab === 'notifications'"
-                        [class.text-body]="activeTab === 'notifications'" (click)="setActiveTab('notifications')">
+                        [class.text-body]="activeTab === 'notifications'"
+                        (click)="setActiveTab('notifications')"
+                    >
                         Notifications
                     </div>
                 </div>
@@ -45,155 +61,275 @@
         <div class="row g-5">
             <!-- Left Column: Main Form -->
             <div class="col-lg-8 d-flex flex-column gap-5">
-
-                @if (activeTab === 'settings') {
-                <!-- Profile Header Section -->
-                <section class="card border-light bg-surface shadow-sm rounded-xl">
-                    <div class="card-body p-4 d-flex flex-column flex-sm-row align-items-center gap-4">
-                        <div class="rounded-circle overflow-hidden position-relative flex-shrink-0 ring-primary"
-                            style="width: 96px; height: 96px; box-shadow: 0 0 0 4px rgba(249, 245, 6, 0.2);">
-                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_qzu8EQLGk-FJCPXWek_Lmo8Ybc5aj50FVkwxLQCzeVlHU1WWODXem0s2ewR-GxxjTIaG29QJuUm_R1gEP7hbZFLzH59fuL31hKlLkbx46Pvm9qlS4rSNpcJO1bWqGGdsL0AHuwPJANkZMxlC_biypA3yMD7Vbvbmz-xmRs6YJJBgreySzTpao9TAcRDP7saDUcUbnqjgY6N-HPmX9sa_Klz6oTIeP-dlaWnQxOEPSx4WvZB7kGM3jUv0WgcBTP-5N3sNgOUG40c"
-                                alt="Profile Picture" class="w-100 h-100 object-fit-cover">
-                        </div>
-                        <div class="flex-grow-1 text-center text-sm-start">
-                            <h3 class="h5 fw-bold mb-1">Profile Picture</h3>
-                            <p class="text-muted small mb-3">Supports JPG, PNG or GIF. Max size 5MB.</p>
-                            <div class="d-flex gap-3 justify-content-center justify-content-sm-start">
-                                <button
-                                    class="btn btn-light rounded-pill px-4 fw-bold text-body border-0 bg-secondary bg-opacity-10 hover-primary">
-                                    Change Photo
-                                </button>
-                                <button
-                                    class="btn btn-link text-danger text-decoration-none fw-medium px-3 rounded-pill hover-bg-danger-subtle">
-                                    Remove
-                                </button>
+                @if (activeTab === "settings") {
+                    <!-- Profile Header Section -->
+                    <section
+                        class="card border-light bg-surface shadow-sm rounded-xl"
+                    >
+                        <div
+                            class="card-body p-4 d-flex flex-column flex-sm-row align-items-center gap-4"
+                        >
+                            <div
+                                class="rounded-circle overflow-hidden position-relative flex-shrink-0 ring-primary"
+                                style="
+                                    width: 96px;
+                                    height: 96px;
+                                    box-shadow: 0 0 0 4px rgba(249, 245, 6, 0.2);
+                                "
+                            >
+                                <img
+                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_qzu8EQLGk-FJCPXWek_Lmo8Ybc5aj50FVkwxLQCzeVlHU1WWODXem0s2ewR-GxxjTIaG29QJuUm_R1gEP7hbZFLzH59fuL31hKlLkbx46Pvm9qlS4rSNpcJO1bWqGGdsL0AHuwPJANkZMxlC_biypA3yMD7Vbvbmz-xmRs6YJJBgreySzTpao9TAcRDP7saDUcUbnqjgY6N-HPmX9sa_Klz6oTIeP-dlaWnQxOEPSx4WvZB7kGM3jUv0WgcBTP-5N3sNgOUG40c"
+                                    alt="Profile Picture"
+                                    class="w-100 h-100 object-fit-cover"
+                                />
+                            </div>
+                            <div class="flex-grow-1 text-center text-sm-start">
+                                <h3 class="h5 fw-bold mb-1">Profile Picture</h3>
+                                <p class="text-muted small mb-3">
+                                    Supports JPG, PNG or GIF. Max size 5MB.
+                                </p>
+                                <div
+                                    class="d-flex gap-3 justify-content-center justify-content-sm-start"
+                                >
+                                    <button
+                                        class="btn btn-light rounded-pill px-4 fw-bold text-body border-0 bg-secondary bg-opacity-10 hover-primary"
+                                    >
+                                        Change Photo
+                                    </button>
+                                    <button
+                                        class="btn btn-link text-danger text-decoration-none fw-medium px-3 rounded-pill hover-bg-danger-subtle"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </section>
+                    </section>
 
-                <!-- Personal Info Form -->
-                <section>
-                    <h3 class="h5 fw-bold mb-4">Personal Information</h3>
-                    <div class="row g-4 mb-4">
-                        <div class="col-md-6">
-                            <label class="form-label small fw-medium mb-2">Display Name</label>
-                            <input type="text" class="form-control rounded-pill px-4 py-2 border-light bg-surface"
-                                value="Sarah Jenkins">
+                    <!-- Personal Info Form -->
+                    <section>
+                        <h3 class="h5 fw-bold mb-4">Personal Information</h3>
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-medium mb-2"
+                                    >Display Name</label
+                                >
+                                <input
+                                    type="text"
+                                    class="form-control rounded-pill px-4 py-2 border-light bg-surface"
+                                    value="Sarah Jenkins"
+                                />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-medium mb-2"
+                                    >Email Address</label
+                                >
+                                <input
+                                    type="email"
+                                    class="form-control rounded-pill px-4 py-2 border-light bg-surface"
+                                    value="sarah.jenkins@eduspace.com"
+                                />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-medium mb-2"
+                                    >Institution / Organization</label
+                                >
+                                <input
+                                    type="text"
+                                    class="form-control rounded-pill px-4 py-2 border-light bg-surface"
+                                    value="Stanford University"
+                                />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-medium mb-2"
+                                    >Language Preference</label
+                                >
+                                <select
+                                    class="form-select rounded-pill px-4 py-2 border-light bg-surface cursor-pointer"
+                                >
+                                    <option>English (US)</option>
+                                    <option>Spanish</option>
+                                    <option>French</option>
+                                    <option>German</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-medium mb-2">Email Address</label>
-                            <input type="email" class="form-control rounded-pill px-4 py-2 border-light bg-surface"
-                                value="sarah.jenkins@eduspace.com">
+                        <div class="mb-4">
+                            <label class="form-label small fw-medium mb-2"
+                                >Bio</label
+                            >
+                            <textarea
+                                class="form-control rounded-xl p-4 border-light bg-surface custom-scrollbar"
+                                rows="5"
+                                placeholder="Tell us a little about yourself..."
+                            ></textarea>
+                            <div class="text-end mt-1">
+                                <small
+                                    class="text-muted"
+                                    style="font-size: 0.75rem"
+                                    >0/300 characters</small
+                                >
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-medium mb-2">Institution / Organization</label>
-                            <input type="text" class="form-control rounded-pill px-4 py-2 border-light bg-surface"
-                                value="Stanford University">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-medium mb-2">Language Preference</label>
-                            <select class="form-select rounded-pill px-4 py-2 border-light bg-surface cursor-pointer">
-                                <option>English (US)</option>
-                                <option>Spanish</option>
-                                <option>French</option>
-                                <option>German</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="mb-4">
-                        <label class="form-label small fw-medium mb-2">Bio</label>
-                        <textarea class="form-control rounded-xl p-4 border-light bg-surface custom-scrollbar" rows="5"
-                            placeholder="Tell us a little about yourself..."></textarea>
-                        <div class="text-end mt-1">
-                            <small class="text-muted" style="font-size: 0.75rem;">0/300 characters</small>
-                        </div>
-                    </div>
-                </section>
+                    </section>
                 } @else {
-                <div class="py-5 text-center text-muted">
-                    <span class="material-symbols-outlined fs-1 mb-3">construction</span>
-                    <p>This section is under construction.</p>
-                </div>
+                    <div class="py-5 text-center text-muted">
+                        <span class="material-symbols-outlined fs-1 mb-3"
+                            >construction</span
+                        >
+                        <p>This section is under construction.</p>
+                    </div>
                 }
             </div>
 
             <!-- Right Column: Social & Actions -->
             <div class="col-lg-4 d-flex flex-column gap-4">
                 <!-- Social Connections -->
-                <section class="card border-light bg-surface shadow-sm rounded-xl">
+                <section
+                    class="card border-light bg-surface shadow-sm rounded-xl"
+                >
                     <div class="card-body p-4">
                         <div class="d-flex align-items-center gap-2 mb-2">
-                            <span class="material-symbols-outlined text-primary-custom">link</span>
+                            <span
+                                class="material-symbols-outlined text-primary-custom"
+                                >link</span
+                            >
                             <h3 class="h5 fw-bold mb-0">Social Connections</h3>
                         </div>
-                        <p class="text-muted small mb-4">Connect your social accounts to easily sign in to EduSpace.</p>
+                        <p class="text-muted small mb-4">
+                            Connect your social accounts to easily sign in to
+                            EduSpace.
+                        </p>
 
                         <!-- Connected Item -->
-                        <div class="d-flex align-items-center justify-content-between py-3 border-bottom border-light">
+                        <div
+                            class="d-flex align-items-center justify-content-between py-3 border-bottom border-light"
+                        >
                             <div class="d-flex align-items-center gap-3">
-                                <div class="d-flex align-items-center justify-content-center bg-primary bg-opacity-10 rounded-circle"
-                                    style="width: 40px; height: 40px; color: #DB4437;">
-                                    <span class="material-symbols-outlined">mail</span>
+                                <div
+                                    class="d-flex align-items-center justify-content-center bg-primary bg-opacity-10 rounded-circle"
+                                    style="
+                                        width: 40px;
+                                        height: 40px;
+                                        color: #db4437;
+                                    "
+                                >
+                                    <span class="material-symbols-outlined"
+                                        >mail</span
+                                    >
                                 </div>
                                 <div class="d-flex flex-column">
                                     <span class="fw-bold small">Google</span>
-                                    <span class="text-success small fw-medium"
-                                        style="font-size: 0.75rem;">Connected</span>
+                                    <span
+                                        class="text-success small fw-medium"
+                                        style="font-size: 0.75rem"
+                                        >Connected</span
+                                    >
                                 </div>
                             </div>
-                            <button class="btn btn-icon text-muted hover-danger" title="Disconnect">
-                                <span class="material-symbols-outlined">do_not_disturb_on</span>
+                            <button
+                                class="btn btn-icon text-muted hover-danger"
+                                title="Disconnect"
+                            >
+                                <span class="material-symbols-outlined"
+                                    >do_not_disturb_on</span
+                                >
                             </button>
                         </div>
                         <!-- Disconnected Item -->
-                        <div class="d-flex align-items-center justify-content-between py-3 border-bottom border-light">
+                        <div
+                            class="d-flex align-items-center justify-content-between py-3 border-bottom border-light"
+                        >
                             <div class="d-flex align-items-center gap-3">
-                                <div class="d-flex align-items-center justify-content-center bg-primary bg-opacity-10 rounded-circle"
-                                    style="width: 40px; height: 40px; color: #0077b5;">
-                                    <span class="material-symbols-outlined">work</span>
+                                <div
+                                    class="d-flex align-items-center justify-content-center bg-primary bg-opacity-10 rounded-circle"
+                                    style="
+                                        width: 40px;
+                                        height: 40px;
+                                        color: #0077b5;
+                                    "
+                                >
+                                    <span class="material-symbols-outlined"
+                                        >work</span
+                                    >
                                 </div>
                                 <div class="d-flex flex-column">
                                     <span class="fw-bold small">LinkedIn</span>
-                                    <span class="text-muted small" style="font-size: 0.75rem;">Not connected</span>
+                                    <span
+                                        class="text-muted small"
+                                        style="font-size: 0.75rem"
+                                        >Not connected</span
+                                    >
                                 </div>
                             </div>
-                            <button class="btn btn-icon text-muted hover-primary" title="Connect">
-                                <span class="material-symbols-outlined">add_circle</span>
+                            <button
+                                class="btn btn-icon text-muted hover-primary"
+                                title="Connect"
+                            >
+                                <span class="material-symbols-outlined"
+                                    >add_circle</span
+                                >
                             </button>
                         </div>
                         <!-- Disconnected Item -->
-                        <div class="d-flex align-items-center justify-content-between py-3 border-bottom-0">
+                        <div
+                            class="d-flex align-items-center justify-content-between py-3 border-bottom-0"
+                        >
                             <div class="d-flex align-items-center gap-3">
-                                <div class="d-flex align-items-center justify-content-center bg-primary bg-opacity-10 rounded-circle"
-                                    style="width: 40px; height: 40px; color: #1DA1F2;">
-                                    <span class="material-symbols-outlined">flutter</span> <!-- closest match -->
+                                <div
+                                    class="d-flex align-items-center justify-content-center bg-primary bg-opacity-10 rounded-circle"
+                                    style="
+                                        width: 40px;
+                                        height: 40px;
+                                        color: #1da1f2;
+                                    "
+                                >
+                                    <span class="material-symbols-outlined"
+                                        >flutter</span
+                                    >
+                                    <!-- closest match -->
                                 </div>
                                 <div class="d-flex flex-column">
                                     <span class="fw-bold small">Twitter</span>
-                                    <span class="text-muted small" style="font-size: 0.75rem;">Not connected</span>
+                                    <span
+                                        class="text-muted small"
+                                        style="font-size: 0.75rem"
+                                        >Not connected</span
+                                    >
                                 </div>
                             </div>
-                            <button class="btn btn-icon text-muted hover-primary" title="Connect">
-                                <span class="material-symbols-outlined">add_circle</span>
+                            <button
+                                class="btn btn-icon text-muted hover-primary"
+                                title="Connect"
+                            >
+                                <span class="material-symbols-outlined"
+                                    >add_circle</span
+                                >
                             </button>
                         </div>
                     </div>
                 </section>
 
                 <!-- Action Bar -->
-                <div class="sticky-top" style="top: 100px; z-index: 2;">
+                <div class="sticky-top" style="top: 100px; z-index: 2">
                     <div class="d-flex flex-column gap-3">
-                        <button class="btn btn-primary-custom rounded-pill py-3 fw-bold shadow-sm">
+                        <button
+                            class="btn btn-primary-custom rounded-pill py-3 fw-bold shadow-sm"
+                        >
                             Save Changes
                         </button>
                         <button
-                            class="btn btn-outline-secondary rounded-pill py-3 fw-bold bg-transparent text-body border-light hover-bg-light">
+                            class="btn btn-outline-secondary rounded-pill py-3 fw-bold bg-transparent text-body border-light hover-bg-light"
+                        >
                             Cancel
                         </button>
                     </div>
-                    <p class="text-center text-muted mt-3 mb-0" style="font-size: 0.75rem;">Last saved: Today at 10:42
-                        AM</p>
+                    <p
+                        class="text-center text-muted mt-3 mb-0"
+                        style="font-size: 0.75rem"
+                    >
+                        Last saved: Today at 10:42 AM
+                    </p>
                 </div>
             </div>
         </div>

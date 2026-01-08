@@ -1,67 +1,69 @@
 package com.edumento.core.model.messages.content;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
 import com.edumento.core.constants.ContentType;
 import com.edumento.core.model.SimpleModel;
 import com.edumento.core.model.messages.From;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class ContentInfoMessage extends SimpleModel {
-	private ContentType contentType;
-	private Long spaceId;
-	private String spaceName;
+  private ContentType contentType;
+  private Long spaceId;
+  private String spaceName;
 
-	private From from;
+  private From from;
 
-	public ContentInfoMessage() {
-	}
+  public ContentInfoMessage() {}
 
-	public ContentInfoMessage(Long id, String name, ContentType contentType, Long spaceId, String spaceName,
-			From from) {
-		super(id, name);
-		this.contentType = contentType;
-		this.spaceId = spaceId;
-		this.spaceName = spaceName;
+  public ContentInfoMessage(
+      Long id, String name, ContentType contentType, Long spaceId, String spaceName, From from) {
+    super(id, name);
+    this.contentType = contentType;
+    this.spaceId = spaceId;
+    this.spaceName = spaceName;
 
-		this.from = from;
-	}
+    this.from = from;
+  }
 
-	public Long getSpaceId() {
-		return spaceId;
-	}
+  public Long getSpaceId() {
+    return spaceId;
+  }
 
-	public void setSpaceId(Long spaceId) {
-		this.spaceId = spaceId;
-	}
+  public void setSpaceId(Long spaceId) {
+    this.spaceId = spaceId;
+  }
 
-	public String getSpaceName() {
-		return spaceName;
-	}
+  public String getSpaceName() {
+    return spaceName;
+  }
 
-	public void setSpaceName(String spaceName) {
-		this.spaceName = spaceName;
-	}
+  public void setSpaceName(String spaceName) {
+    this.spaceName = spaceName;
+  }
 
-	public From getFrom() {
-		return from;
-	}
+  public From getFrom() {
+    return from;
+  }
 
-	public void setFrom(From from) {
-		this.from = from;
-	}
+  public void setFrom(From from) {
+    this.from = from;
+  }
 
-	public ContentType getContentType() {
-		return contentType;
-	}
+  public ContentType getContentType() {
+    return contentType;
+  }
 
-	public void setContentType(ContentType contentType) {
-		this.contentType = contentType;
-	}
+  public void setContentType(ContentType contentType) {
+    this.contentType = contentType;
+  }
 
-	@Override
-	public String toString() {
-		return new ToStringBuilder(this).append("contentType", contentType).append("spaceId", spaceId)
-				.append("spaceName", spaceName).append("from", from)
-				.append(super.toString()).toString();
-	}
+  @Override
+  public String toString() {
+    return new ToStringBuilder(this)
+        .append("contentType", contentType)
+        .append("spaceId", spaceId)
+        .append("spaceName", spaceName)
+        .append("from", from)
+        .append(super.toString())
+        .toString();
+  }
 }

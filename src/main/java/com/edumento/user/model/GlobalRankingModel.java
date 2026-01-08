@@ -1,15 +1,15 @@
 package com.edumento.user.model;
 
 public interface GlobalRankingModel {
-	String getFullName();
+  String getFullName();
 
-	Long getId();
+  Long getId();
 
-	Integer getRank();
+  Integer getRank();
 
-	String getSchool();
+  String getSchool();
 
-	String getThumbnail();
+  String getThumbnail();
 
-	Float getTotalScore();
+  Float getTotalScore();
 }

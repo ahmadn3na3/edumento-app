@@ -2,11 +2,6 @@ package com.edumento.notification.handlers.impl;
 
 import static com.edumento.core.constants.notification.Actions.FOLLOW;
 
-import java.util.function.Consumer;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.edumento.core.constants.notification.MessageCategory;
 import com.edumento.core.model.messages.BaseMessage;
 import com.edumento.core.model.messages.BaseNotificationMessage;
@@ -20,82 +15,98 @@ import com.edumento.notification.service.MailService;
 import com.edumento.user.domain.User;
 import com.edumento.user.repo.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.function.Consumer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /** Created by ayman on 04/07/17. */
 @Component
 public class UserHandler extends AbstractHandler {
 
-	@Autowired
-	public UserHandler(UserRepository userRepository, AmqNotifier amqNotifier, MailService mailService,
-			ObjectMapper objectMapper) {
-		super(userRepository, amqNotifier, mailService, objectMapper);
-	}
+  @Autowired
+  public UserHandler(
+      UserRepository userRepository,
+      AmqNotifier amqNotifier,
+      MailService mailService,
+      ObjectMapper objectMapper) {
+    super(userRepository, amqNotifier, mailService, objectMapper);
+  }
 
-	@Override
-	protected void handleNonCRUDAction(BaseMessage notificationMessage) {
-		switch (notificationMessage.getEntityAction().getAction()) {
-			case FOLLOW:
-				onFollow(notificationMessage);
-				break;
-			default:
-				break;
-		}
-	}
+  @Override
+  protected void handleNonCRUDAction(BaseMessage notificationMessage) {
+    switch (notificationMessage.getEntityAction().getAction()) {
+      case FOLLOW:
+        onFollow(notificationMessage);
+        break;
+      default:
+        break;
+    }
+  }
 
-	private void onFollow(BaseMessage message) {
-		var userFollowMessage = mapJsonObject(message, UserFollowMessage.class);
-		// TODO: sunday
-		var baseNotificationMessage = new BaseNotificationMessage(MessageCategory.USER,
-				new From(userFollowMessage.getFollowerInfoMessage()),
-				new Target(message.getEntityAction().getEntity(),
-						userFollowMessage.getFollowerInfoMessage().getId().toString(),
-						message.getEntityAction().getAction(), userFollowMessage.getFollowerInfoMessage().getImage()));
+  private void onFollow(BaseMessage message) {
+    var userFollowMessage = mapJsonObject(message, UserFollowMessage.class);
+    // TODO: sunday
+    var baseNotificationMessage =
+        new BaseNotificationMessage(
+            MessageCategory.USER,
+            new From(userFollowMessage.getFollowerInfoMessage()),
+            new Target(
+                message.getEntityAction().getEntity(),
+                userFollowMessage.getFollowerInfoMessage().getId().toString(),
+                message.getEntityAction().getAction(),
+                userFollowMessage.getFollowerInfoMessage().getImage()));
 
-		var notificationMessage = amqNotifier.saveMessage(userFollowMessage.getUserInfoMessage(),
-				baseNotificationMessage, createMessage(message), null);
-		userRepository.findById(userFollowMessage.getUserInfoMessage().getId()).ifPresent(new Consumer<User>() {
-			@Override
-			public void accept(User user) {
-				if (user.getNotification()) {
-					if (user.getMailNotification()) {
-						mailService.sendNotificationMail(notificationMessage, userFollowMessage.getUserInfoMessage(),
-								true,
-								true);
-					}
-				}
-			}
-		});
-	}
+    var notificationMessage =
+        amqNotifier.saveMessage(
+            userFollowMessage.getUserInfoMessage(),
+            baseNotificationMessage,
+            createMessage(message),
+            null);
+    userRepository
+        .findById(userFollowMessage.getUserInfoMessage().getId())
+        .ifPresent(
+            new Consumer<User>() {
+              @Override
+              public void accept(User user) {
+                if (user.getNotification()) {
+                  if (user.getMailNotification()) {
+                    mailService.sendNotificationMail(
+                        notificationMessage, userFollowMessage.getUserInfoMessage(), true, true);
+                  }
+                }
+              }
+            });
+  }
 
-	@Override
-	protected void onCreate(BaseMessage notificationMessage) {
-		var userInfoMessage = mapJsonObject(notificationMessage, UserInfoMessage.class);
-		switch (notificationMessage.getEntityAction()) {
-			case USER_REGISTER:
-				mailService.sendActivationEmail(userInfoMessage);
-				break;
-			case USER_CREATE:
-				mailService.sendCreationEmail(userInfoMessage);
-				break;
+  @Override
+  protected void onCreate(BaseMessage notificationMessage) {
+    var userInfoMessage = mapJsonObject(notificationMessage, UserInfoMessage.class);
+    switch (notificationMessage.getEntityAction()) {
+      case USER_REGISTER:
+        mailService.sendActivationEmail(userInfoMessage);
+        break;
+      case USER_CREATE:
+        mailService.sendCreationEmail(userInfoMessage);
+        break;
 
-			default:
-				break;
-		}
-	}
+      default:
+        break;
+    }
+  }
 
-	@Override
-	protected void onUpdate(BaseMessage notificationMessage) {
-		var userInfoMessage = mapJsonObject(notificationMessage, UserInfoMessage.class);
-		switch (notificationMessage.getEntityAction()) {
-			case USER_REACTIVATE:
-				mailService.sendActivationEmail(userInfoMessage);
-				break;
-			case USER_FORGETPASSOWORD:
-				mailService.sendPasswordResetMail(userInfoMessage);
-				break;
+  @Override
+  protected void onUpdate(BaseMessage notificationMessage) {
+    var userInfoMessage = mapJsonObject(notificationMessage, UserInfoMessage.class);
+    switch (notificationMessage.getEntityAction()) {
+      case USER_REACTIVATE:
+        mailService.sendActivationEmail(userInfoMessage);
+        break;
+      case USER_FORGETPASSOWORD:
+        mailService.sendPasswordResetMail(userInfoMessage);
+        break;
 
-			default:
-				break;
-		}
-	}
+      default:
+        break;
+    }
+  }
 }

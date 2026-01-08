@@ -1,10 +1,9 @@
 package com.edumento.space.repos;
 
+import com.edumento.space.domain.Space;
 import java.util.Date;
-
 import java.util.Optional;
 import java.util.stream.Stream;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,37 +11,36 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import com.edumento.space.domain.Space;
-
 /** Created by ahmad on 3/2/16. */
 @Repository
 public interface SpaceRepository extends JpaRepository<Space, Long> {
 
-	Integer countByNameAndUserIdAndDeletedFalse(String name, Long userId);
+  Integer countByNameAndUserIdAndDeletedFalse(String name, Long userId);
 
-	@Query("""
+  @Query(
+      """
 			Select s from Space s Where ((s.name like CONCAT('%',?1,'%'))
 			or (s.description like CONCAT('%',?1,'%'))
 			or (s.objective like CONCAT('%',?1,'%')))
 			and s.isPrivate=false and s.deleted=false""")
-	Page<Space> searchForSpace(String name, Pageable pagingModel);
+  Page<Space> searchForSpace(String name, Pageable pagingModel);
 
-	Stream<Space> findByIsPrivateFalseAndObjectiveContains(String tag);
+  Stream<Space> findByIsPrivateFalseAndObjectiveContains(String tag);
 
-	Stream<Space> findByUserIdAndDeletedFalseAndCreationDateAfter(Long userId, Date Date);
+  Stream<Space> findByUserIdAndDeletedFalseAndCreationDateAfter(Long userId, Date Date);
 
-	Optional<Space> findOneByIdAndDeletedFalse(Long id);
+  Optional<Space> findOneByIdAndDeletedFalse(Long id);
 
-	Optional<Space> findOneByIdAndDeletedTrue(Long id);
+  Optional<Space> findOneByIdAndDeletedTrue(Long id);
 
-	@Query("update Space s set  s.lastModifiedDate = current_timestamp() where s = ?1")
-	@Modifying
-	void updateSpaceModificationDate(Space space);
+  @Query("update Space s set  s.lastModifiedDate = current_timestamp() where s = ?1")
+  @Modifying
+  void updateSpaceModificationDate(Space space);
 
-	@Query(value = "select count(s) from Space s where s.user.id=?1")
-	Integer countByOwnerId(Long userId);
+  @Query(value = "select count(s) from Space s where s.user.id=?1")
+  Integer countByOwnerId(Long userId);
 
-	Stream<Space> findByDeletedFalse();
+  Stream<Space> findByDeletedFalse();
 
-	Page<Space> findByDeletedFalse(Pageable pageable);
+  Page<Space> findByDeletedFalse(Pageable pageable);
 }

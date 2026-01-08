@@ -1,7 +1,6 @@
 package com.edumento.core.security;
 
 import java.util.Optional;
-
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Component;
 
@@ -9,9 +8,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class SpringSecurityAuditorAware implements AuditorAware<String> {
 
-	@Override
-	public Optional<String> getCurrentAuditor() {
-		var userName = SecurityUtils.getCurrentUserLogin();
-		return Optional.of(userName != null ? userName : "system");
-	}
+  @Override
+  public Optional<String> getCurrentAuditor() {
+    var userName = SecurityUtils.getCurrentUserLogin();
+    return Optional.of(userName != null ? userName : "system");
+  }
 }

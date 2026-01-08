@@ -9,6 +9,6 @@ export interface Discussion {
     commentsCounter: number;
     creationDate: string;
     contentId: number;
-    type: 'QUESTION' | 'DISCUSSION' | 'ANNOUNCEMENT'; // Inferred DiscussionType
+    type: "QUESTION" | "DISCUSSION" | "ANNOUNCEMENT"; // Inferred DiscussionType
     spaceId: number;
 }

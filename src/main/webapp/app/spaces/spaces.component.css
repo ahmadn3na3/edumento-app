@@ -24,21 +24,21 @@
 }
 
 body {
-    font-family: 'Spline Sans', sans-serif;
+    font-family: "Spline Sans", sans-serif;
     background-color: var(--bs-body-bg);
     color: var(--bs-body-color);
 }
 
 .material-symbols-outlined {
     font-variation-settings:
-        'FILL' 0,
-        'wght' 400,
-        'GRAD' 0,
-        'opsz' 24;
+        "FILL" 0,
+        "wght" 400,
+        "GRAD" 0,
+        "opsz" 24;
 }
 
 .material-symbols-outlined.filled {
-    font-variation-settings: 'FILL' 1;
+    font-variation-settings: "FILL" 1;
 }
 
 /* Custom Utilities */

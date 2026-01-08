@@ -1,15 +1,31 @@
-<div class="card card-hover-effect rounded-2xl h-100 border-0 shadow-sm bg-surface cursor-pointer"
-    [routerLink]="['/spaces', space.id]">
+<div
+    class="card card-hover-effect rounded-2xl h-100 border-0 shadow-sm bg-surface cursor-pointer"
+    [routerLink]="['/spaces', space.id]"
+>
     <div class="p-3 d-flex flex-column h-100 gap-3">
         <!-- Header Image -->
-        <div class="rounded-4 bg-secondary position-relative overflow-hidden"
-            [style.backgroundImage]="'url(' + (space.image || 'assets/default-space.jpg') + ')'"
-            style="height: 140px; background-size: cover; background-position: center;">
+        <div
+            class="rounded-4 bg-secondary position-relative overflow-hidden"
+            [style.backgroundImage]="
+                'url(' + (space.image || 'assets/default-space.jpg') + ')'
+            "
+            style="
+                height: 140px;
+                background-size: cover;
+                background-position: center;
+            "
+        >
             <button
                 class="btn btn-light btn-sm rounded-circle position-absolute top-0 end-0 m-2 p-0 d-flex align-items-center justify-content-center opacity-75 hover-opacity-100"
-                style="width: 32px; height: 32px;" (click)="$event.stopPropagation()">
-                <span class="material-symbols-outlined text-muted" style="font-size: 18px;"
-                    [class.text-danger]="space.favorite">favorite</span>
+                style="width: 32px; height: 32px"
+                (click)="$event.stopPropagation()"
+            >
+                <span
+                    class="material-symbols-outlined text-muted"
+                    style="font-size: 18px"
+                    [class.text-danger]="space.favorite"
+                    >favorite</span
+                >
             </button>
         </div>
 
@@ -22,12 +38,18 @@
         </div>
 
         <!-- Footer -->
-        <div class="mt-auto d-flex justify-content-between align-items-center pt-2">
+        <div
+            class="mt-auto d-flex justify-content-between align-items-center pt-2"
+        >
             <div class="d-flex align-items-center">
                 <div class="avatar-group d-flex">
                     <!-- Mock avatars for now, or loop through space.community if available -->
-                    <div class="rounded-circle bg-light border border-2 border-surface d-flex align-items-center justify-content-center text-muted fw-bold"
-                        style="width: 28px; height: 28px; font-size: 10px;">+{{ space.communitySize }}</div>
+                    <div
+                        class="rounded-circle bg-light border border-2 border-surface d-flex align-items-center justify-content-center text-muted fw-bold"
+                        style="width: 28px; height: 28px; font-size: 10px"
+                    >
+                        +{{ space.communitySize }}
+                    </div>
                 </div>
             </div>
             <button class="btn btn-sm btn-hover-light rounded-circle p-1">

@@ -1,5 +1,5 @@
 <div class="d-flex justify-content-center align-items-center vh-100 bg-light">
-    <div class="card shadow-sm border-0" style="width: 100%; max-width: 400px;">
+    <div class="card shadow-sm border-0" style="width: 100%; max-width: 400px">
         <div class="card-body p-4 text-center">
             <h3 class="mb-4">Activate Account</h3>
 
@@ -11,17 +11,37 @@
                 <strong>Activation failed!</strong> Please try again.
             </div>
 
-            <form [formGroup]="activationForm" (ngSubmit)="activate()" *ngIf="!success">
+            <form
+                [formGroup]="activationForm"
+                (ngSubmit)="activate()"
+                *ngIf="!success"
+            >
                 <div class="mb-3 text-start">
-                    <label for="key" class="form-label small fw-bold ms-1 pb-1">Activation Key</label>
-                    <input type="text" class="form-control" id="key" formControlName="key" placeholder="Enter activation key">
+                    <label for="key" class="form-label small fw-bold ms-1 pb-1"
+                        >Activation Key</label
+                    >
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="key"
+                        formControlName="key"
+                        placeholder="Enter activation key"
+                    />
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100" [disabled]="activationForm.invalid">Activate</button>
+                <button
+                    type="submit"
+                    class="btn btn-primary w-100"
+                    [disabled]="activationForm.invalid"
+                >
+                    Activate
+                </button>
             </form>
-            
-             <div class="mt-3 text-center">
-                <a routerLink="/login" class="text-decoration-none small">Back to Login</a>
+
+            <div class="mt-3 text-center">
+                <a routerLink="/login" class="text-decoration-none small"
+                    >Back to Login</a
+                >
             </div>
         </div>
     </div>

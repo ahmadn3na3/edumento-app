@@ -1,4 +1,4 @@
-import { User } from './user.model';
+import { User } from "./user.model";
 
 export interface Space {
     id: number;
@@ -35,11 +35,11 @@ export interface Space {
     // Relations
     creator: SpaceUser;
     community: SpaceUser[];
-    role: 'VIEWER' | 'COLLABORATOR' | 'EDITOR' | 'CO_OWNER' | 'OWNER';
+    role: "VIEWER" | "COLLABORATOR" | "EDITOR" | "CO_OWNER" | "OWNER";
     permissions: { [key: string]: number };
 }
 
-export type JoinedStatus = 'JOINED' | 'PENDING' | 'REFUSED' | 'NOT_JOINED';
+export type JoinedStatus = "JOINED" | "PENDING" | "REFUSED" | "NOT_JOINED";
 
 export interface SpaceUser {
     id: number;
