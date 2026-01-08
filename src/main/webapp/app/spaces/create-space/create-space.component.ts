@@ -38,8 +38,8 @@ export class CreateSpaceComponent {
     selectedCoverFile: File | null = null;
     coverPreview: string | ArrayBuffer | null = null;
     coverError: string | null = null;
-    readonly MIN_COVER_WIDTH = 800; // Adjusted for cover aspect ratio
-    readonly MIN_COVER_HEIGHT = 300;
+    readonly MIN_COVER_WIDTH = 1200; // Adjusted for cover aspect ratio
+    readonly MIN_COVER_HEIGHT = 400;
 
     constructor(
         private spaceService: SpaceService,
@@ -75,7 +75,7 @@ export class CreateSpaceComponent {
                 const img = new Image();
                 img.src = e.target.result;
                 img.onload = () => {
-                    if (img.width < this.MIN_WIDTH || img.height < this.MIN_HEIGHT) {
+                    if (img.width > this.MIN_WIDTH || img.height > this.MIN_HEIGHT) {
                         this.imageError = `Image must be at least ${this.MIN_WIDTH}x${this.MIN_HEIGHT}px.`;
                         this.selectedFile = null;
                         this.imagePreview = null;
@@ -99,7 +99,7 @@ export class CreateSpaceComponent {
                 img.src = e.target.result;
                 img.onload = () => {
                     // Validate dimensions
-                    if (img.width < this.MIN_COVER_WIDTH || img.height < this.MIN_COVER_HEIGHT) {
+                    if (img.width > this.MIN_COVER_WIDTH || img.height > this.MIN_COVER_HEIGHT) {
                         this.coverError = `Cover image must be at least ${this.MIN_COVER_WIDTH}x${this.MIN_COVER_HEIGHT}px.`;
                         this.selectedCoverFile = null;
                         this.coverPreview = null;
@@ -125,8 +125,28 @@ export class CreateSpaceComponent {
             return;
         }
 
-        // Note: Service update is deferred, passing the object as is for now.
-        // When service is updated, we will pass this.selectedFile
+        if (this.selectedFile) {
+            this.spaceService.uploadImage(this.selectedCoverFile!, this.selectedFile).subscribe({
+                next: (res) => {
+                    if (res && res.data) {
+                        this.space.image = res.data.image;
+                        if (res.data.thumbnail) {
+                            this.space.thumbnail = res.data.thumbnail;
+                        }
+                    }
+                    this.finalizeCreateSpace();
+                },
+                error: (err) => {
+                    console.error('Failed to upload image', err);
+                    alert('Failed to upload image. Please try again or continue without an image.');
+                }
+            });
+        } else {
+            this.finalizeCreateSpace();
+        }
+    }
+
+    finalizeCreateSpace() {
         this.spaceService.createSpace(this.space).subscribe({
             next: () => {
                 this.router.navigate(['/spaces']);

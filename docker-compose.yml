@@ -1,25 +1,21 @@
 services:
   mongodb:
-    image: 'mongo:latest'
-    environment:
-      - 'MONGO_INITDB_DATABASE=edumento'
-      - 'MONGO_INITDB_ROOT_PASSWORD=edumento'
-      - 'MONGO_INITDB_ROOT_USERNAME=edumento'
+    image: "mongo:latest"
     ports:
-      - '27017:27017'
+      - "27017:27017"
     volumes:
-      - '~/edumento/mongodb:/data/db'
+      - "~/edumento/mongodb1:/data/db"
   postgres:
-    image: 'postgres:latest'
+    image: "postgres:latest"
     environment:
-      - 'POSTGRES_DB=edumento'
-      - 'POSTGRES_PASSWORD=edumento'
-      - 'POSTGRES_USER=edumento'
+      - "POSTGRES_DB=edumento"
+      - "POSTGRES_PASSWORD=edumento"
+      - "POSTGRES_USER=edumento"
     ports:
-      - '5432:5432'
+      - "5432:5432"
     volumes:
-      - '~/edumento/postgres:/var/lib/postgresql/data'
+      - "~/edumento/postgres_new_2:/var/lib/postgresql"
   redis:
-    image: 'redis:latest'
+    image: "redis:latest"
     ports:
-      - '6379:6379'
+      - "6380:6379"

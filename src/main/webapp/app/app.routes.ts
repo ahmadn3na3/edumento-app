@@ -1,4 +1,6 @@
-import { Routes } from '@angular/router';
+import { inject } from '@angular/core';
+import { ActivatedRouteSnapshot, RouterStateSnapshot, Routes } from '@angular/router';
+import { LoginService } from './core/auth/login.service';
 import { LoginComponent } from './login/login.component';
 import { SpacesComponent } from './spaces/spaces.component';
 
@@ -22,7 +24,7 @@ export const routes: Routes = [
 	{
 		path: 'spaces',
 		component: SpacesComponent,
-		// canActivate: [() => { return inject(LoginService).isLoggedIn(); }],
+		canActivate: [(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => { return inject(LoginService).canActivate(route, state); }],
 		data: { title: 'My Spaces' }
 	},
 	{
@@ -33,6 +35,7 @@ export const routes: Routes = [
 	{
 		path: 'spaces/:id',
 		loadComponent: () => import('./spaces/space-detail/space-detail.component').then(m => m.SpaceDetailComponent),
+		canActivate: [(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => { return inject(LoginService).canActivate(route, state); }],
 		data: { title: 'Space Details' }
 	},
 	{

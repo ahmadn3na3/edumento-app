@@ -1,4 +1,5 @@
-<div class="card card-hover-effect rounded-2xl h-100 border-0 shadow-sm bg-surface">
+<div class="card card-hover-effect rounded-2xl h-100 border-0 shadow-sm bg-surface cursor-pointer"
+    [routerLink]="['/spaces', space.id]">
     <div class="p-3 d-flex flex-column h-100 gap-3">
         <!-- Header Image -->
         <div class="rounded-4 bg-secondary position-relative overflow-hidden"
@@ -6,7 +7,7 @@
             style="height: 140px; background-size: cover; background-position: center;">
             <button
                 class="btn btn-light btn-sm rounded-circle position-absolute top-0 end-0 m-2 p-0 d-flex align-items-center justify-content-center opacity-75 hover-opacity-100"
-                style="width: 32px; height: 32px;">
+                style="width: 32px; height: 32px;" (click)="$event.stopPropagation()">
                 <span class="material-symbols-outlined text-muted" style="font-size: 18px;"
                     [class.text-danger]="space.favorite">favorite</span>
             </button>
@@ -29,7 +30,7 @@
                         style="width: 28px; height: 28px; font-size: 10px;">+{{ space.communitySize }}</div>
                 </div>
             </div>
-            <button class="btn btn-sm btn-hover-light rounded-circle p-1" routerLink="/spaces/{{ space.id }}">
+            <button class="btn btn-sm btn-hover-light rounded-circle p-1">
                 <span class="material-symbols-outlined">more_horiz</span>
             </button>
         </div>

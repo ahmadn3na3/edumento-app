@@ -12,12 +12,10 @@ spring:
   data:
     mongodb:
       uri: mongodb://localhost:27017/edumento
-      username: edumento
-      password: edumento
 
     redis:
       host: localhost
-      port: 6379
+      port: 6380
       password: edumento
       database: 0
   datasource:
@@ -35,10 +33,10 @@ spring:
   messages:
     basename: i18n/messages
     fallback-to-system-locale: false
-  http:
+  servlet:
     multipart:
-      max-file-size: 150Mb
-      max-request-size: 300Mb
+      max-file-size: 150MB
+      max-request-size: 300MB
   thymeleaf:
     enabled: false
   devtools:
@@ -48,9 +46,6 @@ spring:
     file: e.pid
   application:
     name: edumento
-  security:
-   basic:
-    enabled: false
   
     
     
@@ -92,14 +87,14 @@ mint:
   ffprobe: /usr/bin/ffprobe
   upload:
     img:
-      path: /data/img
+      path: /home/ahmad/projects/personal/edumento/edumento-app/data/img
     content:
-      path: /data/content
+      path: /home/ahmad/projects/personal/edumento/edumento-app/data/content
     audio:
-      path: /data/audio
+      path: /home/ahmad/projects/personal/edumento/edumento-app/data/audio
   view:
       content:
-        path: /data/view
+        path: /home/ahmad/projects/personal/edumento/edumento-app/data/view
 
   url: //content.edumento.net
   viewurl: //static.edumento.net/view/
@@ -111,4 +106,4 @@ endpoints:
     enabled: true
 logging:
   level:
-    '[org.springframework.security]' : DEBUG 
+    '[org.springframework.security]' : ERROR 

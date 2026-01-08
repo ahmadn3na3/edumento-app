@@ -18,7 +18,7 @@ export class LoginComponent {
 
 	constructor(private loginService: LoginService, private formBuilder: FormBuilder, private router: Router) {
 		if (this.loginService.isLoggedIn()) {
-			this.router.navigate(['/main']);
+			this.router.navigate(['/spaces']);
 		}
 		this.form = this.formBuilder.group({
 			username: [''],
@@ -29,7 +29,7 @@ export class LoginComponent {
 	login() {
 		this.loginService.authenticateUser(this.form.getRawValue()).subscribe((response) => {
 			console.log('response', response);
-			this.router.navigate(['/main']);
+			this.router.navigate(['/spaces']);
 		});
 
 	}

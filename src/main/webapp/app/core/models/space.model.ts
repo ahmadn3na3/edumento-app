@@ -25,7 +25,7 @@ export interface Space {
     showCommunity: boolean;
     allowRecommendation: boolean;
     allowLeave: boolean;
-    joinedStatus: 'NOT_JOINED' | 'JOINED' | 'REQUESTED'; // Inferred
+    joinedStatus: JoinedStatus;
 
     tags: string[];
     creationDate: string;
@@ -35,9 +35,11 @@ export interface Space {
     // Relations
     creator: SpaceUser;
     community: SpaceUser[];
-    role: 'OWNER' | 'ADMIN' | 'MEMBER' | 'GUEST'; // Inferred
+    role: 'VIEWER' | 'COLLABORATOR' | 'EDITOR' | 'CO_OWNER' | 'OWNER';
     permissions: { [key: string]: number };
 }
+
+export type JoinedStatus = 'JOINED' | 'PENDING' | 'REFUSED' | 'NOT_JOINED';
 
 export interface SpaceUser {
     id: number;

@@ -19,8 +19,15 @@ export class SpacesComponent implements OnInit {
   constructor(private spaceService: SpaceService) { }
 
   ngOnInit() {
-    this.spaceService.getSpaces().subscribe(spaces => {
-      this.spaces = spaces;
+    this.spaceService.getSpaces().subscribe({
+      next: (spaces) => {
+        this.spaces = spaces;
+        console.log('Spaces loaded:', spaces);
+      },
+      error: (err) => {
+        console.error('Error loading spaces:', err);
+        // Optional: set an error message property to display in the UI
+      }
     });
   }
 }

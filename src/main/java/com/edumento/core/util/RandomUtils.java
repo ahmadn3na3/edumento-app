@@ -50,7 +50,7 @@ public final class RandomUtils {
 		var letters = "0123456789ABCDEF".toCharArray();
 		var color = new StringBuilder('#');
 		for (var i = 0; i < 6; i++) {
-			color.append(letters[Math.round(org.apache.commons.lang3.RandomUtils.nextFloat() * 15)]);
+			color.append(letters[org.apache.commons.lang3.RandomUtils.nextInt(0, 16)]);
 		}
 		return color.toString();
 	}

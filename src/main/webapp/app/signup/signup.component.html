@@ -39,6 +39,17 @@
 
                         <form [formGroup]="signupForm" (ngSubmit)="signup()" class="d-flex flex-column gap-3 w-100">
 
+                            <!-- Username -->
+                            <div>
+                                <label for="username" class="form-label small fw-bold ms-1 pb-1">Username</label>
+                                <div class="position-relative">
+                                    <input type="text"
+                                        class="form-control form-control-rounded shadow-sm text-dark placeholder-secondary"
+                                        id="username" formControlName="username" placeholder="johndoe">
+                                    <span class="material-symbols-outlined input-icon">account_circle</span>
+                                </div>
+                            </div>
+
                             <!-- Full Name -->
                             <div>
                                 <label for="fullName" class="form-label small fw-bold ms-1 pb-1">Full Name</label>

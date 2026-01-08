@@ -36,7 +36,7 @@
                                     <!-- Space Icon -->
                                     <div class="d-flex align-items-center gap-3">
                                         <input type="file" #fileInput (change)="onFileSelected($event)"
-                                            style="display: none" accept="image/*">
+                                            style="display: none" accept="image/*" data-testid="space-icon-input">
                                         <div class="bg-light border border-2 border-dashed rounded-circle d-flex align-items-center justify-content-center cursor-pointer position-relative overflow-hidden"
                                             style="width: 80px; height: 80px;" (click)="triggerFileInput(fileInput)">
                                             @if (imagePreview) {
@@ -61,7 +61,7 @@
                                         <div class="position-relative w-100 group">
                                             @if (!coverPreview) {
                                             <input type="file" #coverInput (change)="onCoverSelected($event)"
-                                                style="display: none" accept="image/*">
+                                                style="display: none" accept="image/*" data-testid="space-cover-input">
                                             <div class="d-flex flex-column align-items-center justify-content-center w-100 rounded-4 border border-2 border-dashed border-secondary border-opacity-25 bg-light hover-bg-subtle transition-all cursor-pointer overflow-hidden"
                                                 style="height: 192px;" (click)="triggerFileInput(coverInput)">
                                                 <div
@@ -82,8 +82,7 @@
                                             <div class="position-relative w-100 rounded-4 overflow-hidden d-flex align-items-start justify-content-end p-3 gap-2"
                                                 style="height: 192px; background-size: cover; background-position: center;"
                                                 [style.background-image]="'url(' + coverPreview + ')'">
-                                                <div
-                                                    class="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-10">
+                                                <div class="position-absolute top-0 start-0 w-100 h-100 opacity-10">
                                                 </div>
                                                 <div class="position-relative z-1 d-flex gap-2">
                                                     <button
@@ -110,7 +109,8 @@
                                         <label class="form-label fw-medium">Space Name</label>
                                         <input type="text"
                                             class="form-control rounded-pill px-4 py-2 bg-light border-light"
-                                            placeholder="e.g., Physics 101, Debate Club" [(ngModel)]="space.name">
+                                            placeholder="e.g., Physics 101, Debate Club" [(ngModel)]="space.name"
+                                            data-testid="space-name-input">
                                     </div>
 
                                     <!-- Description Input -->
@@ -119,7 +119,8 @@
                                         <textarea class="form-control rounded-4 px-4 py-3 bg-light border-light"
                                             rows="5"
                                             placeholder="What will students learn here? Describe the purpose of this space..."
-                                            [(ngModel)]="space.description"></textarea>
+                                            [(ngModel)]="space.description"
+                                            data-testid="space-description-input"></textarea>
                                     </div>
 
                                     <!-- Tags Input -->
@@ -137,7 +138,8 @@
                                             }
                                             <input type="text" class="form-control border-0 bg-transparent shadow-none"
                                                 placeholder="Add a tag..." style="width: auto; min-width: 100px;"
-                                                [(ngModel)]="tagInput" (keydown.enter)="addTag()" (blur)="addTag()">
+                                                [(ngModel)]="tagInput" (keydown.enter)="addTag()" (blur)="addTag()"
+                                                data-testid="space-tag-input">
                                         </div>
                                     </div>
                                 </div>
@@ -231,7 +233,7 @@
                                 routerLink="/spaces">Cancel</button>
                             <button
                                 class="btn btn-primary-custom rounded-pill fw-bold py-2 px-4 shadow-sm d-flex align-items-center gap-2"
-                                (click)="createSpace()">
+                                (click)="createSpace()" data-testid="create-space-submit-btn">
                                 <span class="material-symbols-outlined">add</span> Create Space
                             </button>
                         </div>

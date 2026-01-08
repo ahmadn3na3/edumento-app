@@ -5,19 +5,29 @@
 
     <div class="d-flex flex-grow-1 w-100 mx-auto" style="max-width: 1200px;">
         <main class="flex-fill px-4 py-4 w-100">
+            @if (loading) {
+            <div class="d-flex justify-content-center align-items-center h-100">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+            } @else if (error) {
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+            } @else if (space) {
             <!-- Breadcrumb -->
             <nav class="d-flex flex-wrap gap-2 align-items-center mb-4 small">
                 <a routerLink="/spaces" class="text-muted text-decoration-none hover-primary fw-medium">Spaces</a>
                 <span class="material-symbols-outlined text-muted" style="font-size: 16px;">chevron_right</span>
-                <span class="fw-bold">CS101: Introduction to Algorithms</span>
+                <span class="fw-bold">{{ space!.name }}</span>
             </nav>
 
             <!-- Course Header -->
             <header class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
                 <div class="d-flex flex-col gap-2" style="max-width: 600px;">
-                    <h1 class="display-5 fw-bold mb-1 tracking-tight lh-1">CS101: Introduction to Algorithms</h1>
-                    <p class="lead fs-6 text-muted mb-0">Manage course content, discussions, and assessments for the
-                        Fall 2023 semester.</p>
+                    <h1 class="display-5 fw-bold mb-1 tracking-tight lh-1">{{ space!.name }}</h1>
+                    <p class="lead fs-6 text-muted mb-0">{{ space!.description }}</p>
                 </div>
                 <div class="d-flex gap-2">
                     <button
@@ -88,7 +98,7 @@
                                 <span class="material-symbols-outlined text-muted">group</span>
                             </div>
                             <div>
-                                <p class="display-4 fw-bold mb-0 lh-1">142</p>
+                                <p class="display-4 fw-bold mb-0 lh-1">{{ space!.communitySize }}</p>
                                 <div class="d-flex align-items-center gap-1 mt-1 text-success small fw-medium">
                                     <span class="material-symbols-outlined" style="font-size: 16px;">trending_up</span>
                                     <span>+12 active now</span>
@@ -216,153 +226,11 @@
             }
 
             @case ('discussions') {
-            <div class="d-flex flex-column gap-4">
-                <!-- Filters -->
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-                    <div class="bg-surface rounded-3 p-1 border d-inline-flex">
-                        <button class="btn btn-sm btn-light fw-bold shadow-sm">All</button>
-                        <button class="btn btn-sm btn-link text-muted fw-medium text-decoration-none">Unread</button>
-                        <button class="btn btn-sm btn-link text-muted fw-medium text-decoration-none">Popular</button>
-                    </div>
-                    <div class="d-flex gap-2">
-                        <div class="position-relative">
-                            <span
-                                class="material-symbols-outlined position-absolute top-50 start-0 translate-middle-y ms-3 text-muted">search</span>
-                            <input type="text" class="form-control rounded-pill ps-5"
-                                placeholder="Search discussions..." style="width: 250px;">
-                        </div>
-                        <button
-                            class="btn btn-primary-custom rounded-pill d-flex align-items-center gap-2 px-4 fw-bold">
-                            <span class="material-symbols-outlined">add</span> New Discussion
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Discussion List -->
-                <div class="d-flex flex-column gap-3">
-                    <!-- Discussion Item 1 -->
-                    <div
-                        class="card rounded-xl border shadow-sm bg-surface hover-shadow-md cursor-pointer transition-all">
-                        <div class="card-body p-4 d-flex flex-column flex-md-row gap-4">
-                            <div class="d-flex flex-md-column align-items-center justify-content-center gap-1 text-muted"
-                                style="min-width: 3rem;">
-                                <span class="material-symbols-outlined text-primary">push_pin</span>
-                            </div>
-                            <div class="flex-grow-1 d-flex flex-column gap-1">
-                                <h3 class="h5 fw-bold mb-1">Course Guidelines & Grading Policy</h3>
-                                <p class="text-muted small mb-2">Please read the attached PDF for a detailed breakdown
-                                    of how your final grade will be calculated.</p>
-                                <div class="d-flex align-items-center gap-3">
-                                    <span class="badge bg-danger bg-opacity-10 text-danger rounded-1">Important</span>
-                                    <div class="d-flex align-items-center gap-1 small text-muted">
-                                        <div class="rounded-circle bg-light overflow-hidden"
-                                            style="width: 16px; height: 16px;">
-                                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQgUzB_oTSWUC5nzEuEXDbO2cwDEJRl2mE8hSvokWiKBg08uHvPjOraK65j2VAgUKFcl-GaQCpiwd2s4YLh1v4mx9sNscCLKuwqEaQJJlemSNB5s5QA3G1ZPb8f19oHpJARzp7eRQC9NJlrEPsv5OPY7Lm9htyahMwK-or81OQDKM5zV9UZHl3MerriiPv5NGyKJftUz50HforOXhyLEwVPtxoyc-PL5KPQwxDl1g9IgBmnNbg2sx6Ci0D7D3ifULAcVwazrxljU"
-                                                class="w-100 h-100 object-fit-cover">
-                                        </div>
-                                        <span>Prof. Smith • 2 days ago</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div
-                                class="d-flex flex-md-column align-items-center align-items-md-end justify-content-between gap-2 border-start-md ps-md-4">
-                                <div class="fw-bold d-flex align-items-center gap-1"><span
-                                        class="material-symbols-outlined fs-6">chat_bubble</span> 14</div>
-                                <div class="small text-muted">Last reply 5h</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Discussion Item 2 -->
-                    <div
-                        class="card rounded-xl border shadow-sm bg-surface hover-shadow-md cursor-pointer transition-all">
-                        <div class="card-body p-4 d-flex flex-column flex-md-row gap-4">
-                            <div class="d-flex flex-md-column align-items-center justify-content-center gap-1 text-muted"
-                                style="min-width: 3rem;">
-                                <span class="material-symbols-outlined">arrow_drop_up</span>
-                                <span class="fw-bold text-dark">24</span>
-                            </div>
-                            <div class="flex-grow-1 d-flex flex-column gap-1">
-                                <h3 class="h5 fw-bold mb-1">Help with Dynamic Programming logic?</h3>
-                                <p class="text-muted small mb-2">I'm struggling to understand the memoization step in
-                                    the Knapsack problem. </p>
-                                <div class="d-flex align-items-center gap-3">
-                                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-1">Homework</span>
-                                    <div class="d-flex align-items-center gap-1 small text-muted">
-                                        <div class="rounded-circle bg-light overflow-hidden"
-                                            style="width: 16px; height: 16px;">
-                                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuATFa7O7Bsiju3Kv7g0swslB20vNzRnYVWwLlI9f8rE614WATosSV_LwvG2nY3kGvzEaYGmjmjxQIzF3YoOnUZxnJ1-DbH0i70UK5c_KnyllZhtOooiFFsPxgQP_5K_ptx1rIS-G5ppMwmGLfHfVUEqvVxwjFHEtyChGAStQhG-u81ZqEsUF22y2sFseGdkqY-oc8g5E2h2HM_40vf8h2GmBWC6mINRSpO5XgSZJtd0dcz9RuJo65HMfk0KzZLd7VUHHpHZr3K6EWk"
-                                                class="w-100 h-100 object-fit-cover">
-                                        </div>
-                                        <span>Sarah L. • 4 hours ago</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div
-                                class="d-flex flex-md-column align-items-center align-items-md-end justify-content-between gap-2 border-start-md ps-md-4">
-                                <div class="fw-bold d-flex align-items-center gap-1"><span
-                                        class="material-symbols-outlined fs-6">chat_bubble</span> 8</div>
-                                <div class="small text-muted">Last reply 20m</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <app-discussion-list [spaceId]="space!.id"></app-discussion-list>
             }
 
             @case ('assessments') {
-            <div class="d-flex flex-column gap-4">
-                <div class="border-bottom d-flex gap-4">
-                    <button
-                        class="btn btn-link text-dark fw-bold text-decoration-none border-bottom border-2 border-primary pb-2 px-0">Upcoming</button>
-                    <button
-                        class="btn btn-link text-muted fw-medium text-decoration-none border-bottom border-2 border-transparent pb-2 px-0 hover-primary">Graded</button>
-                    <button
-                        class="btn btn-link text-muted fw-medium text-decoration-none border-bottom border-2 border-transparent pb-2 px-0 hover-primary">Past
-                        Due</button>
-                </div>
-
-                <div class="row g-4">
-                    <div class="col-12 col-md-6">
-                        <div class="card rounded-xl shadow-sm border h-100 overflow-hidden"
-                            style="border-left: 4px solid #dc3545 !important;">
-                            <div class="card-body p-4 d-flex flex-column">
-                                <div class="d-flex justify-content-between align-items-start mb-3">
-                                    <span class="badge bg-danger bg-opacity-10 text-danger rounded-1 small fw-bold">DUE
-                                        FRI, OCT 24</span>
-                                    <span class="small text-muted fw-medium">200 pts</span>
-                                </div>
-                                <h3 class="h5 fw-bold mb-1">Midterm Project: Pathfinding</h3>
-                                <p class="text-muted small mb-4">Implement A* search algorithm visualization using
-                                    Python or C++.</p>
-                                <div class="mt-auto d-flex gap-2">
-                                    <button class="btn btn-light fw-bold flex-fill">View Specs</button>
-                                    <button class="btn btn-primary-custom fw-bold flex-fill">Submit</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-6">
-                        <div class="card rounded-xl shadow-sm border h-100 overflow-hidden"
-                            style="border-left: 4px solid #fd7e14 !important;">
-                            <div class="card-body p-4 d-flex flex-column">
-                                <div class="d-flex justify-content-between align-items-start mb-3">
-                                    <span class="badge bg-warning bg-opacity-10 text-warning rounded-1 small fw-bold"
-                                        style="color: #fd7e14 !important; background-color: rgba(253, 126, 20, 0.1) !important;">DUE
-                                        MON, OCT 27</span>
-                                    <span class="small text-muted fw-medium">50 pts</span>
-                                </div>
-                                <h3 class="h5 fw-bold mb-1">Quiz 4: Dynamic Programming</h3>
-                                <p class="text-muted small mb-4">Multiple choice and short answer questions covering
-                                    Week 6-7 material.</p>
-                                <div class="mt-auto d-flex gap-2">
-                                    <button class="btn btn-primary-custom fw-bold flex-fill">Start Quiz</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <app-assessment-list [spaceId]="space!.id"></app-assessment-list>
             }
 
             @case ('members') {
@@ -450,136 +318,7 @@
             }
 
             @case ('resources') {
-            <div class="d-flex flex-column gap-4">
-                <!-- Toolbar -->
-                <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
-                    <div class="position-relative flex-grow-1" style="max-width: 400px;">
-                        <span
-                            class="material-symbols-outlined position-absolute top-50 start-0 translate-middle-y ms-3 text-muted">search</span>
-                        <input type="text" class="form-control rounded-pill ps-5" placeholder="Search resources...">
-                    </div>
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="bg-surface rounded-2 p-1 border d-flex">
-                            <button class="btn btn-sm btn-light p-1 lh-1"><span
-                                    class="material-symbols-outlined">grid_view</span></button>
-                            <button class="btn btn-sm btn-text text-muted p-1 lh-1 hover-primary"><span
-                                    class="material-symbols-outlined">view_list</span></button>
-                        </div>
-                        <button
-                            class="btn btn-primary-custom rounded-pill fw-bold d-flex align-items-center gap-2 px-4 shadow-sm">
-                            <span class="material-symbols-outlined">upload_file</span> Upload
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Filter Chips -->
-                <div class="d-flex flex-wrap gap-2">
-                    <button class="btn btn-dark rounded-pill btn-sm fw-bold px-3">All Resources</button>
-                    <button
-                        class="btn btn-light border rounded-pill btn-sm fw-bold px-3 text-muted hover-dark">PDFs</button>
-                    <button
-                        class="btn btn-light border rounded-pill btn-sm fw-bold px-3 text-muted hover-dark">Videos</button>
-                    <button
-                        class="btn btn-light border rounded-pill btn-sm fw-bold px-3 text-muted hover-dark">Images</button>
-                </div>
-
-                <!-- Folders -->
-                <div>
-                    <h3 class="small fw-bold text-muted text-uppercase mb-3 ps-1">Folders</h3>
-                    <div class="row row-cols-2 row-cols-md-4 row-cols-lg-5 g-3">
-                        <div class="col">
-                            <div
-                                class="card rounded-xl border shadow-sm p-3 h-100 flex-column justify-content-between bg-surface card-hover-effect cursor-pointer">
-                                <span class="material-symbols-outlined text-warning"
-                                    style="font-size: 36px;">folder</span>
-                                <div>
-                                    <p class="fw-bold small mb-0 text-truncate">Lecture Slides</p>
-                                    <p class="small text-muted mb-0">8 items</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div
-                                class="card rounded-xl border shadow-sm p-3 h-100 flex-column justify-content-between bg-surface card-hover-effect cursor-pointer">
-                                <span class="material-symbols-outlined text-warning"
-                                    style="font-size: 36px;">folder</span>
-                                <div>
-                                    <p class="fw-bold small mb-0 text-truncate">Readings</p>
-                                    <p class="small text-muted mb-0">14 items</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Files -->
-                <div>
-                    <div class="d-flex justify-content-between align-items-center mb-3 ps-1">
-                        <h3 class="small fw-bold text-muted text-uppercase mb-0">Files</h3>
-                        <div
-                            class="d-flex align-items-center gap-1 small fw-bold text-muted cursor-pointer hover-primary">
-                            <span>Sort by: Date</span>
-                            <span class="material-symbols-outlined fs-6">arrow_drop_down</span>
-                        </div>
-                    </div>
-                    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4">
-                        <!-- File 1 -->
-                        <div class="col">
-                            <div class="card rounded-xl border shadow-sm overflow-hidden h-100 card-hover-effect">
-                                <div class="bg-light d-flex align-items-center justify-content-center"
-                                    style="height: 160px;">
-                                    <span class="material-symbols-outlined text-danger"
-                                        style="font-size: 64px;">picture_as_pdf</span>
-                                </div>
-                                <div class="card-body p-3 d-flex flex-column gap-1">
-                                    <div class="d-flex justify-content-between align-items-start gap-2">
-                                        <div class="overflow-hidden">
-                                            <p class="fw-bold small mb-0 text-truncate">Algorithm_Complexity.pdf</p>
-                                            <p class="text-muted small mb-0" style="font-size: 0.75rem;">2.4 MB • PDF
-                                            </p>
-                                        </div>
-                                        <button class="btn btn-sm btn-link text-muted p-0"><span
-                                                class="material-symbols-outlined">more_vert</span></button>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top">
-                                        <span class="text-muted fw-medium text-uppercase"
-                                            style="font-size: 0.65rem;">Oct 24, 2023</span>
-                                        <button class="btn btn-sm btn-link text-muted p-0"><span
-                                                class="material-symbols-outlined">download</span></button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- File 2 -->
-                        <div class="col">
-                            <div class="card rounded-xl border shadow-sm overflow-hidden h-100 card-hover-effect">
-                                <div class="bg-light d-flex align-items-center justify-content-center"
-                                    style="height: 160px;">
-                                    <span class="material-symbols-outlined text-primary"
-                                        style="font-size: 64px;">video_file</span>
-                                </div>
-                                <div class="card-body p-3 d-flex flex-column gap-1">
-                                    <div class="d-flex justify-content-between align-items-start gap-2">
-                                        <div class="overflow-hidden">
-                                            <p class="fw-bold small mb-0 text-truncate">Week 4 Lecture.mp4</p>
-                                            <p class="text-muted small mb-0" style="font-size: 0.75rem;">450 MB • Video
-                                            </p>
-                                        </div>
-                                        <button class="btn btn-sm btn-link text-muted p-0"><span
-                                                class="material-symbols-outlined">more_vert</span></button>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top">
-                                        <span class="text-muted fw-medium text-uppercase"
-                                            style="font-size: 0.65rem;">Oct 22, 2023</span>
-                                        <button class="btn btn-sm btn-link text-muted p-0"><span
-                                                class="material-symbols-outlined">download</span></button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <app-content-list [spaceId]="space!.id"></app-content-list>
             }
 
             @case ('settings') {
@@ -683,6 +422,7 @@
             }
             }
 
+            }
         </main>
     </div>
 </div>

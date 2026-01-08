@@ -20,9 +20,10 @@ export class SignupComponent {
         private router: Router
     ) {
         this.signupForm = this.formBuilder.group({
-            fullName: ['', Validators.required],
+            username: ['', [Validators.required, Validators.maxLength(50), Validators.pattern('^[a-zA-Z0-9]*(@[a-zA-Z]*)?$')]],
+            fullName: ['', [Validators.required, Validators.maxLength(50)]],
             email: ['', [Validators.required, Validators.email]],
-            password: ['', Validators.required],
+            password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(24)]],
             confirmPassword: ['', Validators.required]
         });
     }
@@ -38,7 +39,10 @@ export class SignupComponent {
             return;
         }
 
-        this.loginService.register(this.signupForm.value).subscribe({
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { confirmPassword: _, ...registerPayload } = this.signupForm.value;
+
+        this.loginService.register(registerPayload).subscribe({
             next: () => {
                 alert('Registration successful! Please check the backend console for the activation key to activate your account.');
                 this.router.navigate(['/activate']);

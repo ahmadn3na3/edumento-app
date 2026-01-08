@@ -57,7 +57,7 @@ export const MOCK_SPACE: Space = {
     lastAccessed: '2025-01-03T10:00:00Z',
     creator: { id: 1, name: 'Test User', thumbnail: 'thumb', role: 'OWNER' },
     community: [],
-    role: 'MEMBER',
+    role: 'VIEWER',
     permissions: { 'WRITE': 1 }
 };
 
