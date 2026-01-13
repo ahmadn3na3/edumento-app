@@ -9,10 +9,12 @@ import { CommonModule, DatePipe } from "@angular/common";
 import { DiscussionService } from "../services/discussion.service";
 import { DiscussionSummary } from "../models/discussion.model";
 
+import { RouterModule } from "@angular/router";
+
 @Component({
     selector: "app-discussion-list",
     standalone: true,
-    imports: [CommonModule, DatePipe],
+    imports: [CommonModule, DatePipe, RouterModule],
     templateUrl: "./discussion-list.component.html",
     styles: [
         `
@@ -33,7 +35,7 @@ export class DiscussionListComponent implements OnInit, OnChanges {
     loading = false;
     error = "";
 
-    constructor(private discussionService: DiscussionService) {}
+    constructor(private discussionService: DiscussionService) { }
 
     ngOnInit() {
         if (this.spaceId) {

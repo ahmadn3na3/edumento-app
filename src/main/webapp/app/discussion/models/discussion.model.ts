@@ -17,3 +17,12 @@ export interface DiscussionSummary {
     type: DiscussionType;
     spaceId: number;
 }
+
+export interface DiscussionCreateModel {
+    title: string;
+    body: string;
+    resourceUrl?: string;
+    spaceId: number;
+    contentId?: number;
+    type: DiscussionType;
+}

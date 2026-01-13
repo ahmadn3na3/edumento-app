@@ -1,0 +1,18 @@
+.hover-bg-light:hover {
+    background-color: #f8f9fa !important;
+}
+
+.btn-check:checked + .btn {
+    border-color: #ffc107 !important;
+    /* Warning color or Primary */
+    background-color: transparent !important;
+}
+
+.btn-check:checked + .btn .radio-indicator {
+    border-color: #ffc107 !important;
+}
+
+.btn-check:checked + .btn .indicator-dot {
+    opacity: 1 !important;
+    background-color: #ffc107 !important;
+}

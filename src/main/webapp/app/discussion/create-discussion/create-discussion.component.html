@@ -1,0 +1,384 @@
+<div class="layout-container d-flex flex-column h-100 bg-light">
+    <!-- Header is already provided by app-header if used in layout, but here we might need to assume it's part of the page content or just use standard header -->
+    <app-header></app-header>
+
+    <div class="container py-4 flex-grow-1">
+        <!-- Breadcrumbs -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="#" class="text-decoration-none text-muted"
+                        >Space</a
+                    >
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="#" class="text-decoration-none text-muted"
+                        >Discussions</a
+                    >
+                </li>
+                <li
+                    class="breadcrumb-item active fw-bold text-dark"
+                    aria-current="page"
+                >
+                    Create New
+                </li>
+            </ol>
+        </nav>
+
+        <form [formGroup]="discussionForm" (ngSubmit)="onSubmit()">
+            <div class="row g-4">
+                <!-- Left Column: Form Content -->
+                <div class="col-lg-8 d-flex flex-column gap-4">
+                    <!-- Page Heading -->
+                    <div>
+                        <h1 class="display-6 fw-bold mb-2 text-dark">
+                            Start a New Discussion
+                        </h1>
+                        <p class="text-muted">
+                            Post a topic to the space for students and
+                            instructors to see.
+                        </p>
+                    </div>
+
+                    @if (error) {
+                        <div class="alert alert-danger">{{ error }}</div>
+                    }
+
+                    <!-- Title Input -->
+                    <div>
+                        <label class="form-label fw-bold text-dark"
+                            >Discussion Title</label
+                        >
+                        <input
+                            type="text"
+                            class="form-control form-control-lg rounded-4 border-light shadow-sm"
+                            formControlName="title"
+                            placeholder="e.g., Week 3 Homework Help"
+                        />
+                    </div>
+
+                    <!-- Details / Rich Text Editor -->
+                    <div class="d-flex flex-column h-100">
+                        <label class="form-label fw-bold text-dark"
+                            >Details</label
+                        >
+                        <div
+                            class="card border-light shadow-sm rounded-4 overflow-hidden h-100"
+                        >
+                            <!-- Toolbar -->
+                            <div
+                                class="card-header bg-white border-bottom border-light p-2 d-flex align-items-center gap-1"
+                            >
+                                <div class="btn-group" role="group">
+                                    <button
+                                        type="button"
+                                        class="btn btn-light btn-sm rounded"
+                                    >
+                                        <span
+                                            class="material-symbols-outlined fs-5"
+                                            >format_bold</span
+                                        >
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="btn btn-light btn-sm rounded"
+                                    >
+                                        <span
+                                            class="material-symbols-outlined fs-5"
+                                            >format_italic</span
+                                        >
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="btn btn-light btn-sm rounded"
+                                    >
+                                        <span
+                                            class="material-symbols-outlined fs-5"
+                                            >format_underlined</span
+                                        >
+                                    </button>
+                                </div>
+                                <div
+                                    class="vr mx-2 h-50 align-self-center"
+                                ></div>
+                                <button
+                                    type="button"
+                                    class="btn btn-light btn-sm rounded"
+                                >
+                                    <span class="material-symbols-outlined fs-5"
+                                        >link</span
+                                    >
+                                </button>
+                                <button
+                                    type="button"
+                                    class="btn btn-light btn-sm rounded"
+                                >
+                                    <span class="material-symbols-outlined fs-5"
+                                        >format_list_bulleted</span
+                                    >
+                                </button>
+                                <button
+                                    type="button"
+                                    class="btn btn-light btn-sm rounded"
+                                >
+                                    <span class="material-symbols-outlined fs-5"
+                                        >format_list_numbered</span
+                                    >
+                                </button>
+                                <div
+                                    class="vr mx-2 h-50 align-self-center"
+                                ></div>
+                                <button
+                                    type="button"
+                                    class="btn btn-light btn-sm rounded"
+                                >
+                                    <span class="material-symbols-outlined fs-5"
+                                        >image</span
+                                    >
+                                </button>
+                            </div>
+                            <!-- Text Area -->
+                            <textarea
+                                class="form-control border-0 p-4 h-100 resize-none shadow-none"
+                                formControlName="body"
+                                placeholder="Type your question or discussion topic here..."
+                                style="
+                                    min-height: 300px;
+                                    box-shadow: none !important;
+                                "
+                            ></textarea>
+                            <!-- Bottom Bar -->
+                            <div
+                                class="card-footer bg-light border-top border-light p-3 d-flex justify-content-between align-items-center"
+                            >
+                                <span class="small text-muted"
+                                    >Markdown supported</span
+                                >
+                                <button
+                                    type="button"
+                                    class="btn btn-link text-decoration-none text-dark fw-bold d-flex align-items-center gap-1 p-0"
+                                >
+                                    <span class="material-symbols-outlined fs-6"
+                                        >attach_file</span
+                                    >
+                                    Add Attachment
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Settings & Actions -->
+                <div class="col-lg-4 d-flex flex-column gap-4">
+                    <!-- Actions Card -->
+                    <div class="card border-light shadow-sm rounded-4 p-4">
+                        <h5 class="fw-bold mb-3">Actions</h5>
+                        <div class="d-grid gap-3">
+                            <button
+                                type="submit"
+                                class="btn btn-warning rounded-pill py-3 fw-bold shadow-sm"
+                                [disabled]="discussionForm.invalid || loading"
+                            >
+                                @if (loading) {
+                                    <span
+                                        class="spinner-border spinner-border-sm me-2"
+                                    ></span>
+                                }
+                                Publish Discussion
+                            </button>
+                            <button
+                                type="button"
+                                class="btn btn-outline-secondary rounded-pill py-3 fw-medium"
+                            >
+                                Save Draft
+                            </button>
+                            <button
+                                type="button"
+                                class="btn btn-link text-muted text-decoration-none"
+                                (click)="onCancel()"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Settings Card -->
+                    <div class="card border-light shadow-sm rounded-4 p-4">
+                        <!-- Category -->
+                        <div class="mb-4">
+                            <label
+                                class="small fw-bold text-uppercase text-muted mb-3 w-100"
+                                >Category</label
+                            >
+                            <div class="d-flex flex-column gap-2">
+                                <div class="form-check custom-radio-card p-0">
+                                    <input
+                                        type="radio"
+                                        class="btn-check"
+                                        name="category"
+                                        id="cat1"
+                                        value="DISCUSSION"
+                                        formControlName="category"
+                                    />
+                                    <label
+                                        class="btn btn-outline-light text-start text-dark w-100 p-3 rounded-4 d-flex align-items-center gap-3 border-0 bg-white hover-bg-light"
+                                        for="cat1"
+                                    >
+                                        <div
+                                            class="radio-indicator rounded-circle border border-2 d-flex align-items-center justify-content-center"
+                                            style="width: 20px; height: 20px"
+                                        >
+                                            <div
+                                                class="indicator-dot rounded-circle bg-dark"
+                                                style="
+                                                    width: 10px;
+                                                    height: 10px;
+                                                    opacity: 0;
+                                                "
+                                            ></div>
+                                        </div>
+                                        <span class="fw-medium"
+                                            >General Discussion</span
+                                        >
+                                    </label>
+                                </div>
+                                <div class="form-check custom-radio-card p-0">
+                                    <input
+                                        type="radio"
+                                        class="btn-check"
+                                        name="category"
+                                        id="cat2"
+                                        value="Q&A"
+                                        formControlName="category"
+                                    />
+                                    <label
+                                        class="btn btn-outline-light text-start text-dark w-100 p-3 rounded-4 d-flex align-items-center gap-3 border-0 bg-white hover-bg-light"
+                                        for="cat2"
+                                    >
+                                        <div
+                                            class="radio-indicator rounded-circle border border-2 d-flex align-items-center justify-content-center"
+                                            style="width: 20px; height: 20px"
+                                        >
+                                            <div
+                                                class="indicator-dot rounded-circle bg-dark"
+                                                style="
+                                                    width: 10px;
+                                                    height: 10px;
+                                                    opacity: 0;
+                                                "
+                                            ></div>
+                                        </div>
+                                        <span class="fw-medium">Q&A</span>
+                                    </label>
+                                </div>
+                                <div class="form-check custom-radio-card p-0">
+                                    <input
+                                        type="radio"
+                                        class="btn-check"
+                                        name="category"
+                                        id="cat3"
+                                        value="ANNOUNCEMENT"
+                                        formControlName="category"
+                                    />
+                                    <label
+                                        class="btn btn-outline-light text-start text-dark w-100 p-3 rounded-4 d-flex align-items-center gap-3 border-0 bg-white hover-bg-light"
+                                        for="cat3"
+                                    >
+                                        <div
+                                            class="radio-indicator rounded-circle border border-2 d-flex align-items-center justify-content-center"
+                                            style="width: 20px; height: 20px"
+                                        >
+                                            <div
+                                                class="indicator-dot rounded-circle bg-dark"
+                                                style="
+                                                    width: 10px;
+                                                    height: 10px;
+                                                    opacity: 0;
+                                                "
+                                            ></div>
+                                        </div>
+                                        <span class="fw-medium"
+                                            >Announcement</span
+                                        >
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="text-muted opacity-25" />
+
+                        <!-- Visibility -->
+                        <div class="mb-4">
+                            <label
+                                class="small fw-bold text-uppercase text-muted mb-3 w-100"
+                                >Visibility</label
+                            >
+                            <select
+                                class="form-select form-select-lg rounded-4 border-light shadow-sm fs-6"
+                            >
+                                <option>Everyone</option>
+                                <option>Instructors Only</option>
+                                <option>Group A</option>
+                            </select>
+                        </div>
+
+                        <hr class="text-muted opacity-25" />
+
+                        <!-- Options -->
+                        <div>
+                            <label
+                                class="small fw-bold text-uppercase text-muted mb-3 w-100"
+                                >Options</label
+                            >
+                            <div class="d-flex flex-column gap-3">
+                                <div
+                                    class="d-flex justify-content-between align-items-center"
+                                >
+                                    <span class="fw-medium text-dark"
+                                        >Pin to top</span
+                                    >
+                                    <div class="form-check form-switch">
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            role="switch"
+                                        />
+                                    </div>
+                                </div>
+                                <div
+                                    class="d-flex justify-content-between align-items-center"
+                                >
+                                    <span class="fw-medium text-dark"
+                                        >Lock comments</span
+                                    >
+                                    <div class="form-check form-switch">
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            role="switch"
+                                        />
+                                    </div>
+                                </div>
+                                <div
+                                    class="d-flex justify-content-between align-items-center"
+                                >
+                                    <span class="fw-medium text-dark"
+                                        >Allow attachments</span
+                                    >
+                                    <div class="form-check form-switch">
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            role="switch"
+                                            checked
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
